@@ -3,7 +3,12 @@
   import Footer from './template/Footer.svelte';
   import Beeswarm from './Beeswarm.svelte'
 
-  let { data, radius, stroke, color, title, subtitle, notesTitle, notes, includeLogo } = $props();
+  let { data, title, subtitle, notesTitle, notes, includeLogo,
+    beeRadius,
+    beeStroke,
+    beeStrokeWidth,
+    beeOpacity,
+    beeSpacing } = $props();
 
   //$inspect(data.plotdata)
 
@@ -29,15 +34,16 @@
 
   <div class="viz-container" bind:clientWidth={vizWidth}>
     <svg width={vizWidth} height={vizHeight}>
-      <Beeswarm data={data.plotdata} width={vizWidth} height={vizHeight} beeRadius={8}></Beeswarm>
-      <!--circle
-        cx={width / 2}
-        cy={height / 2}
-        r={radius}
-        fill={color}
-        stroke="black"
-        stroke-width={stroke}
-      ></circle-->
+      <Beeswarm
+        data={data.plotdata}
+        width={vizWidth}
+        height={vizHeight}
+        {beeRadius}
+        {beeStroke}
+        {beeStrokeWidth}
+        {beeOpacity}
+        {beeSpacing}
+        ></Beeswarm>
     </svg>
   </div>
 

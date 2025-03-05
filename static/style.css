@@ -96,6 +96,32 @@
     height: 2rem;
   }
 
+  text.svelte-8ff1yv {
+    font-family: 'Open Sans';
+  }
+
+  text.axisLabel.svelte-8ff1yv {
+    font-weight: var(--font-weight-semibold);
+    stroke: none;
+    text-anchor: middle;
+  }
+
+  .tickLabel.svelte-8ff1yv {
+    fill: var(--textSubtle);
+    text-anchor: middle;
+  }
+
+  line.gridline.svelte-8ff1yv {
+    stroke-width: 1px;
+    stroke: var(--grey200);
+    stroke-dasharray: 4 2;
+  }
+
+  line.gridline.zeroline.svelte-8ff1yv {
+    stroke-dasharray: none;
+    stroke: var(--grey300);
+  }
+
   .chart-container.svelte-1xm5ugn {
     display: flex;
     flex-direction: column;

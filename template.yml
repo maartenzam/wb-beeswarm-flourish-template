@@ -41,19 +41,30 @@ settings:
     name: Subtitle
     type: string
 
-  - Circle properties # Headings can be used to break up the settings into collapsible sections
-  - property: radius
+  - Bee properties # Headings can be used to break up the settings into collapsible sections
+  - property: beeRadius
     name: Radius
     type: number
-    description: The radius of the circle
-  - property: stroke
-    name: Stroke
-    description: 'The thickness of the circle’s border'
+    description: The radius of the bees
+    min: 0
+  - property: beeStrokeWidth
+    name: Stroke width
+    description: The thickness of the bee outines
     type: number
-  - property: color
-    name: Color
-    description: The color of the circle
+    min: 0
+  - property: beeStroke
+    name: Stroke color
+    description: The color of bee outlines
     type: color
+  - property: beeSpacing
+    name: Spacing
+    type: number
+  - property: beeOpacity
+    name: Opacity
+    type: number
+    min: 0
+    max: 1
+    step: 0.05
 
   - Footer
   - property: notesTitle

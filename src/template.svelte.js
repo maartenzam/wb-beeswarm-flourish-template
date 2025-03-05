@@ -23,11 +23,13 @@ export var data = {};
 
 // Set up state as a serializable object
 export var state = {
+  beeRadius: 8,
+  beeStroke: "#ffffff",
+  beeStrokeWidth: 1,
+  beeOpacity: 1,
+  beeSpacing: 0,
   title: '',
   subtitle: '',
-  radius: 50,
-  stroke: 2,
-  color: '#ffffff',
   notesTitle: '', 
   notes: '',
   includeLogo: false
