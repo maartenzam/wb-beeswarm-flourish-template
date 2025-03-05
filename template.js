@@ -4796,11 +4796,12 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[125, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[114, 0]]);
+  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[124, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[113, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
+    let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
     const noDataColor = wbColors.noData;
     let margins = { top: 12, right: 12, bottom: 56, left: 12 };
     let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
@@ -4810,10 +4811,9 @@ ${indent}in ${name}`).join("")}
     ]));
     let yScale = /* @__PURE__ */ derived(() => band().domain(["one"]).range([0, $$props.height]).paddingInner(0.5).paddingOuter(0.5));
     let beeswarmData = /* @__PURE__ */ derived(() => new AccurateBeeswarm($$props.data.filter((d) => strict_equals(d.value, null, false)), $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions());
-    inspect(() => [get(yScale).bandwidth()]);
     let contColorScale = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? sequential(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging]).domain(get(dataExtent)) : equals($$props.binningMode, "fixedWidth") ? quantize(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain(get(dataExtent)) : quantile(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain($$props.data.map((d) => d.value)));
     let colorDomain = /* @__PURE__ */ derived(() => [
-      ...new Set($$props.data.map((d) => d.value))
+      ...new Set($$props.data.map((d) => d.color.toLowerCase()))
     ].filter((d) => equals(d, "", false)));
     let catColorScale = /* @__PURE__ */ derived(() => catColors[$$props.categoricalColorPalette] && equals($$props.categoricalColorPalette, "default", false) ? ordinal(Object.keys(catColors[$$props.categoricalColorPalette]), Object.values(catColors[$$props.categoricalColorPalette])).unknown(noDataColor) : ordinal(get(colorDomain), Object.values(catColors["default"])).unknown(noDataColor));
     var g = root$1();
@@ -4856,7 +4856,7 @@ ${indent}in ${name}`).join("")}
             },
             [
               () => get(yScale)("one") + get(bee).y,
-              () => getFill($$props.data, get(bee).datum.iso3c, get(contColorScale), get(catColorScale), noDataColor)
+              () => equals(get(valueType), "string") ? get(catColorScale)(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.iso3c, get(contColorScale), get(catColorScale), noDataColor)
             ]
           );
           append($$anchor3, circle);

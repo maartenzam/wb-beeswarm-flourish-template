@@ -65,7 +65,6 @@
       (d) => xScale(d.value)
     ).calculateYPositions()
   );
-  $inspect(yScale.bandwidth());
 
   // COLORS
   // Numerical color values
@@ -97,7 +96,7 @@
 
   //Categorical color values
   let colorDomain = $derived(
-    [...new Set(data.map((d) => d.value))].filter((d) => d != '')
+    [...new Set(data.map((d) => d.color.toLowerCase()))].filter((d) => d != '')
   );
   let catColorScale = $derived(
     catColors[categoricalColorPalette] && categoricalColorPalette != 'default'
@@ -129,8 +128,10 @@
         stroke={beeStroke}
         stroke-width={beeStrokeWidth}
         opacity={beeOpacity}
-        fill={getFill(data, bee.datum.iso3c, contColorScale, catColorScale, noDataColor)}
+        fill={valueType == "string" ? catColorScale(bee.datum.color.toLowerCase()) : getFill(data, bee.datum.iso3c, contColorScale, catColorScale, noDataColor)}
       ></circle>
     {/each}
   {/if}
 </g>
+
+<!--fill={getFill(data, bee.datum.iso3c, contColorScale, catColorScale, noDataColor)}-->
