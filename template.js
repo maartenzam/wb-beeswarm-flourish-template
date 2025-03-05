@@ -3180,6 +3180,13 @@ ${indent}in ${name}`).join("")}
     const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
     return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
   }
+  function quantileSorted(values, p, valueof = number$1) {
+    if (!(n = values.length) || isNaN(p = +p)) return;
+    if (p <= 0 || n < 2) return +valueof(values[0], 0, values);
+    if (p >= 1) return +valueof(values[n - 1], n - 1, values);
+    var n, i = (n - 1) * p, i0 = Math.floor(i), value0 = +valueof(values[i0], i0, values), value1 = +valueof(values[i0 + 1], i0 + 1, values);
+    return value0 + (value1 - value0) * (i - i0);
+  }
   function range(start, stop, step) {
     start = +start, stop = +stop, step = (n = arguments.length) < 2 ? (stop = start, start = 0, 1) : n < 3 ? 1 : +step;
     var i = -1, n = Math.max(0, Math.ceil((stop - start) / step)) | 0, range2 = new Array(n);
@@ -3198,6 +3205,24 @@ ${indent}in ${name}`).join("")}
       default:
         this.range(range2).domain(domain);
         break;
+    }
+    return this;
+  }
+  function initInterpolator(domain, interpolator) {
+    switch (arguments.length) {
+      case 0:
+        break;
+      case 1: {
+        if (typeof domain === "function") this.interpolator(domain);
+        else this.range(domain);
+        break;
+      }
+      default: {
+        this.domain(domain);
+        if (typeof interpolator === "function") this.interpolator(interpolator);
+        else this.range(interpolator);
+        break;
+      }
     }
     return this;
   }
@@ -3618,6 +3643,94 @@ ${indent}in ${name}`).join("")}
   function hsl2rgb(h, m1, m2) {
     return (h < 60 ? m1 + (m2 - m1) * h / 60 : h < 180 ? m2 : h < 240 ? m1 + (m2 - m1) * (240 - h) / 60 : m1) * 255;
   }
+  const radians = Math.PI / 180;
+  const degrees = 180 / Math.PI;
+  const K = 18, Xn = 0.96422, Yn = 1, Zn = 0.82521, t0 = 4 / 29, t1 = 6 / 29, t2 = 3 * t1 * t1, t3 = t1 * t1 * t1;
+  function labConvert(o) {
+    if (o instanceof Lab) return new Lab(o.l, o.a, o.b, o.opacity);
+    if (o instanceof Hcl) return hcl2lab(o);
+    if (!(o instanceof Rgb)) o = rgbConvert(o);
+    var r = rgb2lrgb(o.r), g = rgb2lrgb(o.g), b = rgb2lrgb(o.b), y = xyz2lab((0.2225045 * r + 0.7168786 * g + 0.0606169 * b) / Yn), x, z;
+    if (r === g && g === b) x = z = y;
+    else {
+      x = xyz2lab((0.4360747 * r + 0.3850649 * g + 0.1430804 * b) / Xn);
+      z = xyz2lab((0.0139322 * r + 0.0971045 * g + 0.7141733 * b) / Zn);
+    }
+    return new Lab(116 * y - 16, 500 * (x - y), 200 * (y - z), o.opacity);
+  }
+  function lab$1(l, a, b, opacity) {
+    return arguments.length === 1 ? labConvert(l) : new Lab(l, a, b, opacity == null ? 1 : opacity);
+  }
+  function Lab(l, a, b, opacity) {
+    this.l = +l;
+    this.a = +a;
+    this.b = +b;
+    this.opacity = +opacity;
+  }
+  define(Lab, lab$1, extend(Color, {
+    brighter(k) {
+      return new Lab(this.l + K * (k == null ? 1 : k), this.a, this.b, this.opacity);
+    },
+    darker(k) {
+      return new Lab(this.l - K * (k == null ? 1 : k), this.a, this.b, this.opacity);
+    },
+    rgb() {
+      var y = (this.l + 16) / 116, x = isNaN(this.a) ? y : y + this.a / 500, z = isNaN(this.b) ? y : y - this.b / 200;
+      x = Xn * lab2xyz(x);
+      y = Yn * lab2xyz(y);
+      z = Zn * lab2xyz(z);
+      return new Rgb(
+        lrgb2rgb(3.1338561 * x - 1.6168667 * y - 0.4906146 * z),
+        lrgb2rgb(-0.9787684 * x + 1.9161415 * y + 0.033454 * z),
+        lrgb2rgb(0.0719453 * x - 0.2289914 * y + 1.4052427 * z),
+        this.opacity
+      );
+    }
+  }));
+  function xyz2lab(t) {
+    return t > t3 ? Math.pow(t, 1 / 3) : t / t2 + t0;
+  }
+  function lab2xyz(t) {
+    return t > t1 ? t * t * t : t2 * (t - t0);
+  }
+  function lrgb2rgb(x) {
+    return 255 * (x <= 31308e-7 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055);
+  }
+  function rgb2lrgb(x) {
+    return (x /= 255) <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  }
+  function hclConvert(o) {
+    if (o instanceof Hcl) return new Hcl(o.h, o.c, o.l, o.opacity);
+    if (!(o instanceof Lab)) o = labConvert(o);
+    if (o.a === 0 && o.b === 0) return new Hcl(NaN, 0 < o.l && o.l < 100 ? 0 : NaN, o.l, o.opacity);
+    var h = Math.atan2(o.b, o.a) * degrees;
+    return new Hcl(h < 0 ? h + 360 : h, Math.sqrt(o.a * o.a + o.b * o.b), o.l, o.opacity);
+  }
+  function hcl(h, c, l, opacity) {
+    return arguments.length === 1 ? hclConvert(h) : new Hcl(h, c, l, opacity == null ? 1 : opacity);
+  }
+  function Hcl(h, c, l, opacity) {
+    this.h = +h;
+    this.c = +c;
+    this.l = +l;
+    this.opacity = +opacity;
+  }
+  function hcl2lab(o) {
+    if (isNaN(o.h)) return new Lab(o.l, 0, 0, o.opacity);
+    var h = o.h * radians;
+    return new Lab(o.l, Math.cos(h) * o.c, Math.sin(h) * o.c, o.opacity);
+  }
+  define(Hcl, hcl, extend(Color, {
+    brighter(k) {
+      return new Hcl(this.h, this.c, this.l + K * (k == null ? 1 : k), this.opacity);
+    },
+    darker(k) {
+      return new Hcl(this.h, this.c, this.l - K * (k == null ? 1 : k), this.opacity);
+    },
+    rgb() {
+      return hcl2lab(this).rgb();
+    }
+  }));
   const constant = (x) => () => x;
   function linear$1(a, d) {
     return function(t) {
@@ -3748,6 +3861,25 @@ ${indent}in ${name}`).join("")}
       return Math.round(a * (1 - t) + b * t);
     };
   }
+  function lab(start, end) {
+    var l = nogamma((start = lab$1(start)).l, (end = lab$1(end)).l), a = nogamma(start.a, end.a), b = nogamma(start.b, end.b), opacity = nogamma(start.opacity, end.opacity);
+    return function(t) {
+      start.l = l(t);
+      start.a = a(t);
+      start.b = b(t);
+      start.opacity = opacity(t);
+      return start + "";
+    };
+  }
+  function piecewise(interpolate$1, values) {
+    if (values === void 0) values = interpolate$1, interpolate$1 = interpolate;
+    var i = 0, n = values.length - 1, v = values[0], I = new Array(n < 0 ? 0 : n);
+    while (i < n) I[i] = interpolate$1(v, v = values[++i]);
+    return function(t) {
+      var i2 = Math.max(0, Math.min(n - 1, Math.floor(t *= n)));
+      return I[i2](t - i2);
+    };
+  }
   function constants(x) {
     return function() {
       return x;
@@ -3795,23 +3927,23 @@ ${indent}in ${name}`).join("")}
       return r[i2](d[i2](x));
     };
   }
-  function copy(source2, target) {
+  function copy$1(source2, target) {
     return target.domain(source2.domain()).range(source2.range()).interpolate(source2.interpolate()).clamp(source2.clamp()).unknown(source2.unknown());
   }
-  function transformer() {
-    var domain = unit, range2 = unit, interpolate$1 = interpolate, transform, untransform, unknown, clamp = identity$1, piecewise, output, input;
+  function transformer$1() {
+    var domain = unit, range2 = unit, interpolate$1 = interpolate, transform, untransform, unknown, clamp = identity$1, piecewise2, output, input;
     function rescale() {
       var n = Math.min(domain.length, range2.length);
       if (clamp !== identity$1) clamp = clamper(domain[0], domain[n - 1]);
-      piecewise = n > 2 ? polymap : bimap;
+      piecewise2 = n > 2 ? polymap : bimap;
       output = input = null;
       return scale;
     }
     function scale(x) {
-      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform), range2, interpolate$1)))(transform(clamp(x)));
+      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise2(domain.map(transform), range2, interpolate$1)))(transform(clamp(x)));
     }
     scale.invert = function(y) {
-      return clamp(untransform((input || (input = piecewise(range2, domain.map(transform), interpolateNumber)))(y)));
+      return clamp(untransform((input || (input = piecewise2(range2, domain.map(transform), interpolateNumber)))(y)));
     };
     scale.domain = function(_) {
       return arguments.length ? (domain = Array.from(_, number), rescale()) : domain.slice();
@@ -3837,7 +3969,7 @@ ${indent}in ${name}`).join("")}
     };
   }
   function continuous() {
-    return transformer()(identity$1, identity$1);
+    return transformer$1()(identity$1, identity$1);
   }
   function formatDecimal(x) {
     return Math.abs(x = Math.round(x)) >= 1e21 ? x.toLocaleString("en").replace(/,/g, "") : x.toString(10);
@@ -4122,11 +4254,383 @@ ${indent}in ${name}`).join("")}
   function linear() {
     var scale = continuous();
     scale.copy = function() {
-      return copy(scale, linear());
+      return copy$1(scale, linear());
     };
     initRange.apply(scale, arguments);
     return linearish(scale);
   }
+  function quantile() {
+    var domain = [], range2 = [], thresholds = [], unknown;
+    function rescale() {
+      var i = 0, n = Math.max(1, range2.length);
+      thresholds = new Array(n - 1);
+      while (++i < n) thresholds[i - 1] = quantileSorted(domain, i / n);
+      return scale;
+    }
+    function scale(x) {
+      return x == null || isNaN(x = +x) ? unknown : range2[bisectRight(thresholds, x)];
+    }
+    scale.invertExtent = function(y) {
+      var i = range2.indexOf(y);
+      return i < 0 ? [NaN, NaN] : [
+        i > 0 ? thresholds[i - 1] : domain[0],
+        i < thresholds.length ? thresholds[i] : domain[domain.length - 1]
+      ];
+    };
+    scale.domain = function(_) {
+      if (!arguments.length) return domain.slice();
+      domain = [];
+      for (let d of _) if (d != null && !isNaN(d = +d)) domain.push(d);
+      domain.sort(ascending);
+      return rescale();
+    };
+    scale.range = function(_) {
+      return arguments.length ? (range2 = Array.from(_), rescale()) : range2.slice();
+    };
+    scale.unknown = function(_) {
+      return arguments.length ? (unknown = _, scale) : unknown;
+    };
+    scale.quantiles = function() {
+      return thresholds.slice();
+    };
+    scale.copy = function() {
+      return quantile().domain(domain).range(range2).unknown(unknown);
+    };
+    return initRange.apply(scale, arguments);
+  }
+  function quantize() {
+    var x0 = 0, x1 = 1, n = 1, domain = [0.5], range2 = [0, 1], unknown;
+    function scale(x) {
+      return x != null && x <= x ? range2[bisectRight(domain, x, 0, n)] : unknown;
+    }
+    function rescale() {
+      var i = -1;
+      domain = new Array(n);
+      while (++i < n) domain[i] = ((i + 1) * x1 - (i - n) * x0) / (n + 1);
+      return scale;
+    }
+    scale.domain = function(_) {
+      return arguments.length ? ([x0, x1] = _, x0 = +x0, x1 = +x1, rescale()) : [x0, x1];
+    };
+    scale.range = function(_) {
+      return arguments.length ? (n = (range2 = Array.from(_)).length - 1, rescale()) : range2.slice();
+    };
+    scale.invertExtent = function(y) {
+      var i = range2.indexOf(y);
+      return i < 0 ? [NaN, NaN] : i < 1 ? [x0, domain[0]] : i >= n ? [domain[n - 1], x1] : [domain[i - 1], domain[i]];
+    };
+    scale.unknown = function(_) {
+      return arguments.length ? (unknown = _, scale) : scale;
+    };
+    scale.thresholds = function() {
+      return domain.slice();
+    };
+    scale.copy = function() {
+      return quantize().domain([x0, x1]).range(range2).unknown(unknown);
+    };
+    return initRange.apply(linearish(scale), arguments);
+  }
+  function transformer() {
+    var x0 = 0, x1 = 1, t02, t12, k10, transform, interpolator = identity$1, clamp = false, unknown;
+    function scale(x) {
+      return x == null || isNaN(x = +x) ? unknown : interpolator(k10 === 0 ? 0.5 : (x = (transform(x) - t02) * k10, clamp ? Math.max(0, Math.min(1, x)) : x));
+    }
+    scale.domain = function(_) {
+      return arguments.length ? ([x0, x1] = _, t02 = transform(x0 = +x0), t12 = transform(x1 = +x1), k10 = t02 === t12 ? 0 : 1 / (t12 - t02), scale) : [x0, x1];
+    };
+    scale.clamp = function(_) {
+      return arguments.length ? (clamp = !!_, scale) : clamp;
+    };
+    scale.interpolator = function(_) {
+      return arguments.length ? (interpolator = _, scale) : interpolator;
+    };
+    function range2(interpolate2) {
+      return function(_) {
+        var r0, r1;
+        return arguments.length ? ([r0, r1] = _, interpolator = interpolate2(r0, r1), scale) : [interpolator(0), interpolator(1)];
+      };
+    }
+    scale.range = range2(interpolate);
+    scale.rangeRound = range2(interpolateRound);
+    scale.unknown = function(_) {
+      return arguments.length ? (unknown = _, scale) : unknown;
+    };
+    return function(t) {
+      transform = t, t02 = t(x0), t12 = t(x1), k10 = t02 === t12 ? 0 : 1 / (t12 - t02);
+      return scale;
+    };
+  }
+  function copy(source2, target) {
+    return target.domain(source2.domain()).interpolator(source2.interpolator()).clamp(source2.clamp()).unknown(source2.unknown());
+  }
+  function sequential() {
+    var scale = linearish(transformer()(identity$1));
+    scale.copy = function() {
+      return copy(scale, sequential());
+    };
+    return initInterpolator.apply(scale, arguments);
+  }
+  let wbColors = {
+    "cat1": "#34A7F2",
+    "cat2": "#FF9800",
+    "cat3": "#664AB6",
+    "cat4": "#4EC2C0",
+    "cat5": "#F3578E",
+    "cat6": "#081079",
+    "cat7": "#0C7C68",
+    "cat8": "#AA0000",
+    "cat9": "#DDDA21",
+    "cat1Text": "#106CA1",
+    "cat2Text": "#B65F0C",
+    "cat3Text": "#664AB6",
+    "cat4Text": "#208383",
+    "cat5Text": "#BB3B64",
+    "cat6Text": "#081079",
+    "cat7Text": "#0C7C68",
+    "cat8Text": "#AA0000",
+    "cat9Text": "#767712",
+    "wld": "#081079",
+    "nac": "#34A7F2",
+    "lcn": "#0C7C68",
+    "sas": "#4EC2C0",
+    "mea": "#664AB6",
+    "ecs": "#AA0000",
+    "eas": "#F3578E",
+    "ssf": "#FF9800",
+    "afe": "#FF9800",
+    "afw": "#DDDA21",
+    "nacText": "#106CA1",
+    "ssfText": "#B65F0C",
+    "afeText": "#B65F0C",
+    "meaText": "#664AB6",
+    "sasText": "#208383",
+    "easText": "#BB3B64",
+    "wldText": "#081079",
+    "lcnText": "#0C7C68",
+    "ecsText": "#AA0000",
+    "afwText": "#767712",
+    "hic": "#016B6C",
+    "umc": "#73AF48",
+    "lmc": "#DB95D7",
+    "lic": "#3B4DA6",
+    "male": "#664AB6",
+    "female": "#FF9800",
+    "diverse": "#4EC2C0",
+    "rural": "#54AE89",
+    "urban": "#6D88D1",
+    "youngestAge": "#F8A8DF",
+    "youngerAge": "#B38FD8",
+    "middleAge": "#8A969F",
+    "olderAge": "#6D88D1",
+    "oldestAge": "#A1C6FF",
+    "yes": "#0071BC",
+    "no": "#EBEEF4",
+    "noData": "#CED4DE",
+    "seq1": "#FDF6DB",
+    "seq2": "#A1CBCF",
+    "seq3": "#5D99C2",
+    "seq4": "#2868A0",
+    "seq5": "#023B6F",
+    "seqRev1": "#E3F6FD",
+    "seqRev2": "#91C5F0",
+    "seqRev3": "#8B8AC0",
+    "seqRev4": "#88506E",
+    "seqRev5": "#691B15",
+    "seqB1": "#E3F6FD",
+    "seqB2": "#75CCEC",
+    "seqB3": "#089BD4",
+    "seqB4": "#0169A1",
+    "seqB5": "#023B6F",
+    "seqY1": "#FDF7DB",
+    "seqY2": "#ECB63A",
+    "seqY3": "#BE792B",
+    "seqY4": "#8D4117",
+    "seqY5": "#5C0000",
+    "seqP1": "#FFE2FF",
+    "seqP2": "#D3ACE6",
+    "seqP3": "#A37ACD",
+    "seqP4": "#6F4CB4",
+    "seqP5": "#2F1E9C",
+    "divPos3": "#025288",
+    "divPos2": "#3587C3",
+    "divPos1": "#80BDE7",
+    "divMid": "#EFEFEF",
+    "divNeg1": "#E3A763",
+    "divNeg2": "#BD6126",
+    "divNeg3": "#920000",
+    "div2L3": "#24768E",
+    "div2L2": "#4EA2AC",
+    "div2L1": "#98CBCC",
+    "div2Mid": "#EFEFEF",
+    "div2R1": "#D1AEE3",
+    "div2R2": "#A873C4",
+    "div2R3": "#754493"
+  };
+  let catColors = {
+    default: {
+      cat1: wbColors.cat1,
+      cat2: wbColors.cat2,
+      cat3: wbColors.cat3,
+      cat4: wbColors.cat4,
+      cat5: wbColors.cat5,
+      cat6: wbColors.cat6,
+      cat7: wbColors.cat7,
+      cat8: wbColors.cat8,
+      cat9: wbColors.cat9
+    },
+    defaultText: {
+      cat1Text: wbColors.cat1Text,
+      cat2Text: wbColors.cat2Text,
+      cat3Text: wbColors.cat3Text,
+      cat4Text: wbColors.cat4Text,
+      cat5Text: wbColors.cat5Text,
+      cat6Text: wbColors.cat6Text,
+      cat7Text: wbColors.cat7Text,
+      cat8Text: wbColors.cat8Text,
+      cat9Text: wbColors.cat9Text
+    },
+    region: {
+      wld: wbColors.wld,
+      nac: wbColors.nac,
+      lcn: wbColors.lcn,
+      sas: wbColors.sas,
+      mea: wbColors.mea,
+      ecs: wbColors.ecs,
+      eas: wbColors.eas,
+      ssf: wbColors.ssf,
+      afe: wbColors.afe,
+      afw: wbColors.afw
+    },
+    regionText: {
+      wldText: wbColors.wldText,
+      nacText: wbColors.nacText,
+      lcnText: wbColors.lcnText,
+      sasText: wbColors.sasText,
+      meaText: wbColors.meaText,
+      ecsText: wbColors.ecsText,
+      easText: wbColors.easText,
+      ssfText: wbColors.ssfText,
+      afeText: wbColors.afeText,
+      afwText: wbColors.afwText
+    },
+    income: {
+      hic: wbColors.hic,
+      umc: wbColors.umc,
+      lmc: wbColors.lmc,
+      lic: wbColors.lic
+    },
+    gender: {
+      male: wbColors.male,
+      female: wbColors.female,
+      diverse: wbColors.diverse
+    },
+    urbanization: {
+      rural: wbColors.rural,
+      urban: wbColors.urban
+    },
+    age: {
+      youngestAge: wbColors.youngestAge,
+      youngerAge: wbColors.youngerAge,
+      middleAge: wbColors.middleAge,
+      olderAge: wbColors.olderAge,
+      oldestAge: wbColors.oldestAge
+    },
+    binary: {
+      yes: wbColors.yes,
+      no: wbColors.no
+    }
+  };
+  let seqColors = {
+    seq: [
+      wbColors.seq1,
+      wbColors.seq2,
+      wbColors.seq3,
+      wbColors.seq4,
+      wbColors.seq5
+    ],
+    seqRev: [
+      wbColors.seqRev1,
+      wbColors.seqRev2,
+      wbColors.seqRev3,
+      wbColors.seqRev4,
+      wbColors.seqRev5
+    ],
+    seqB: [
+      wbColors.seqB1,
+      wbColors.seqB2,
+      wbColors.seqB3,
+      wbColors.seqB4,
+      wbColors.seqB5
+    ],
+    seqY: [
+      wbColors.seqY1,
+      wbColors.seqY2,
+      wbColors.seqY3,
+      wbColors.seqY4,
+      wbColors.seqY5
+    ],
+    seqP: [
+      wbColors.seqP1,
+      wbColors.seqP2,
+      wbColors.seqP3,
+      wbColors.seqP4,
+      wbColors.seqP5
+    ],
+    div: [
+      wbColors.divNeg3,
+      wbColors.divNeg2,
+      wbColors.divNeg1,
+      wbColors.divMid,
+      wbColors.divPos1,
+      wbColors.divPos2,
+      wbColors.divPos3
+    ],
+    div2: [
+      wbColors.div2L3,
+      wbColors.div2L2,
+      wbColors.div2L1,
+      wbColors.div2Mid,
+      wbColors.div2R1,
+      wbColors.div2R2,
+      wbColors.div2R3
+    ]
+  };
+  let colorRamps = {
+    seq: piecewise(lab, seqColors.seq),
+    seqRev: piecewise(lab, seqColors.seqRev),
+    seqB: piecewise(lab, seqColors.seqB),
+    seqY: piecewise(lab, seqColors.seqY),
+    seqP: piecewise(lab, seqColors.seqP),
+    div: piecewise(lab, seqColors.div),
+    div2: piecewise(lab, seqColors.div2)
+  };
+  let getDiscreteColors = function(colorRamp, colorNumber) {
+    let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
+    let colors = arr.map((d) => colorRamp(d));
+    return colors;
+  };
+  let getValue = function(countryCode, data2) {
+    if (data2.find((d) => d.iso3c == countryCode)) {
+      return data2.find((d) => d.iso3c == countryCode).value;
+    } else return void 0;
+  };
+  let getFill = function(data2, iso3c, sColorScale, cColorScale, noDataColor) {
+    let valueType = data2.metadata.color.type;
+    if (valueType == "number") {
+      if (getValue(iso3c, data2)) {
+        return sColorScale(getValue(iso3c, data2));
+      } else {
+        return noDataColor;
+      }
+    }
+    if (valueType == "string") {
+      if (getValue(iso3c, data2)) {
+        return cColorScale(getValue(iso3c, data2));
+      } else {
+        return noDataColor;
+      }
+    }
+  };
   mark_module_start();
   ChartGrid[FILENAME] = "src/template/ChartGrid.svelte";
   var root_3 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[50, 8]]);
@@ -4292,20 +4796,26 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[61, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[50, 0]]);
+  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[125, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[114, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
+    const noDataColor = wbColors.noData;
     let margins = { top: 12, right: 12, bottom: 56, left: 12 };
-    let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.numericValue)));
+    let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
     let xScale = /* @__PURE__ */ derived(() => linear().domain(get(dataExtent)).range([
       0,
       $$props.width - margins.left - margins.right
     ]));
     let yScale = /* @__PURE__ */ derived(() => band().domain(["one"]).range([0, $$props.height]).paddingInner(0.5).paddingOuter(0.5));
-    let beeswarmData = /* @__PURE__ */ derived(() => new AccurateBeeswarm($$props.data.filter((d) => strict_equals(d.numericValue, null, false)), $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.numericValue)).calculateYPositions());
+    let beeswarmData = /* @__PURE__ */ derived(() => new AccurateBeeswarm($$props.data.filter((d) => strict_equals(d.value, null, false)), $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions());
     inspect(() => [get(yScale).bandwidth()]);
+    let contColorScale = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? sequential(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging]).domain(get(dataExtent)) : equals($$props.binningMode, "fixedWidth") ? quantize(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain(get(dataExtent)) : quantile(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain($$props.data.map((d) => d.value)));
+    let colorDomain = /* @__PURE__ */ derived(() => [
+      ...new Set($$props.data.map((d) => d.value))
+    ].filter((d) => equals(d, "", false)));
+    let catColorScale = /* @__PURE__ */ derived(() => catColors[$$props.categoricalColorPalette] && equals($$props.categoricalColorPalette, "default", false) ? ordinal(Object.keys(catColors[$$props.categoricalColorPalette]), Object.values(catColors[$$props.categoricalColorPalette])).unknown(noDataColor) : ordinal(get(colorDomain), Object.values(catColors["default"])).unknown(noDataColor));
     var g = root$1();
     var node = child(g);
     const expression = /* @__PURE__ */ derived(() => $$props.height - margins.top - margins.bottom);
@@ -4335,16 +4845,18 @@ ${indent}in ${name}`).join("")}
         each(node_2, 17, () => get(beeswarmData), index, ($$anchor3, bee) => {
           var circle = root_2();
           template_effect(
-            ($0) => {
+            ($0, $1) => {
               set_attribute(circle, "r", $$props.beeRadius);
               set_attribute(circle, "cx", get(bee).x);
               set_attribute(circle, "cy", $0);
               set_attribute(circle, "stroke", $$props.beeStroke);
               set_attribute(circle, "stroke-width", $$props.beeStrokeWidth);
               set_attribute(circle, "opacity", $$props.beeOpacity);
+              set_attribute(circle, "fill", $1);
             },
             [
-              () => get(yScale)("one") + get(bee).y
+              () => get(yScale)("one") + get(bee).y,
+              () => getFill($$props.data, get(bee).datum.iso3c, get(contColorScale), get(catColorScale), noDataColor)
             ]
           );
           append($$anchor3, circle);
@@ -4364,18 +4876,19 @@ ${indent}in ${name}`).join("")}
   Viz[FILENAME] = "src/Viz.svelte";
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1xm5ugn"><div class="header-container"><!></div> <div class="viz-container svelte-1xm5ugn"><svg><!></svg></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      28,
+      38,
       0,
       [
-        [29, 2],
-        [35, 2, [[36, 4]]],
-        [50, 2]
+        [39, 2],
+        [45, 2, [[46, 4]]],
+        [67, 2]
       ]
     ]
   ]);
   function Viz($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Viz);
+    inspect(() => [$$props.data.plotdata.metadata]);
     let width = state$1(500);
     let height = state$1(500);
     let headerHeight = state$1(void 0);
@@ -4427,6 +4940,27 @@ ${indent}in ${name}`).join("")}
       },
       get beeSpacing() {
         return $$props.beeSpacing;
+      },
+      get scaleType() {
+        return $$props.scaleType;
+      },
+      get colorScale() {
+        return $$props.colorScale;
+      },
+      get colorScaleDiverging() {
+        return $$props.colorScaleDiverging;
+      },
+      get linearOrBinned() {
+        return $$props.linearOrBinned;
+      },
+      get binningMode() {
+        return $$props.binningMode;
+      },
+      get numberOfBins() {
+        return $$props.numberOfBins;
+      },
+      get categoricalColorPalette() {
+        return $$props.categoricalColorPalette;
       }
     });
     var div_3 = sibling(div_2, 2);
@@ -4474,6 +5008,13 @@ ${indent}in ${name}`).join("")}
     beeStrokeWidth: 1,
     beeOpacity: 1,
     beeSpacing: 0,
+    scaleType: "sequential",
+    linearOrBinned: "linear",
+    colorScale: "seq",
+    colorScaleDiverging: "div",
+    binningMode: "fixedWidth",
+    numberOfBins: 4,
+    categoricalColorPalette: "default",
     title: "",
     subtitle: "",
     notesTitle: "",

@@ -8,7 +8,17 @@
     beeStroke,
     beeStrokeWidth,
     beeOpacity,
-    beeSpacing } = $props();
+    beeSpacing,
+    scaleType,
+    colorScale,
+    colorScaleDiverging,
+    linearOrBinned,
+    binningMode,
+    numberOfBins,
+    categoricalColorPalette,
+  } = $props();
+
+    $inspect(data.plotdata.metadata)
 
   //$inspect(data.plotdata)
 
@@ -43,6 +53,13 @@
         {beeStrokeWidth}
         {beeOpacity}
         {beeSpacing}
+        {scaleType}
+        {colorScale}
+        {colorScaleDiverging}
+        {linearOrBinned}
+        {binningMode}
+        {numberOfBins}
+        {categoricalColorPalette}
         ></Beeswarm>
     </svg>
   </div>

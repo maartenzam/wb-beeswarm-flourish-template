@@ -6,17 +6,17 @@ export let getValue = function(countryCode, data){
   }
 
 export let getFill = function (data, iso3c, sColorScale, cColorScale, noDataColor) {
-  let valueType = data.data.metadata.value.type
+  let valueType = data.metadata.color.type
   if (valueType == "number") {
-    if (getValue(iso3c, data.data)) {
-      return sColorScale(getValue(iso3c, data.data));
+    if (getValue(iso3c, data)) {
+      return sColorScale(getValue(iso3c, data));
     } else {
       return noDataColor;
     }
   }
   if (valueType == "string") {
-    if (getValue(iso3c, data.data)) {
-      return cColorScale(getValue(iso3c, data.data));
+    if (getValue(iso3c, data)) {
+      return cColorScale(getValue(iso3c, data));
     }
     else {
       return noDataColor;

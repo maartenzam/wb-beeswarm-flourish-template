@@ -66,6 +66,108 @@ settings:
     max: 1
     step: 0.05
 
+  - Colours
+  - property: scaleType
+    name: Scale type
+    type: string
+    choices:
+      - [Sequential, sequential]
+      - [Diverging, diverging]
+    style: buttons
+    width: half
+    hide_if:
+      data.plotdata.color.type: string
+  - property: linearOrBinned
+    type: string
+    choices:
+      - [Linear, linear]
+      - [Binned, binned]
+    style: buttons
+    width: half
+    hide_if:
+      data.plotdata.color.type: string
+  - property: binningMode
+    name: Binning mode
+    type: string
+    choices:
+      - [Fixed width, fixedWidth]
+      - [Quantile, quantile]
+    width: half
+    hide_if:
+      - linearOrBinned: linear
+      - data.plotdata.color.type: string
+  - property: numberOfBins
+    name: Number of bins
+    type: number
+    min: 2
+    max: 9
+    width: half
+    hide_if:
+      - linearOrBinned: linear
+      - data.plotdata.color.type: string
+  - property: colorScale
+    name: Color scale
+    type: string
+    choices:
+      - [Bad to Good, seq]
+      - [Good to Bad, seqRev]
+      - [Monochrome Blue, seqB]
+      - [Monochrome Yellow, seqY]
+      - [Monochrome Purple, seqP]
+    show_if:
+      scaleType: sequential
+      data.plotdata.color.type: number
+      
+  - property: colorScaleDiverging
+    name: Color scale
+    type: string
+    choices:
+      - [Diverging Bad to Good, div]
+      - [Diverging Good to Bad, div2]
+    show_if:
+      scaleType: diverging
+      data.plotdata.color.type: number
+  - property: domainAutoCustom
+    name: Domain
+    type: string
+    choices:
+      - [Auto, auto]
+      - [Custom, custom]
+    width: half
+    style: buttons
+    hide_if:
+      data.plotdata.color.type: string
+  - property: domainMin
+    name: Min
+    type: number
+    show_if:
+      - domainAutoCustom: custom
+      - data.plotdata.color.type: number
+    width: quarter
+      
+  - property: domainMax
+    name: Max
+    type: number
+    show_if:
+      - domainAutoCustom: custom
+      - data.plotdata.color.type: number
+    width: quarter
+      
+  - property: categoricalColorPalette
+    name: Color palette
+    type: string
+    choices:
+      - [Default, default]
+      - [Default Text, defaultText]
+      - [Region, region]
+      - [Income, income]
+      - [Gender, gender]
+      - [Urbanization, urbanization]
+      - [Age, age]
+      - [Binary, binary]
+    hide_if:
+      data.plotdata.color.type: number
+
   - Footer
   - property: notesTitle
     name: Notes title
@@ -96,19 +198,20 @@ data:
     type: column
     column: "country_data::B"
     data_type: string
-  - key: numericValue
-    name: Numeric value
-    description: A numeric values column
+  - key: value
+    name: Value
+    description: The values to use for positioning the bees horizontally
     dataset: plotdata
     type: column
     column: "country_data::G"
     data_type:
       - number
-  - key: categoricalValue
-    name: Categorical value
-    description: A categorical values column
+  - key: color
+    name: Color
+    description: The values to use for coloring the bees
     dataset: plotdata
     type: column
     column: "country_data::C"
     data_type:
       - string
+      - number
