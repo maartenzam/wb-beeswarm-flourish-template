@@ -1,7 +1,7 @@
 # The 'id' should be a string that uniquely identifies your template
-id: 'svelte-5-template'
-name: Svelte 5 Template
-description: A Flourish template built with Svelte 5
+id: 'wb-beeswarm-flourish-template'
+name: World Bank beeswarms
+description: Beeswarm plots styled with the World Bank Data Visualization Style
 author: Maarten Lambrechts
 
 # This template is compatible with SDK version 3

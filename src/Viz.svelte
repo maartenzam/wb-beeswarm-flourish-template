@@ -1,10 +1,11 @@
 <script>
   import Header from './template/Header.svelte';
   import Footer from './template/Footer.svelte';
+  import Beeswarm from './Beeswarm.svelte'
 
   let { data, radius, stroke, color, title, subtitle, notesTitle, notes, includeLogo } = $props();
 
-  $inspect(data.plotdata)
+  //$inspect(data.plotdata)
 
   let width = $state(500);
   let height = $state(500);
@@ -28,14 +29,15 @@
 
   <div class="viz-container" bind:clientWidth={vizWidth}>
     <svg width={vizWidth} height={vizHeight}>
-      <circle
+      <Beeswarm data={data.plotdata} width={vizWidth} height={vizHeight} beeRadius={8}></Beeswarm>
+      <!--circle
         cx={width / 2}
         cy={height / 2}
         r={radius}
         fill={color}
         stroke="black"
         stroke-width={stroke}
-      ></circle>
+      ></circle-->
     </svg>
   </div>
 
