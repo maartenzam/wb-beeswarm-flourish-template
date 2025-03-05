@@ -10,6 +10,9 @@
     beeOpacity,
     beeSpacing,
     logScale,
+    divideValues,
+    units,
+    axisTitle,
     scaleType,
     colorScale,
     colorScaleDiverging,
@@ -55,6 +58,9 @@
         {beeOpacity}
         {beeSpacing}
         {logScale}
+        {divideValues}
+        {units}
+        {axisTitle}
         {scaleType}
         {colorScale}
         {colorScaleDiverging}

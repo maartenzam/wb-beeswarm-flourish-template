@@ -25,6 +25,9 @@
     beeOpacity,
     beeSpacing,
     logScale,
+    divideValues,
+    units,
+    axisTitle,
     scaleType,
     colorScale,
     colorScaleDiverging,
@@ -49,11 +52,7 @@
     let scale = logScale ? scaleLog() : scaleLinear()
     return scale.domain(dataExtent)
     .range([0, width - margins.left - margins.right])
-  }
-   /* scaleLinear()
-      .domain(dataExtent)
-      .range([0, width - margins.left - margins.right])*/
-  );
+  });
 
   let yScale = $derived(
     scaleBand()
@@ -121,8 +120,10 @@
     innerHeight={height - margins.top - margins.bottom}
     innerWidth={width - margins.left - margins.right}
     scale={xScale}
-    ticks={xScale.ticks()}
-    axisTitle={'Life expectancy at birth'}
+    ticks={xScale.ticks(5)}
+    axisTitle={axisTitle}
+    divisor={divideValues}
+    axisUnits={units}
   />
   {#if beeswarmData}
     {#each beeswarmData as bee}

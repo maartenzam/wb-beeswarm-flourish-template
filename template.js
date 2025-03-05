@@ -4918,8 +4918,8 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[129, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[118, 0]]);
+  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[130, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[117, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -4945,7 +4945,7 @@ ${indent}in ${name}`).join("")}
     var node = child(g);
     const expression = /* @__PURE__ */ derived(() => $$props.height - margins.top - margins.bottom);
     const expression_1 = /* @__PURE__ */ derived(() => $$props.width - margins.left - margins.right);
-    const expression_2 = /* @__PURE__ */ derived(() => get(xScale).ticks());
+    const expression_2 = /* @__PURE__ */ derived(() => get(xScale).ticks(5));
     ChartGrid(node, {
       gridType: "xGrid",
       get innerHeight() {
@@ -4960,7 +4960,15 @@ ${indent}in ${name}`).join("")}
       get ticks() {
         return get(expression_2);
       },
-      axisTitle: "Life expectancy at birth"
+      get axisTitle() {
+        return $$props.axisTitle;
+      },
+      get divisor() {
+        return $$props.divideValues;
+      },
+      get axisUnits() {
+        return $$props.units;
+      }
     });
     var node_1 = sibling(node);
     {
@@ -5001,12 +5009,12 @@ ${indent}in ${name}`).join("")}
   Viz[FILENAME] = "src/Viz.svelte";
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1xm5ugn"><div class="header-container"><!></div> <div class="viz-container svelte-1xm5ugn"><svg><!></svg></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      39,
+      42,
       0,
       [
-        [40, 2],
-        [46, 2, [[47, 4]]],
-        [69, 2]
+        [43, 2],
+        [49, 2, [[50, 4]]],
+        [75, 2]
       ]
     ]
   ]);
@@ -5068,6 +5076,15 @@ ${indent}in ${name}`).join("")}
       },
       get logScale() {
         return $$props.logScale;
+      },
+      get divideValues() {
+        return $$props.divideValues;
+      },
+      get units() {
+        return $$props.units;
+      },
+      get axisTitle() {
+        return $$props.axisTitle;
       },
       get scaleType() {
         return $$props.scaleType;
@@ -5137,6 +5154,9 @@ ${indent}in ${name}`).join("")}
     beeOpacity: 1,
     beeSpacing: 0,
     logScale: false,
+    divideValues: 1,
+    units: "",
+    axisTitle: "",
     scaleType: "sequential",
     linearOrBinned: "linear",
     colorScale: "seq",

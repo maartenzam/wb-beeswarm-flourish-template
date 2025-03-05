@@ -65,6 +65,17 @@ settings:
     min: 0
     max: 1
     step: 0.05
+
+  - X Axis
+  - property: axisTitle
+    name: Axis label
+    type: string
+  - property: divideValues
+    name: Divide tick values by
+    type: number
+  - property: units
+    name: Units
+    type: string
   - property: logScale
     name: Logarithmic scale
     type: boolean
