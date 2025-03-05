@@ -9,6 +9,7 @@
     beeStrokeWidth,
     beeOpacity,
     beeSpacing,
+    logScale,
     scaleType,
     colorScale,
     colorScaleDiverging,
@@ -53,6 +54,7 @@
         {beeStrokeWidth}
         {beeOpacity}
         {beeSpacing}
+        {logScale}
         {scaleType}
         {colorScale}
         {colorScaleDiverging}

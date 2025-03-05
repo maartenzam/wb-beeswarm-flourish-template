@@ -4259,6 +4259,128 @@ ${indent}in ${name}`).join("")}
     initRange.apply(scale, arguments);
     return linearish(scale);
   }
+  function nice(domain, interval) {
+    domain = domain.slice();
+    var i0 = 0, i1 = domain.length - 1, x0 = domain[i0], x1 = domain[i1], t;
+    if (x1 < x0) {
+      t = i0, i0 = i1, i1 = t;
+      t = x0, x0 = x1, x1 = t;
+    }
+    domain[i0] = interval.floor(x0);
+    domain[i1] = interval.ceil(x1);
+    return domain;
+  }
+  function transformLog(x) {
+    return Math.log(x);
+  }
+  function transformExp(x) {
+    return Math.exp(x);
+  }
+  function transformLogn(x) {
+    return -Math.log(-x);
+  }
+  function transformExpn(x) {
+    return -Math.exp(-x);
+  }
+  function pow10(x) {
+    return isFinite(x) ? +("1e" + x) : x < 0 ? 0 : x;
+  }
+  function powp(base) {
+    return base === 10 ? pow10 : base === Math.E ? Math.exp : (x) => Math.pow(base, x);
+  }
+  function logp(base) {
+    return base === Math.E ? Math.log : base === 10 && Math.log10 || base === 2 && Math.log2 || (base = Math.log(base), (x) => Math.log(x) / base);
+  }
+  function reflect(f) {
+    return (x, k) => -f(-x, k);
+  }
+  function loggish(transform) {
+    const scale = transform(transformLog, transformExp);
+    const domain = scale.domain;
+    let base = 10;
+    let logs;
+    let pows;
+    function rescale() {
+      logs = logp(base), pows = powp(base);
+      if (domain()[0] < 0) {
+        logs = reflect(logs), pows = reflect(pows);
+        transform(transformLogn, transformExpn);
+      } else {
+        transform(transformLog, transformExp);
+      }
+      return scale;
+    }
+    scale.base = function(_) {
+      return arguments.length ? (base = +_, rescale()) : base;
+    };
+    scale.domain = function(_) {
+      return arguments.length ? (domain(_), rescale()) : domain();
+    };
+    scale.ticks = (count) => {
+      const d = domain();
+      let u = d[0];
+      let v = d[d.length - 1];
+      const r = v < u;
+      if (r) [u, v] = [v, u];
+      let i = logs(u);
+      let j = logs(v);
+      let k;
+      let t;
+      const n = count == null ? 10 : +count;
+      let z = [];
+      if (!(base % 1) && j - i < n) {
+        i = Math.floor(i), j = Math.ceil(j);
+        if (u > 0) for (; i <= j; ++i) {
+          for (k = 1; k < base; ++k) {
+            t = i < 0 ? k / pows(-i) : k * pows(i);
+            if (t < u) continue;
+            if (t > v) break;
+            z.push(t);
+          }
+        }
+        else for (; i <= j; ++i) {
+          for (k = base - 1; k >= 1; --k) {
+            t = i > 0 ? k / pows(-i) : k * pows(i);
+            if (t < u) continue;
+            if (t > v) break;
+            z.push(t);
+          }
+        }
+        if (z.length * 2 < n) z = ticks(u, v, n);
+      } else {
+        z = ticks(i, j, Math.min(j - i, n)).map(pows);
+      }
+      return r ? z.reverse() : z;
+    };
+    scale.tickFormat = (count, specifier) => {
+      if (count == null) count = 10;
+      if (specifier == null) specifier = base === 10 ? "s" : ",";
+      if (typeof specifier !== "function") {
+        if (!(base % 1) && (specifier = formatSpecifier(specifier)).precision == null) specifier.trim = true;
+        specifier = format(specifier);
+      }
+      if (count === Infinity) return specifier;
+      const k = Math.max(1, base * count / scale.ticks().length);
+      return (d) => {
+        let i = d / pows(Math.round(logs(d)));
+        if (i * base < base - 0.5) i *= base;
+        return i <= k ? specifier(d) : "";
+      };
+    };
+    scale.nice = () => {
+      return domain(nice(domain(), {
+        floor: (x) => pows(Math.floor(logs(x))),
+        ceil: (x) => pows(Math.ceil(logs(x)))
+      }));
+    };
+    return scale;
+  }
+  function log() {
+    const scale = loggish(transformer$1()).domain([1, 10]);
+    scale.copy = () => copy$1(scale, log()).base(scale.base());
+    initRange.apply(scale, arguments);
+    return scale;
+  }
   function quantile() {
     var domain = [], range2 = [], thresholds = [], unknown;
     function rescale() {
@@ -4796,8 +4918,8 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[124, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[113, 0]]);
+  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[129, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[118, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -4805,10 +4927,13 @@ ${indent}in ${name}`).join("")}
     const noDataColor = wbColors.noData;
     let margins = { top: 12, right: 12, bottom: 56, left: 12 };
     let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
-    let xScale = /* @__PURE__ */ derived(() => linear().domain(get(dataExtent)).range([
-      0,
-      $$props.width - margins.left - margins.right
-    ]));
+    let xScale = /* @__PURE__ */ derived(() => {
+      let scale = $$props.logScale ? log() : linear();
+      return scale.domain(get(dataExtent)).range([
+        0,
+        $$props.width - margins.left - margins.right
+      ]);
+    });
     let yScale = /* @__PURE__ */ derived(() => band().domain(["one"]).range([0, $$props.height]).paddingInner(0.5).paddingOuter(0.5));
     let beeswarmData = /* @__PURE__ */ derived(() => new AccurateBeeswarm($$props.data.filter((d) => strict_equals(d.value, null, false)), $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions());
     let contColorScale = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? sequential(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging]).domain(get(dataExtent)) : equals($$props.binningMode, "fixedWidth") ? quantize(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain(get(dataExtent)) : quantile(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain($$props.data.map((d) => d.value)));
@@ -4876,12 +5001,12 @@ ${indent}in ${name}`).join("")}
   Viz[FILENAME] = "src/Viz.svelte";
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1xm5ugn"><div class="header-container"><!></div> <div class="viz-container svelte-1xm5ugn"><svg><!></svg></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      38,
+      39,
       0,
       [
-        [39, 2],
-        [45, 2, [[46, 4]]],
-        [67, 2]
+        [40, 2],
+        [46, 2, [[47, 4]]],
+        [69, 2]
       ]
     ]
   ]);
@@ -4940,6 +5065,9 @@ ${indent}in ${name}`).join("")}
       },
       get beeSpacing() {
         return $$props.beeSpacing;
+      },
+      get logScale() {
+        return $$props.logScale;
       },
       get scaleType() {
         return $$props.scaleType;
@@ -5008,6 +5136,7 @@ ${indent}in ${name}`).join("")}
     beeStrokeWidth: 1,
     beeOpacity: 1,
     beeSpacing: 0,
+    logScale: false,
     scaleType: "sequential",
     linearOrBinned: "linear",
     colorScale: "seq",

@@ -28,6 +28,7 @@ export var state = {
   beeStrokeWidth: 1,
   beeOpacity: 1,
   beeSpacing: 0,
+  logScale: false,
   scaleType: "sequential",
   linearOrBinned: "linear",
   colorScale: "seq",

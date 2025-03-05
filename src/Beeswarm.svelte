@@ -24,6 +24,7 @@
     beeStrokeWidth,
     beeOpacity,
     beeSpacing,
+    logScale,
     scaleType,
     colorScale,
     colorScaleDiverging,
@@ -44,10 +45,14 @@
   };
 
   let dataExtent = $derived(extent(data.map((d) => d.value)));
-  let xScale = $derived(
-    scaleLinear()
+  let xScale = $derived.by(() => {
+    let scale = logScale ? scaleLog() : scaleLinear()
+    return scale.domain(dataExtent)
+    .range([0, width - margins.left - margins.right])
+  }
+   /* scaleLinear()
       .domain(dataExtent)
-      .range([0, width - margins.left - margins.right])
+      .range([0, width - margins.left - margins.right])*/
   );
 
   let yScale = $derived(
