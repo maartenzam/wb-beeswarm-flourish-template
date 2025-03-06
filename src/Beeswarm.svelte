@@ -1,11 +1,12 @@
 <script>
-  import { onMount } from 'svelte';
   import { AccurateBeeswarm } from 'accurate-beeswarm-plot';
   import { scaleLinear, scaleLog, scaleBand } from 'd3-scale';
-  import { extent, group } from 'd3-array';
+  import { extent } from 'd3-array';
   import { wbColors } from './utils/colors';
   import { getFill } from './utils/utils';
   import ChartGrid from './template/ChartGrid.svelte';
+  import Tooltip from './template/Tooltip.svelte';
+  import TooltipContent from './template/TooltipContent.svelte';
 
   let {
     data,
@@ -81,14 +82,27 @@
     });
     return swarms;
   });
+
+  // Tooltip
+  let currentCountry = $state();
+  let currentCountryData = $derived(
+    data.find((d) => d.iso3c == currentCountry)
+  );
+
+  let mousePos = $state();
+  function updateMouse(evt) {
+    mousePos = { x: evt.clientX, y: evt.clientY };
+  }
+  let tooltipVisible = true;
 </script>
 
-<svg {width} {height}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<svg {width} {height} on:mousemove={updateMouse}>
   <g bind:this={yLabels}>
     {#if yBinding}
-    {#each yDomain as yLabel}
-      <text class={'yTickLabel'} x={0} y={yScale(yLabel) + 18}>{yLabel}</text>
-    {/each}
+      {#each yDomain as yLabel}
+        <text class={'yTickLabel'} x={0} y={yScale(yLabel) + 18}>{yLabel}</text>
+      {/each}
     {/if}
   </g>
 
@@ -106,12 +120,13 @@
     {#if beeswarmDataArray}
       {#each beeswarmDataArray as swarm}
         {#each swarm.data as bee}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
           <circle
             r={beeRadius}
             cx={bee.x}
             cy={yScale(swarm.id) + bee.y}
-            stroke={beeStroke}
-            stroke-width={beeStrokeWidth}
+            stroke={bee.datum.iso3c == currentCountry ? wbColors.grey500 : beeStroke}
+            stroke-width={bee.datum.iso3c == currentCountry ? 2.5 : beeStrokeWidth}
             opacity={beeOpacity}
             fill={valueType == 'string'
               ? catColorScale(bee.datum.color.toLowerCase())
@@ -122,12 +137,30 @@
                   catColorScale,
                   noDataColor
                 )}
+                on:mouseover={() => {currentCountry = bee.datum.iso3c; tooltipVisible = true}}
+                on:focus={() => {currentCountry = bee.datum.iso3c; tooltipVisible = true}}
+                on:mouseout={() => {currentCountry = null; tooltipVisible = false}}
+                on:blur={() => {currentCountry = null; tooltipVisible = false}}
           ></circle>
         {/each}
       {/each}
     {/if}
   </g>
 </svg>
+
+{#if currentCountryData && mousePos}
+  <Tooltip visible={tooltipVisible} targetPos={mousePos}>
+    <TooltipContent
+      tooltipHeader={currentCountryData.label}
+      tooltipBody={currentCountryData.value != null &&
+      currentCountryData.value != ''
+        ? valueType == 'number'
+          ? Math.round(currentCountryData.value * 10) / 10
+          : currentCountryData.value
+        : 'No data'}
+    ></TooltipContent>
+  </Tooltip>
+{/if}
 
 <style>
   text.yTickLabel {
