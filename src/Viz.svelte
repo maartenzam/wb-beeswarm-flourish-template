@@ -1,8 +1,9 @@
 <script>
   import Header from './template/Header.svelte';
   import Footer from './template/Footer.svelte';
-  import CategoricalColorLegend from "./template/CategoricalColorLegend.svelte";
-  import Beeswarm from './Beeswarm.svelte'
+  import CategoricalColorLegend from './template/CategoricalColorLegend.svelte';
+  import ContinuousColorLegend from './template/ContinuousColorLegend.svelte';
+  import Beeswarm from './Beeswarm.svelte';
   import {
     colorRamps,
     getDiscreteColors,
@@ -10,9 +11,21 @@
     allColors,
   } from './utils/colorramps';
   import { wbColors } from './utils/colors';
-  import { scaleOrdinal } from 'd3-scale';
+  import {
+    scaleOrdinal,
+    scaleSequential,
+    scaleQuantize,
+    scaleQuantile,
+  } from 'd3-scale';
+  import { extent } from 'd3-array';
 
-  let { data, title, subtitle, notesTitle, notes, includeLogo,
+  let {
+    data,
+    title,
+    subtitle,
+    notesTitle,
+    notes,
+    includeLogo,
     beeRadius,
     beeStroke,
     beeStrokeWidth,
@@ -37,7 +50,7 @@
   // Layout
   let headerHeight = $state(0);
   let footerHeight = $state(0);
-  let legendHeight = $state(0)
+  let legendHeight = $state(0);
 
   let vizHeight = $derived(height - headerHeight - footerHeight - legendHeight);
   let vizWidth = $state();
@@ -46,25 +59,64 @@
 
   const noDataColor = wbColors.noData;
 
-  let colorDomain = $derived(
-    [...new Set(data.plotdata.map((d) => d.color.toLowerCase()))].filter((d) => d != '')
+  // COLORS
+  // Numerical color values
+  let dataExtent = $derived(extent(data.plotdata.map((d) => d.value)));
+  let contColorScale = $derived(
+    linearOrBinned == 'linear'
+      ? scaleSequential(
+          colorRamps[
+            scaleType == 'sequential' ? colorScale : colorScaleDiverging
+          ]
+        ).domain(dataExtent)
+      : binningMode == 'fixedWidth'
+        ? scaleQuantize(
+            getDiscreteColors(
+              colorRamps[
+                scaleType == 'sequential' ? colorScale : colorScaleDiverging
+              ],
+              numberOfBins
+            )
+          ).domain(dataExtent)
+        : scaleQuantile(
+            getDiscreteColors(
+              colorRamps[
+                scaleType == 'sequential' ? colorScale : colorScaleDiverging
+              ],
+              numberOfBins
+            )
+          ).domain(data.plotdata.map((d) => d.value))
   );
-  let colorRange = $derived.by(() => {
-    let range = colorDomain.map((d) => {
-      if (allColors[d]) {
-        return allColors[d];
-      } else {
-        return noDataColor;
-      }
-    });
-    if (range.every((d) => d == noDataColor)) {
-      return Object.values(catColors.default);
-    } else {
-      return range;
+
+  // Categorical colors
+  let colorDomain = $derived.by(() => {
+    if (valueType == 'string') {
+      return [
+        ...new Set(data.plotdata.map((d) => d.color.toLowerCase())),
+      ].filter((d) => d != '');
     }
   });
-  let catColorScale = $derived(
-    scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
+  let colorRange = $derived.by(() => {
+    if (valueType == 'string') {
+      let range = colorDomain.map((d) => {
+        if (allColors[d]) {
+          return allColors[d];
+        } else {
+          return noDataColor;
+        }
+      });
+      if (range.every((d) => d == noDataColor)) {
+        return Object.values(catColors.default);
+      } else {
+        return range;
+      }
+    }
+  });
+  let catColorScale = $derived.by(() => {
+    if(valueType == "string"){
+      return scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
+    }
+  }
   );
 </script>
 
@@ -98,41 +150,41 @@
         {linearOrBinned}
         {binningMode}
         {numberOfBins}
-        {categoricalColorPalette}
-        ></Beeswarm>
+        {catColorScale}
+        {contColorScale}
+      ></Beeswarm>
     </svg>
   </div>
 
   {#if true}
-  <div class="legend-container" bind:clientHeight={legendHeight}>
-      {#if valueType == "number"}
-        <!--ContinuousColorLegend
+    <div class="legend-container" bind:clientHeight={legendHeight}>
+      {#if valueType == 'number'}
+        <ContinuousColorLegend
           width={vizWidth}
-          title={legendTitle}
-          {unitLabel}
+          title={"legendTitle"}
+          unitLabel={"unitLabel"}
           {contColorScale}
           {linearOrBinned}
           {binningMode}
           units={"%"}
-          {includeNoData}
-          {noDataLabel}
-        ></ContinuousColorLegend-->
+          includeNoData={true}
+          noDataLabel={"noDataLabel"}
+        ></ContinuousColorLegend>
       {/if}
-      {#if valueType == "string"}
+      {#if valueType == 'string'}
         <CategoricalColorLegend
-          title={"legendTitle"}
+          title={'legendTitle'}
           {catColorScale}
           usedCats={catColorScale.domain()}
           includeNoData={true}
-          noDataLabel={"noDataLabel"}
+          noDataLabel={'noDataLabel'}
         ></CategoricalColorLegend>
       {/if}
-  </div>
+    </div>
   {/if}
 
-
   <div class="footer-container" bind:clientHeight={footerHeight}>
-      <Footer {notesTitle} {notes} {includeLogo}></Footer>
+    <Footer {notesTitle} {notes} {includeLogo}></Footer>
   </div>
 </div>
 

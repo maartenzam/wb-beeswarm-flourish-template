@@ -39,7 +39,8 @@
     linearOrBinned,
     binningMode,
     numberOfBins,
-    categoricalColorPalette,
+    catColorScale,
+    contColorScale
   } = $props();
 
   let valueType = $derived(data.metadata.color.type);
@@ -76,55 +77,6 @@
     ).calculateYPositions()
   );
 
-  // COLORS
-  // Numerical color values
-  let contColorScale = $derived(
-    linearOrBinned == 'linear'
-      ? scaleSequential(
-          colorRamps[
-            scaleType == 'sequential' ? colorScale : colorScaleDiverging
-          ]
-        ).domain(dataExtent)
-      : binningMode == 'fixedWidth'
-        ? scaleQuantize(
-            getDiscreteColors(
-              colorRamps[
-                scaleType == 'sequential' ? colorScale : colorScaleDiverging
-              ],
-              numberOfBins
-            )
-          ).domain(dataExtent)
-        : scaleQuantile(
-            getDiscreteColors(
-              colorRamps[
-                scaleType == 'sequential' ? colorScale : colorScaleDiverging
-              ],
-              numberOfBins
-            )
-          ).domain(data.map((d) => d.value))
-  );
-
-  //Categorical color values
-  let colorDomain = $derived(
-    [...new Set(data.map((d) => d.color.toLowerCase()))].filter((d) => d != '')
-  );
-  let colorRange = $derived.by(() => {
-    let range = colorDomain.map((d) => {
-      if (allColors[d]) {
-        return allColors[d];
-      } else {
-        return noDataColor;
-      }
-    });
-    if (range.every((d) => d == noDataColor)) {
-      return Object.values(catColors.default);
-    } else {
-      return range;
-    }
-  });
-  let catColorScale = $derived(
-    scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
-  );
 </script>
 
 <g transform={`translate(${margins.left}, ${margins.top})`}>

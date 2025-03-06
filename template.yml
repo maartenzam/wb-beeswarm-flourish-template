@@ -217,7 +217,7 @@ data:
     description: The values to use for positioning the bees horizontally
     dataset: plotdata
     type: column
-    column: "country_data::H"
+    column: "country_data::G"
     data_type:
       - number
   - key: color
@@ -225,7 +225,7 @@ data:
     description: The values to use for coloring the bees
     dataset: plotdata
     type: column
-    column: "country_data::E"
+    column: "country_data::G"
     data_type:
       - string
       - number
