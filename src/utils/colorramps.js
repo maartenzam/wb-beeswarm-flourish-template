@@ -1,6 +1,47 @@
 import { wbColors } from "./colors";
 import { piecewise, interpolateLab } from "d3-interpolate";
 
+export let allColors = {
+    "wld": wbColors.wld,
+    "nac": wbColors.nac,
+    "lcn": wbColors.lcn,
+    "sas": wbColors.sas,
+    "mea": wbColors.mea,
+    "ecs": wbColors.ecs,
+    "eas": wbColors.eas,
+    "ssf": wbColors.ssf,
+    "afe": wbColors.afe,
+    "afw": wbColors.afw,
+    "world": wbColors.wld,
+    "north america": wbColors.nac,
+    "latin america and caribbean": wbColors.lcn,
+    "south asia": wbColors.sas,
+    "middle east and north africa": wbColors.mea,
+    "europe and central asia": wbColors.ecs,
+    "east asia and pacific": wbColors.eas,
+    "sub-saharan africa": wbColors.ssf,
+    "hic": wbColors.hic,
+    "umc": wbColors.umc,
+    "lmc": wbColors.lmc,
+    "lic": wbColors.lic,
+    "High income": wbColors.hic,
+    "Upper middle income": wbColors.umc,
+    "Lower middle income": wbColors.lmc,
+    "Low income": wbColors.lic,
+    "male": wbColors.male,
+    "female": wbColors.female,
+    "diverse": wbColors.diverse,
+    "rural": wbColors.rural,
+    "urban": wbColors.urban,
+    "youngestage": wbColors.youngestAge,
+    "youngerage": wbColors.youngerAge,
+    "middleage": wbColors.middleAge,
+    "olderage": wbColors.olderAge,
+    "oldestage": wbColors.oldestAge,
+    "yes": wbColors.yes,
+    "no": wbColors.no
+}
+
 export let catColors = {
   default: {
     cat1: wbColors.cat1,

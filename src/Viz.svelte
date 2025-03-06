@@ -22,18 +22,14 @@
     categoricalColorPalette,
   } = $props();
 
-    $inspect(data.plotdata.metadata)
-
-  //$inspect(data.plotdata)
-
   let width = $state(500);
   let height = $state(500);
 
   // Layout
-  let headerHeight = $state();
-  let footerHeight = $state();
+  let headerHeight = $state(0);
+  let footerHeight = $state(0);
 
-  let vizHeight = $derived(headerHeight && footerHeight ? height - headerHeight - footerHeight : height);
+  let vizHeight = $derived(height - headerHeight - footerHeight);
   let vizWidth = $state();
 </script>
 

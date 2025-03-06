@@ -92,33 +92,6 @@ https://svelte.dev/e/derived_references_self`);
       throw error;
     }
   }
-  function effect_in_teardown(rune) {
-    {
-      const error = new Error(`effect_in_teardown
-\`${rune}\` cannot be used inside an effect cleanup function
-https://svelte.dev/e/effect_in_teardown`);
-      error.name = "Svelte error";
-      throw error;
-    }
-  }
-  function effect_in_unowned_derived() {
-    {
-      const error = new Error(`effect_in_unowned_derived
-Effect cannot be created inside a \`$derived\` value that was not itself created inside an effect
-https://svelte.dev/e/effect_in_unowned_derived`);
-      error.name = "Svelte error";
-      throw error;
-    }
-  }
-  function effect_orphan(rune) {
-    {
-      const error = new Error(`effect_orphan
-\`${rune}\` can only be used inside an effect (e.g. during component initialisation)
-https://svelte.dev/e/effect_orphan`);
-      error.name = "Svelte error";
-      throw error;
-    }
-  }
   function effect_update_depth_exceeded() {
     {
       const error = new Error(`effect_update_depth_exceeded
@@ -183,116 +156,6 @@ https://svelte.dev/e/state_unsafe_mutation`);
     }
   }
   let tracing_mode_flag = false;
-  var bold$1 = "font-weight: bold";
-  var normal$1 = "font-weight: normal";
-  function state_snapshot_uncloneable(properties) {
-    {
-      console.warn(`%c[svelte] state_snapshot_uncloneable
-%c${properties ? `The following properties cannot be cloned with \`$state.snapshot\` — the return value contains the originals:
-
-${properties}` : "Value cannot be cloned with `$state.snapshot` — the original value was returned"}
-https://svelte.dev/e/state_snapshot_uncloneable`, bold$1, normal$1);
-    }
-  }
-  const empty = [];
-  function snapshot(value, skip_warning = false) {
-    if (!skip_warning) {
-      const paths = [];
-      const copy2 = clone(value, /* @__PURE__ */ new Map(), "", paths);
-      if (paths.length === 1 && paths[0] === "") {
-        state_snapshot_uncloneable();
-      } else if (paths.length > 0) {
-        const slice = paths.length > 10 ? paths.slice(0, 7) : paths.slice(0, 10);
-        const excess = paths.length - slice.length;
-        let uncloned = slice.map((path) => `- <value>${path}`).join("\n");
-        if (excess > 0) uncloned += `
-- ...and ${excess} more`;
-        state_snapshot_uncloneable(uncloned);
-      }
-      return copy2;
-    }
-    return clone(value, /* @__PURE__ */ new Map(), "", empty);
-  }
-  function clone(value, cloned, path, paths, original = null) {
-    if (typeof value === "object" && value !== null) {
-      var unwrapped = cloned.get(value);
-      if (unwrapped !== void 0) return unwrapped;
-      if (value instanceof Map) return (
-        /** @type {Snapshot<T>} */
-        new Map(value)
-      );
-      if (value instanceof Set) return (
-        /** @type {Snapshot<T>} */
-        new Set(value)
-      );
-      if (is_array(value)) {
-        var copy2 = (
-          /** @type {Snapshot<any>} */
-          Array(value.length)
-        );
-        cloned.set(value, copy2);
-        if (original !== null) {
-          cloned.set(original, copy2);
-        }
-        for (var i = 0; i < value.length; i += 1) {
-          var element = value[i];
-          if (i in value) {
-            copy2[i] = clone(element, cloned, `${path}[${i}]`, paths);
-          }
-        }
-        return copy2;
-      }
-      if (get_prototype_of(value) === object_prototype) {
-        copy2 = {};
-        cloned.set(value, copy2);
-        if (original !== null) {
-          cloned.set(original, copy2);
-        }
-        for (var key in value) {
-          copy2[key] = clone(value[key], cloned, `${path}.${key}`, paths);
-        }
-        return copy2;
-      }
-      if (value instanceof Date) {
-        return (
-          /** @type {Snapshot<T>} */
-          structuredClone(value)
-        );
-      }
-      if (typeof /** @type {T & { toJSON?: any } } */
-      value.toJSON === "function") {
-        return clone(
-          /** @type {T & { toJSON(): any } } */
-          value.toJSON(),
-          cloned,
-          `${path}.toJSON()`,
-          paths,
-          // Associate the instance with the toJSON clone
-          value
-        );
-      }
-    }
-    if (value instanceof EventTarget) {
-      return (
-        /** @type {Snapshot<T>} */
-        value
-      );
-    }
-    try {
-      return (
-        /** @type {Snapshot<T>} */
-        structuredClone(value)
-      );
-    } catch (e) {
-      {
-        paths.push(path);
-      }
-      return (
-        /** @type {Snapshot<T>} */
-        value
-      );
-    }
-  }
   let inspect_effects = /* @__PURE__ */ new Set();
   function set_inspect_effects(v) {
     inspect_effects = v;
@@ -859,10 +722,6 @@ https://svelte.dev/e/state_proxy_equality_mismatch`, bold, normal);
   let is_flushing = false;
   let last_scheduled_effect = null;
   let is_updating_effect = false;
-  let is_destroying_effect = false;
-  function set_is_destroying_effect(value) {
-    is_destroying_effect = value;
-  }
   let queued_root_effects = [];
   let dev_effect_stack = [];
   let active_reaction = null;
@@ -1399,17 +1258,6 @@ ${indent}in ${name}`).join("")}
   function set_signal_status(signal, status) {
     signal.f = signal.f & STATUS_MASK | status;
   }
-  function validate_effect(rune) {
-    if (active_effect === null && active_reaction === null) {
-      effect_orphan(rune);
-    }
-    if (active_reaction !== null && (active_reaction.f & UNOWNED) !== 0 && active_effect === null) {
-      effect_in_unowned_derived();
-    }
-    if (is_destroying_effect) {
-      effect_in_teardown(rune);
-    }
-  }
   function push_effect(effect2, parent_effect) {
     var parent_last = parent_effect.last;
     if (parent_last === null) {
@@ -1479,9 +1327,6 @@ ${indent}in ${name}`).join("")}
     effect2.teardown = fn;
     return effect2;
   }
-  function inspect_effect(fn) {
-    return create_effect(INSPECT_EFFECT, fn, true);
-  }
   function component_root(fn) {
     const effect2 = create_effect(ROOT_EFFECT, fn, true);
     return (options = {}) => {
@@ -1520,14 +1365,11 @@ ${indent}in ${name}`).join("")}
   function execute_effect_teardown(effect2) {
     var teardown2 = effect2.teardown;
     if (teardown2 !== null) {
-      const previously_destroying_effect = is_destroying_effect;
       const previous_reaction = active_reaction;
-      set_is_destroying_effect(true);
       set_active_reaction(null);
       try {
         teardown2.call(null);
       } finally {
-        set_is_destroying_effect(previously_destroying_effect);
         set_active_reaction(previous_reaction);
       }
     }
@@ -2005,14 +1847,14 @@ ${indent}in ${name}`).join("")}
         node = /** @type {Node} */
         /* @__PURE__ */ get_first_child(node);
       }
-      var clone2 = (
+      var clone = (
         /** @type {TemplateNode} */
         use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
       );
       {
-        assign_nodes(clone2, clone2);
+        assign_nodes(clone, clone);
       }
-      return clone2;
+      return clone;
     };
   }
   // @__NO_SIDE_EFFECTS__
@@ -2044,24 +1886,24 @@ ${indent}in ${name}`).join("")}
           /* @__PURE__ */ get_first_child(root2);
         }
       }
-      var clone2 = (
+      var clone = (
         /** @type {TemplateNode} */
         node.cloneNode(true)
       );
       if (is_fragment) {
         var start = (
           /** @type {TemplateNode} */
-          /* @__PURE__ */ get_first_child(clone2)
+          /* @__PURE__ */ get_first_child(clone)
         );
         var end = (
           /** @type {TemplateNode} */
-          clone2.lastChild
+          clone.lastChild
         );
         assign_nodes(start, end);
       } else {
-        assign_nodes(clone2, clone2);
+        assign_nodes(clone, clone);
       }
-      return clone2;
+      return clone;
     };
   }
   function comment() {
@@ -2175,22 +2017,6 @@ ${indent}in ${name}`).join("")}
       $on: () => error("$on(...)"),
       $set: () => error("$set(...)")
     };
-  }
-  function inspect(get_value, inspector = console.log) {
-    validate_effect("$inspect");
-    let initial = true;
-    inspect_effect(() => {
-      var value = UNINITIALIZED;
-      try {
-        value = get_value();
-      } catch (error) {
-        console.error(error);
-      }
-      if (value !== UNINITIALIZED) {
-        inspector(initial ? "init" : "update", ...snapshot(value, true));
-      }
-      initial = false;
-    });
   }
   function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
     var anchor = node;
@@ -4502,15 +4328,6 @@ ${indent}in ${name}`).join("")}
     "cat7": "#0C7C68",
     "cat8": "#AA0000",
     "cat9": "#DDDA21",
-    "cat1Text": "#106CA1",
-    "cat2Text": "#B65F0C",
-    "cat3Text": "#664AB6",
-    "cat4Text": "#208383",
-    "cat5Text": "#BB3B64",
-    "cat6Text": "#081079",
-    "cat7Text": "#0C7C68",
-    "cat8Text": "#AA0000",
-    "cat9Text": "#767712",
     "wld": "#081079",
     "nac": "#34A7F2",
     "lcn": "#0C7C68",
@@ -4521,16 +4338,6 @@ ${indent}in ${name}`).join("")}
     "ssf": "#FF9800",
     "afe": "#FF9800",
     "afw": "#DDDA21",
-    "nacText": "#106CA1",
-    "ssfText": "#B65F0C",
-    "afeText": "#B65F0C",
-    "meaText": "#664AB6",
-    "sasText": "#208383",
-    "easText": "#BB3B64",
-    "wldText": "#081079",
-    "lcnText": "#0C7C68",
-    "ecsText": "#AA0000",
-    "afwText": "#767712",
     "hic": "#016B6C",
     "umc": "#73AF48",
     "lmc": "#DB95D7",
@@ -4588,6 +4395,46 @@ ${indent}in ${name}`).join("")}
     "div2R2": "#A873C4",
     "div2R3": "#754493"
   };
+  let allColors = {
+    "wld": wbColors.wld,
+    "nac": wbColors.nac,
+    "lcn": wbColors.lcn,
+    "sas": wbColors.sas,
+    "mea": wbColors.mea,
+    "ecs": wbColors.ecs,
+    "eas": wbColors.eas,
+    "ssf": wbColors.ssf,
+    "afe": wbColors.afe,
+    "afw": wbColors.afw,
+    "world": wbColors.wld,
+    "north america": wbColors.nac,
+    "latin america and caribbean": wbColors.lcn,
+    "south asia": wbColors.sas,
+    "middle east and north africa": wbColors.mea,
+    "europe and central asia": wbColors.ecs,
+    "east asia and pacific": wbColors.eas,
+    "sub-saharan africa": wbColors.ssf,
+    "hic": wbColors.hic,
+    "umc": wbColors.umc,
+    "lmc": wbColors.lmc,
+    "lic": wbColors.lic,
+    "High income": wbColors.hic,
+    "Upper middle income": wbColors.umc,
+    "Lower middle income": wbColors.lmc,
+    "Low income": wbColors.lic,
+    "male": wbColors.male,
+    "female": wbColors.female,
+    "diverse": wbColors.diverse,
+    "rural": wbColors.rural,
+    "urban": wbColors.urban,
+    "youngestage": wbColors.youngestAge,
+    "youngerage": wbColors.youngerAge,
+    "middleage": wbColors.middleAge,
+    "olderage": wbColors.olderAge,
+    "oldestage": wbColors.oldestAge,
+    "yes": wbColors.yes,
+    "no": wbColors.no
+  };
   let catColors = {
     default: {
       cat1: wbColors.cat1,
@@ -4599,67 +4446,6 @@ ${indent}in ${name}`).join("")}
       cat7: wbColors.cat7,
       cat8: wbColors.cat8,
       cat9: wbColors.cat9
-    },
-    defaultText: {
-      cat1Text: wbColors.cat1Text,
-      cat2Text: wbColors.cat2Text,
-      cat3Text: wbColors.cat3Text,
-      cat4Text: wbColors.cat4Text,
-      cat5Text: wbColors.cat5Text,
-      cat6Text: wbColors.cat6Text,
-      cat7Text: wbColors.cat7Text,
-      cat8Text: wbColors.cat8Text,
-      cat9Text: wbColors.cat9Text
-    },
-    region: {
-      wld: wbColors.wld,
-      nac: wbColors.nac,
-      lcn: wbColors.lcn,
-      sas: wbColors.sas,
-      mea: wbColors.mea,
-      ecs: wbColors.ecs,
-      eas: wbColors.eas,
-      ssf: wbColors.ssf,
-      afe: wbColors.afe,
-      afw: wbColors.afw
-    },
-    regionText: {
-      wldText: wbColors.wldText,
-      nacText: wbColors.nacText,
-      lcnText: wbColors.lcnText,
-      sasText: wbColors.sasText,
-      meaText: wbColors.meaText,
-      ecsText: wbColors.ecsText,
-      easText: wbColors.easText,
-      ssfText: wbColors.ssfText,
-      afeText: wbColors.afeText,
-      afwText: wbColors.afwText
-    },
-    income: {
-      hic: wbColors.hic,
-      umc: wbColors.umc,
-      lmc: wbColors.lmc,
-      lic: wbColors.lic
-    },
-    gender: {
-      male: wbColors.male,
-      female: wbColors.female,
-      diverse: wbColors.diverse
-    },
-    urbanization: {
-      rural: wbColors.rural,
-      urban: wbColors.urban
-    },
-    age: {
-      youngestAge: wbColors.youngestAge,
-      youngerAge: wbColors.youngerAge,
-      middleAge: wbColors.middleAge,
-      olderAge: wbColors.olderAge,
-      oldestAge: wbColors.oldestAge
-    },
-    binary: {
-      yes: wbColors.yes,
-      no: wbColors.no
     }
   };
   let seqColors = {
@@ -4918,8 +4704,8 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[130, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[117, 0]]);
+  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[136, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[123, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -4940,7 +4726,21 @@ ${indent}in ${name}`).join("")}
     let colorDomain = /* @__PURE__ */ derived(() => [
       ...new Set($$props.data.map((d) => d.color.toLowerCase()))
     ].filter((d) => equals(d, "", false)));
-    let catColorScale = /* @__PURE__ */ derived(() => catColors[$$props.categoricalColorPalette] && equals($$props.categoricalColorPalette, "default", false) ? ordinal(Object.keys(catColors[$$props.categoricalColorPalette]), Object.values(catColors[$$props.categoricalColorPalette])).unknown(noDataColor) : ordinal(get(colorDomain), Object.values(catColors["default"])).unknown(noDataColor));
+    let colorRange = /* @__PURE__ */ derived(() => {
+      let range2 = get(colorDomain).map((d) => {
+        if (allColors[d]) {
+          return allColors[d];
+        } else {
+          return noDataColor;
+        }
+      });
+      if (range2.every((d) => equals(d, noDataColor))) {
+        return Object.values(catColors.default);
+      } else {
+        return range2;
+      }
+    });
+    let catColorScale = /* @__PURE__ */ derived(() => ordinal(get(colorDomain), get(colorRange)).unknown(noDataColor));
     var g = root$1();
     var node = child(g);
     const expression = /* @__PURE__ */ derived(() => $$props.height - margins.top - margins.bottom);
@@ -5009,24 +4809,23 @@ ${indent}in ${name}`).join("")}
   Viz[FILENAME] = "src/Viz.svelte";
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1xm5ugn"><div class="header-container"><!></div> <div class="viz-container svelte-1xm5ugn"><svg><!></svg></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      42,
+      38,
       0,
       [
-        [43, 2],
-        [49, 2, [[50, 4]]],
-        [75, 2]
+        [39, 2],
+        [45, 2, [[46, 4]]],
+        [71, 2]
       ]
     ]
   ]);
   function Viz($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Viz);
-    inspect(() => [$$props.data.plotdata.metadata]);
     let width = state$1(500);
     let height = state$1(500);
-    let headerHeight = state$1(void 0);
-    let footerHeight = state$1(void 0);
-    let vizHeight = /* @__PURE__ */ derived(() => get(headerHeight) && get(footerHeight) ? get(height) - get(headerHeight) - get(footerHeight) : get(height));
+    let headerHeight = state$1(0);
+    let footerHeight = state$1(0);
+    let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight));
     let vizWidth = state$1(void 0);
     var div = root();
     var div_1 = child(div);

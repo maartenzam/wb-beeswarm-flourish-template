@@ -10,7 +10,7 @@
     scaleOrdinal,
   } from 'd3-scale';
   import { extent } from 'd3-array';
-  import { colorRamps, getDiscreteColors, catColors } from './utils/colorramps';
+  import { colorRamps, getDiscreteColors, catColors, allColors } from './utils/colorramps';
   import { wbColors } from './utils/colors';
   import { getFill } from "./utils/utils";
   import ChartGrid from './template/ChartGrid.svelte';
@@ -102,16 +102,22 @@
   let colorDomain = $derived(
     [...new Set(data.map((d) => d.color.toLowerCase()))].filter((d) => d != '')
   );
-  let catColorScale = $derived(
-    catColors[categoricalColorPalette] && categoricalColorPalette != 'default'
-      ? scaleOrdinal(
-          Object.keys(catColors[categoricalColorPalette]),
-          Object.values(catColors[categoricalColorPalette])
-        ).unknown(noDataColor)
-      : scaleOrdinal(colorDomain, Object.values(catColors['default'])).unknown(
-          noDataColor
-        )
-  );
+  let colorRange = $derived.by(() => 
+  { let range = colorDomain.map(d => {
+    if(allColors[d]){
+        return allColors[d]
+    }
+    else {
+        return noDataColor
+    }
+  })
+  if(range.every(d => d == noDataColor)){
+    return Object.values(catColors.default)
+  }
+  else { return range }
+}
+)
+  let catColorScale = $derived(scaleOrdinal(colorDomain, colorRange).unknown(noDataColor))
 </script>
 
 <g transform={`translate(${margins.left}, ${margins.top})`}>
