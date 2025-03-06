@@ -31,14 +31,14 @@
             : width < 1001
                 ? 6
                 : 8
-  )
+            )
 
-  let valueType = $derived(data.metadata.color.type);
+  let valueType = data.metadata.color.type;
   let yBinding = Object.keys(data.metadata).includes('yValue');
   const noDataColor = wbColors.noData;
 
+  // Get the width of the y axis labels
   let yLabels;
-
   let yLabelsWidth = $state(0);
   $effect(() => {
     yLabelsWidth = yLabels.getBBox().width;
@@ -51,7 +51,7 @@
     left: yLabelsWidth + 8,
   });
 
-  let dataExtent = $derived(extent(data.map((d) => d.value)));
+  let dataExtent = extent(data.map((d) => d.value));
   let xScale = $derived.by(() => {
     let scale = logScale ? scaleLog() : scaleLinear();
     return scale
@@ -92,16 +92,16 @@
   });
 
   // Tooltip
-  let currentCountry = $state();
-  let currentCountryData = $derived(
-    data.find((d) => d.iso3c == currentCountry)
+  let currentFeature = $state();
+  let currentFeatureData = $derived(
+    data.find((d) => d.id == currentFeature)
   );
 
-  let mousePos = $state();
+  let mousePos;
   function updateMouse(evt) {
     mousePos = { x: evt.clientX, y: evt.clientY };
   }
-  let tooltipVisible = true;
+  let tooltipVisible;
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -133,22 +133,22 @@
             r={beeRadius}
             cx={bee.x}
             cy={yScale(swarm.id) + bee.y}
-            stroke={bee.datum.iso3c == currentCountry ? wbColors.grey500 : beeStroke}
-            stroke-width={bee.datum.iso3c == currentCountry ? 2.5 : beeStrokeWidth}
+            stroke={bee.datum.id == currentFeature ? wbColors.grey500 : beeStroke}
+            stroke-width={bee.datum.id == currentFeature ? 2.5 : beeStrokeWidth}
             opacity={beeOpacity}
             fill={valueType == 'string'
               ? catColorScale(bee.datum.color.toLowerCase())
               : getFill(
                   data,
-                  bee.datum.iso3c,
+                  bee.datum.id,
                   contColorScale,
                   catColorScale,
                   noDataColor
                 )}
-                on:mouseover={() => {currentCountry = bee.datum.iso3c; tooltipVisible = true}}
-                on:focus={() => {currentCountry = bee.datum.iso3c; tooltipVisible = true}}
-                on:mouseout={() => {currentCountry = null; tooltipVisible = false}}
-                on:blur={() => {currentCountry = null; tooltipVisible = false}}
+                on:mouseover={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
+                on:focus={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
+                on:mouseout={() => {currentFeature = null; tooltipVisible = false}}
+                on:blur={() => {currentFeature = null; tooltipVisible = false}}
           ></circle>
         {/each}
       {/each}
@@ -156,15 +156,15 @@
   </g>
 </svg>
 
-{#if currentCountryData && mousePos}
+{#if currentFeatureData && mousePos}
   <Tooltip visible={tooltipVisible} targetPos={mousePos}>
     <TooltipContent
-      tooltipHeader={currentCountryData.label}
-      tooltipBody={currentCountryData.value != null &&
-      currentCountryData.value != ''
+      tooltipHeader={currentFeatureData.label}
+      tooltipBody={currentFeatureData.value != null &&
+      currentFeatureData.value != ''
         ? valueType == 'number'
-          ? Math.round(currentCountryData.value * 10) / 10
-          : currentCountryData.value
+          ? Math.round(currentFeatureData.value * 10) / 10
+          : currentFeatureData.value
         : 'No data'}
     ></TooltipContent>
   </Tooltip>

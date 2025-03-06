@@ -215,16 +215,16 @@ data:
   # and the sample data that is used. See the documentation.
   # The data section determines how data is made available to your template,
   # and the sample data that is used. See the documentation.
-  - key: iso3c # Property name in the dataset
-    name: Country Code # Name to be displayed in the editor
-    description: The ISO3C 3 letter country code of each country, as used by the World Bank
+  - key: id # Property name in the dataset
+    name: ID # Name to be displayed in the editor
+    description: Unique identifier for each feature, typically the iso3c 3 letter country code of each country
     dataset: plotdata # Name of dataset
     type: column # Are we selecting a single or multiple columns
     column: "country_data::A" # Which column should be selected
     data_type: string
   - key: label
-    name: Country name
-    description: The country names, for tooltips for example
+    name: Label
+    description: Label for each feature, displayed in the tooltip
     dataset: plotdata
     type: column
     column: "country_data::B"
@@ -251,6 +251,6 @@ data:
     description: Categories to use to create multiple beeswarms
     dataset: plotdata
     type: column
-#    column: "country_data::E"
+    column: "country_data::F"
     data_type: string
     optional: true

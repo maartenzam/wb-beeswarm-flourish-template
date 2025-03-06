@@ -5199,23 +5199,23 @@ ${indent}in ${name}`).join("")}
     };
     return initInterpolator.apply(scale, arguments);
   }
-  let getValue = function(countryCode, data2) {
-    if (data2.find((d) => d.iso3c == countryCode)) {
-      return data2.find((d) => d.iso3c == countryCode).value;
+  let getValue = function(id, data2) {
+    if (data2.find((d) => d.id == id)) {
+      return data2.find((d) => d.id == id).value;
     } else return void 0;
   };
-  let getFill = function(data2, iso3c, sColorScale, cColorScale, noDataColor) {
+  let getFill = function(data2, id, sColorScale, cColorScale, noDataColor) {
     let valueType = data2.metadata.color.type;
     if (valueType == "number") {
-      if (getValue(iso3c, data2)) {
-        return sColorScale(getValue(iso3c, data2));
+      if (getValue(id, data2)) {
+        return sColorScale(getValue(id, data2));
       } else {
         return noDataColor;
       }
     }
     if (valueType == "string") {
-      if (getValue(iso3c, data2)) {
-        return cColorScale(getValue(iso3c, data2));
+      if (getValue(id, data2)) {
+        return cColorScale(getValue(id, data2));
       } else {
         return noDataColor;
       }
@@ -6633,7 +6633,7 @@ ${indent}in ${name}`).join("")}
     check_target(new.target);
     push($$props, true, Beeswarm);
     let beeRadius = /* @__PURE__ */ derived(() => $$props.width < 401 ? 3 : $$props.width > 400 && $$props.width < 701 ? 4.5 : $$props.width < 1001 ? 6 : 8);
-    let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
+    let valueType = $$props.data.metadata.color.type;
     let yBinding = Object.keys($$props.data.metadata).includes("yValue");
     const noDataColor = wbColors.noData;
     let yLabels;
@@ -6647,10 +6647,10 @@ ${indent}in ${name}`).join("")}
       bottom: 56,
       left: get(yLabelsWidth) + 8
     }));
-    let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
+    let dataExtent = extent($$props.data.map((d) => d.value));
     let xScale = /* @__PURE__ */ derived(() => {
       let scale = $$props.logScale ? log() : linear();
-      return scale.domain(get(dataExtent)).range([
+      return scale.domain(dataExtent).range([
         0,
         $$props.width - get(margins).left - get(margins).right
       ]);
@@ -6676,13 +6676,13 @@ ${indent}in ${name}`).join("")}
       });
       return swarms;
     });
-    let currentCountry = state$1(void 0);
-    let currentCountryData = /* @__PURE__ */ derived(() => $$props.data.find((d) => equals(d.iso3c, get(currentCountry))));
-    let mousePos = state$1(void 0);
+    let currentFeature = state$1(void 0);
+    let currentFeatureData = /* @__PURE__ */ derived(() => $$props.data.find((d) => equals(d.id, get(currentFeature))));
+    let mousePos;
     function updateMouse(evt) {
-      set(mousePos, proxy({ x: evt.clientX, y: evt.clientY }, null, mousePos));
+      mousePos = { x: evt.clientX, y: evt.clientY };
     }
-    let tooltipVisible = true;
+    let tooltipVisible;
     var fragment = root$1();
     var svg = first_child(fragment);
     var g = child(svg);
@@ -6758,30 +6758,30 @@ ${indent}in ${name}`).join("")}
                 set_attribute(circle, "r", get(beeRadius));
                 set_attribute(circle, "cx", get(bee).x);
                 set_attribute(circle, "cy", $0);
-                set_attribute(circle, "stroke", equals(get(bee).datum.iso3c, get(currentCountry)) ? wbColors.grey500 : $$props.beeStroke);
-                set_attribute(circle, "stroke-width", equals(get(bee).datum.iso3c, get(currentCountry)) ? 2.5 : $$props.beeStrokeWidth);
+                set_attribute(circle, "stroke", equals(get(bee).datum.id, get(currentFeature)) ? wbColors.grey500 : $$props.beeStroke);
+                set_attribute(circle, "stroke-width", equals(get(bee).datum.id, get(currentFeature)) ? 2.5 : $$props.beeStrokeWidth);
                 set_attribute(circle, "opacity", $$props.beeOpacity);
                 set_attribute(circle, "fill", $1);
               },
               [
                 () => get(yScale)(get(swarm).id) + get(bee).y,
-                () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.iso3c, $$props.contColorScale, $$props.catColorScale, noDataColor)
+                () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
               ]
             );
             event("mouseover", circle, () => {
-              set(currentCountry, proxy(get(bee).datum.iso3c, null, currentCountry));
+              set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
               tooltipVisible = true;
             });
             event("focus", circle, () => {
-              set(currentCountry, proxy(get(bee).datum.iso3c, null, currentCountry));
+              set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
               tooltipVisible = true;
             });
             event("mouseout", circle, () => {
-              set(currentCountry, null);
+              set(currentFeature, null);
               tooltipVisible = false;
             });
             event("blur", circle, () => {
-              set(currentCountry, null);
+              set(currentFeature, null);
               tooltipVisible = false;
             });
             append($$anchor4, circle);
@@ -6799,14 +6799,12 @@ ${indent}in ${name}`).join("")}
       var consequent_2 = ($$anchor2) => {
         Tooltip($$anchor2, {
           visible: tooltipVisible,
-          get targetPos() {
-            return get(mousePos);
-          },
+          targetPos: mousePos,
           children: wrap_snippet(Beeswarm, ($$anchor3, $$slotProps) => {
-            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentCountryData).value, null, false) && equals(get(currentCountryData).value, "", false) ? equals(get(valueType), "number") ? Math.round(get(currentCountryData).value * 10) / 10 : get(currentCountryData).value : "No data");
+            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentFeatureData).value, null, false) && equals(get(currentFeatureData).value, "", false) ? equals(valueType, "number") ? Math.round(get(currentFeatureData).value * 10) / 10 : get(currentFeatureData).value : "No data");
             TooltipContent($$anchor3, {
               get tooltipHeader() {
-                return get(currentCountryData).label;
+                return get(currentFeatureData).label;
               },
               get tooltipBody() {
                 return get(expression_3);
@@ -6817,7 +6815,7 @@ ${indent}in ${name}`).join("")}
         });
       };
       if_block(node_6, ($$render) => {
-        if (get(currentCountryData) && get(mousePos)) $$render(consequent_2);
+        if (get(currentFeatureData) && mousePos) $$render(consequent_2);
       });
     }
     template_effect(() => {
