@@ -6626,12 +6626,13 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[104, 8]]);
-  var root_5 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[124, 10]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[100, 0, [[101, 2], [109, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[112, 8]]);
+  var root_5 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[132, 10]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[108, 0, [[109, 2], [117, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
+    let beeRadius = /* @__PURE__ */ derived(() => $$props.width < 401 ? 3 : $$props.width > 400 && $$props.width < 701 ? 4.5 : $$props.width < 1001 ? 6 : 8);
     let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
     let yBinding = Object.keys($$props.data.metadata).includes("yValue");
     const noDataColor = wbColors.noData;
@@ -6670,7 +6671,7 @@ ${indent}in ${name}`).join("")}
         let swarmData = yBinding ? $$props.data.filter((d) => equals(d.yValue, c) && strict_equals(d.value, null, false)) : $$props.data.filter((d) => strict_equals(d.value, null, false));
         swarms.push({
           id: c,
-          data: new AccurateBeeswarm(swarmData, $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions()
+          data: new AccurateBeeswarm(swarmData, get(beeRadius) + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions()
         });
       });
       return swarms;
@@ -6754,7 +6755,7 @@ ${indent}in ${name}`).join("")}
             var circle = root_5();
             template_effect(
               ($0, $1) => {
-                set_attribute(circle, "r", $$props.beeRadius);
+                set_attribute(circle, "r", get(beeRadius));
                 set_attribute(circle, "cx", get(bee).x);
                 set_attribute(circle, "cy", $0);
                 set_attribute(circle, "stroke", equals(get(bee).datum.iso3c, get(currentCountry)) ? wbColors.grey500 : $$props.beeStroke);
@@ -6953,12 +6954,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[156, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[155, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
       129,
       0,
-      [[130, 2], [136, 2], [182, 2]]
+      [[130, 2], [136, 2], [181, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -7032,9 +7033,6 @@ ${indent}in ${name}`).join("")}
       },
       get height() {
         return get(vizHeight);
-      },
-      get beeRadius() {
-        return $$props.beeRadius;
       },
       get beeStroke() {
         return $$props.beeStroke;
@@ -7175,7 +7173,6 @@ ${indent}in ${name}`).join("")}
   colors_link.setAttribute("href", window.Flourish.static_prefix + "/colors.css");
   var data = {};
   var state = {
-    beeRadius: 8,
     beeStroke: "#ffffff",
     beeStrokeWidth: 1,
     beeOpacity: 1,

@@ -12,7 +12,6 @@
     data,
     width,
     height,
-    beeRadius,
     beeStroke,
     beeStrokeWidth,
     beeOpacity,
@@ -24,6 +23,15 @@
     catColorScale,
     contColorScale,
   } = $props();
+
+  let beeRadius = $derived(width < 401
+        ? 3
+        : width > 400 && width < 701
+            ? 4.5
+            : width < 1001
+                ? 6
+                : 8
+  )
 
   let valueType = $derived(data.metadata.color.type);
   let yBinding = Object.keys(data.metadata).includes('yValue');

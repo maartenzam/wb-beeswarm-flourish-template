@@ -138,7 +138,6 @@
         data={data.plotdata}
         width={vizWidth}
         height={vizHeight}
-        {beeRadius}
         {beeStroke}
         {beeStrokeWidth}
         {beeOpacity}

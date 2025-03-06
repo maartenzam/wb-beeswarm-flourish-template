@@ -23,7 +23,6 @@ export var data = {};
 
 // Set up state as a serializable object
 export var state = {
-  beeRadius: 8,
   beeStroke: "#ffffff",
   beeStrokeWidth: 1,
   beeOpacity: 1,
