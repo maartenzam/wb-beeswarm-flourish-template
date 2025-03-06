@@ -345,33 +345,56 @@
     stroke: var(--grey300);
   }
 
-  .chart-container.svelte-vkqg7t {
+  text.yTickLabel.svelte-1n12epo {
+    font-family: 'Open Sans';
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    fill: var(--text);
+  }
+  @media only screen and (max-width: 400px) {
+    text.yTickLabel.svelte-1n12epo {
+      font-size: var(--font-size-s-s);
+    }
+  }
+  @media only screen and (min-width: 400px) and (max-width: 700px) {
+    text.yTickLabel.svelte-1n12epo {
+      font-size: var(--font-size-m-s);
+    }
+  }
+  @media only screen and (min-width: 700px) {
+    text.yTickLabel.svelte-1n12epo {
+      font-size: var(--font-size-l-s);
+    }
+  }
+
+  .chart-container.svelte-1i5cyi5 {
     display: flex;
     flex-direction: column;
     max-height: 100%;
   }
-  .viz-container.svelte-vkqg7t {
+  .viz-container.svelte-1i5cyi5 {
     width: 100%;
     flex-grow: 1;
+    position: relative;
   }
-  .legend-container.svelte-vkqg7t {
+  .legend-container.svelte-1i5cyi5 {
     width: 100%;
   }
 
   @media only screen and (max-width: 400px) {
-    .chart-container.svelte-vkqg7t {
+    .chart-container.svelte-1i5cyi5 {
       margin-left: var(--font-size-s-m);
       margin-left: var(--font-size-s-m);
     }
   }
   @media only screen and (min-width: 400px) and (max-width: 700px) {
-    .chart-container.svelte-vkqg7t {
+    .chart-container.svelte-1i5cyi5 {
       margin-left: var(--font-size-m-m);
       margin-right: var(--font-size-m-m);
     }
   }
   @media only screen and (min-width: 700px) {
-    .chart-container.svelte-vkqg7t {
+    .chart-container.svelte-1i5cyi5 {
       margin-left: var(--font-size-l-m);
       margin-right: var(--font-size-l-m);
     }

@@ -38,7 +38,7 @@ export var state = {
   colorScaleDiverging: "div",
   binningMode: "fixedWidth",
   numberOfBins: 4,
-  categoricalColorPalette: "default",
+  //categoricalColorPalette: "default",
   showLegend: true,
   legendTitle: "",
   includeNoData: true,

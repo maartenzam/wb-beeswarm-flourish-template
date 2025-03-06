@@ -134,7 +134,6 @@
   </div>
 
   <div class="viz-container" bind:clientWidth={vizWidth}>
-    <svg width={vizWidth} height={vizHeight}>
       <Beeswarm
         data={data.plotdata}
         width={vizWidth}
@@ -151,7 +150,6 @@
         {catColorScale}
         {contColorScale}
       ></Beeswarm>
-    </svg>
   </div>
 
   {#if showLegend}
@@ -164,7 +162,7 @@
           {contColorScale}
           {linearOrBinned}
           {binningMode}
-          units={"%"}
+          units={""}
           includeNoData={includeNoData}
           noDataLabel={noDataLabel}
         ></ContinuousColorLegend>
@@ -195,6 +193,7 @@
   .viz-container {
     width: 100%;
     flex-grow: 1;
+    position: relative;
   }
   .legend-container {
     width: 100%;

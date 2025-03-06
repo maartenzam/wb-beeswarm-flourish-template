@@ -167,20 +167,20 @@ settings:
       - data.plotdata.color.type: number
     width: quarter
       
-  - property: categoricalColorPalette
-    name: Color palette
-    type: string
-    choices:
-      - [Default, default]
-      - [Default Text, defaultText]
-      - [Region, region]
-      - [Income, income]
-      - [Gender, gender]
-      - [Urbanization, urbanization]
-      - [Age, age]
-      - [Binary, binary]
-    hide_if:
-      data.plotdata.color.type: number
+#  - property: categoricalColorPalette
+#    name: Color palette
+#    type: string
+#    choices:
+#      - [Default, default]
+#      - [Default Text, defaultText]
+#      - [Region, region]
+#      - [Income, income]
+#      - [Gender, gender]
+#      - [Urbanization, urbanization]
+#      - [Age, age]
+#      - [Binary, binary]
+#    hide_if:
+#      data.plotdata.color.type: number
 
   - Legend
   - property: showLegend
@@ -235,7 +235,7 @@ data:
     column: "country_data::B"
     data_type: string
   - key: value
-    name: Value
+    name: X Value
     description: The values to use for positioning the bees horizontally
     dataset: plotdata
     type: column
@@ -251,3 +251,11 @@ data:
     data_type:
       - string
       - number
+  - key: yValue
+    name: Y Value
+    description: Categories to use to create multiple beeswarms
+    dataset: plotdata
+    type: column
+    column: "country_data::E"
+    data_type: string
+    optional: true

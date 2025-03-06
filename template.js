@@ -2742,6 +2742,35 @@ ${indent}in ${name}`).join("")}
       return unsub;
     });
   }
+  function is_bound_this(bound_value, element_or_component) {
+    return bound_value === element_or_component || (bound_value == null ? void 0 : bound_value[STATE_SYMBOL]) === element_or_component;
+  }
+  function bind_this(element_or_component = {}, update2, get_value, get_parts) {
+    effect(() => {
+      var old_parts;
+      var parts;
+      render_effect(() => {
+        old_parts = parts;
+        parts = [];
+        untrack(() => {
+          if (element_or_component !== get_value(...parts)) {
+            update2(element_or_component, ...parts);
+            if (old_parts && is_bound_this(get_value(...old_parts), element_or_component)) {
+              update2(null, ...old_parts);
+            }
+          }
+        });
+      });
+      return () => {
+        queue_micro_task(() => {
+          if (parts && is_bound_this(get_value(...parts), element_or_component)) {
+            update2(null, ...parts);
+          }
+        });
+      };
+    });
+    return element_or_component;
+  }
   function bind_window_size(type, set2) {
     listen(window, ["resize"], () => without_reactive_context(() => set2(window[type])));
   }
@@ -5296,30 +5325,91 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[79, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[66, 0]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[90, 6]]);
+  var root_5 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[109, 10]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!></g></svg>`), Beeswarm[FILENAME], [[86, 0, [[87, 2], [95, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
     let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
+    let yBinding = Object.keys($$props.data.metadata).includes("yValue");
     const noDataColor = wbColors.noData;
-    let margins = { top: 12, right: 12, bottom: 56, left: 12 };
+    let yLabels;
+    let yLabelsWidth = state$1(0);
+    user_effect(() => {
+      set(yLabelsWidth, proxy(yLabels.getBBox().width, null, yLabelsWidth));
+    });
+    let margins = /* @__PURE__ */ derived(() => ({
+      top: 12,
+      right: 12,
+      bottom: 56,
+      left: get(yLabelsWidth) + 8
+    }));
     let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
     let xScale = /* @__PURE__ */ derived(() => {
       let scale = $$props.logScale ? log() : linear();
       return scale.domain(get(dataExtent)).range([
         0,
-        $$props.width - margins.left - margins.right
+        $$props.width - get(margins).left - get(margins).right
       ]);
     });
-    let yScale = /* @__PURE__ */ derived(() => band().domain(["one"]).range([0, $$props.height]).paddingInner(0.5).paddingOuter(0.5));
-    let beeswarmData = /* @__PURE__ */ derived(() => new AccurateBeeswarm($$props.data.filter((d) => strict_equals(d.value, null, false)), $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions());
-    var g = root$1();
+    let yDomain = /* @__PURE__ */ derived(() => {
+      if (yBinding) {
+        return [
+          ...new Set($$props.data.map((d) => d.yValue))
+        ];
+      } else {
+        return ["solo"];
+      }
+    });
+    let yScale = /* @__PURE__ */ derived(() => band().domain(get(yDomain)).range([0, $$props.height]).paddingInner(0.5).paddingOuter(1));
+    let beeswarmDataArray = /* @__PURE__ */ derived(() => {
+      let swarms = [];
+      get(yDomain).forEach((c) => {
+        let swarmData = yBinding ? $$props.data.filter((d) => equals(d.yValue, c) && strict_equals(d.value, null, false)) : $$props.data.filter((d) => strict_equals(d.value, null, false));
+        swarms.push({
+          id: c,
+          data: new AccurateBeeswarm(swarmData, $$props.beeRadius + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions()
+        });
+      });
+      return swarms;
+    });
+    var svg = root$1();
+    var g = child(svg);
     var node = child(g);
-    const expression = /* @__PURE__ */ derived(() => $$props.height - margins.top - margins.bottom);
-    const expression_1 = /* @__PURE__ */ derived(() => $$props.width - margins.left - margins.right);
+    {
+      var consequent = ($$anchor2) => {
+        var fragment = comment();
+        var node_1 = first_child(fragment);
+        each(node_1, 17, () => get(yDomain), index, ($$anchor3, yLabel) => {
+          var text = root_2$1();
+          set_class(text, 0, "yTickLabel svelte-1n12epo");
+          set_attribute(text, "x", 0);
+          var text_1 = child(text);
+          template_effect(
+            ($0) => {
+              set_attribute(text, "y", $0);
+              set_text(text_1, get(yLabel));
+            },
+            [
+              () => get(yScale)(get(yLabel)) + 18
+            ]
+          );
+          append($$anchor3, text);
+        });
+        append($$anchor2, fragment);
+      };
+      if_block(node, ($$render) => {
+        if (yBinding) $$render(consequent);
+      });
+    }
+    bind_this(g, ($$value) => yLabels = $$value, () => yLabels);
+    var g_1 = sibling(g);
+    var node_2 = child(g_1);
+    const expression = /* @__PURE__ */ derived(() => $$props.height - get(margins).top - get(margins).bottom);
+    const expression_1 = /* @__PURE__ */ derived(() => $$props.width - get(margins).left - get(margins).right);
     const expression_2 = /* @__PURE__ */ derived(() => get(xScale).ticks(5));
-    ChartGrid(node, {
+    ChartGrid(node_2, {
       gridType: "xGrid",
       get innerHeight() {
         return get(expression);
@@ -5343,38 +5433,47 @@ ${indent}in ${name}`).join("")}
         return $$props.units;
       }
     });
-    var node_1 = sibling(node);
+    var node_3 = sibling(node_2);
     {
-      var consequent = ($$anchor2) => {
-        var fragment = comment();
-        var node_2 = first_child(fragment);
-        each(node_2, 17, () => get(beeswarmData), index, ($$anchor3, bee) => {
-          var circle = root_2$1();
-          template_effect(
-            ($0, $1) => {
-              set_attribute(circle, "r", $$props.beeRadius);
-              set_attribute(circle, "cx", get(bee).x);
-              set_attribute(circle, "cy", $0);
-              set_attribute(circle, "stroke", $$props.beeStroke);
-              set_attribute(circle, "stroke-width", $$props.beeStrokeWidth);
-              set_attribute(circle, "opacity", $$props.beeOpacity);
-              set_attribute(circle, "fill", $1);
-            },
-            [
-              () => get(yScale)("one") + get(bee).y,
-              () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.iso3c, $$props.contColorScale, $$props.catColorScale, noDataColor)
-            ]
-          );
-          append($$anchor3, circle);
+      var consequent_1 = ($$anchor2) => {
+        var fragment_1 = comment();
+        var node_4 = first_child(fragment_1);
+        each(node_4, 17, () => get(beeswarmDataArray), index, ($$anchor3, swarm) => {
+          var fragment_2 = comment();
+          var node_5 = first_child(fragment_2);
+          each(node_5, 17, () => get(swarm).data, index, ($$anchor4, bee) => {
+            var circle = root_5();
+            template_effect(
+              ($0, $1) => {
+                set_attribute(circle, "r", $$props.beeRadius);
+                set_attribute(circle, "cx", get(bee).x);
+                set_attribute(circle, "cy", $0);
+                set_attribute(circle, "stroke", $$props.beeStroke);
+                set_attribute(circle, "stroke-width", $$props.beeStrokeWidth);
+                set_attribute(circle, "opacity", $$props.beeOpacity);
+                set_attribute(circle, "fill", $1);
+              },
+              [
+                () => get(yScale)(get(swarm).id) + get(bee).y,
+                () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.iso3c, $$props.contColorScale, $$props.catColorScale, noDataColor)
+              ]
+            );
+            append($$anchor4, circle);
+          });
+          append($$anchor3, fragment_2);
         });
-        append($$anchor2, fragment);
+        append($$anchor2, fragment_1);
       };
-      if_block(node_1, ($$render) => {
-        if (get(beeswarmData)) $$render(consequent);
+      if_block(node_3, ($$render) => {
+        if (get(beeswarmDataArray)) $$render(consequent_1);
       });
     }
-    template_effect(() => set_attribute(g, "transform", `translate(${margins.left}, ${margins.top})`));
-    append($$anchor, g);
+    template_effect(() => {
+      set_attribute(svg, "width", $$props.width);
+      set_attribute(svg, "height", $$props.height);
+      set_attribute(g_1, "transform", `translate(${get(margins).left}, ${get(margins).top})`);
+    });
+    append($$anchor, svg);
     return pop({ ...legacy_api() });
   }
   mark_module_end(Beeswarm);
@@ -5502,16 +5601,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-vkqg7t"><!> <!></div>`), Viz[FILENAME], [[158, 4]]);
-  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-vkqg7t"><div class="header-container"><!></div> <div class="viz-container svelte-vkqg7t"><svg><!></svg></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[156, 4]]);
+  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
       129,
       0,
-      [
-        [130, 2],
-        [136, 2, [[137, 4]]],
-        [184, 2]
-      ]
+      [[130, 2], [136, 2], [182, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -5575,8 +5670,7 @@ ${indent}in ${name}`).join("")}
       });
     }
     var div_2 = sibling(div_1, 2);
-    var svg = child(div_2);
-    var node_1 = child(svg);
+    var node_1 = child(div_2);
     Beeswarm(node_1, {
       get data() {
         return $$props.data.plotdata;
@@ -5647,7 +5741,7 @@ ${indent}in ${name}`).join("")}
               get binningMode() {
                 return $$props.binningMode;
               },
-              units: "%",
+              units: "",
               get includeNoData() {
                 return $$props.includeNoData;
               },
@@ -5706,10 +5800,6 @@ ${indent}in ${name}`).join("")}
         return $$props.includeLogo;
       }
     });
-    template_effect(() => {
-      set_attribute(svg, "width", get(vizWidth));
-      set_attribute(svg, "height", get(vizHeight));
-    });
     bind_window_size("innerWidth", ($$value) => set(width, proxy($$value, null, width)));
     bind_window_size("innerHeight", ($$value) => set(height, proxy($$value, null, height)));
     bind_element_size(div_1, "clientHeight", ($$value) => set(headerHeight, $$value));
@@ -5748,7 +5838,7 @@ ${indent}in ${name}`).join("")}
     colorScaleDiverging: "div",
     binningMode: "fixedWidth",
     numberOfBins: 4,
-    categoricalColorPalette: "default",
+    //categoricalColorPalette: "default",
     showLegend: true,
     legendTitle: "",
     includeNoData: true,
