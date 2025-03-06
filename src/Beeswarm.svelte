@@ -10,9 +10,14 @@
     scaleOrdinal,
   } from 'd3-scale';
   import { extent } from 'd3-array';
-  import { colorRamps, getDiscreteColors, catColors, allColors } from './utils/colorramps';
+  import {
+    colorRamps,
+    getDiscreteColors,
+    catColors,
+    allColors,
+  } from './utils/colorramps';
   import { wbColors } from './utils/colors';
-  import { getFill } from "./utils/utils";
+  import { getFill } from './utils/utils';
   import ChartGrid from './template/ChartGrid.svelte';
 
   let {
@@ -49,9 +54,10 @@
 
   let dataExtent = $derived(extent(data.map((d) => d.value)));
   let xScale = $derived.by(() => {
-    let scale = logScale ? scaleLog() : scaleLinear()
-    return scale.domain(dataExtent)
-    .range([0, width - margins.left - margins.right])
+    let scale = logScale ? scaleLog() : scaleLinear();
+    return scale
+      .domain(dataExtent)
+      .range([0, width - margins.left - margins.right]);
   });
 
   let yScale = $derived(
@@ -102,22 +108,23 @@
   let colorDomain = $derived(
     [...new Set(data.map((d) => d.color.toLowerCase()))].filter((d) => d != '')
   );
-  let colorRange = $derived.by(() => 
-  { let range = colorDomain.map(d => {
-    if(allColors[d]){
-        return allColors[d]
+  let colorRange = $derived.by(() => {
+    let range = colorDomain.map((d) => {
+      if (allColors[d]) {
+        return allColors[d];
+      } else {
+        return noDataColor;
+      }
+    });
+    if (range.every((d) => d == noDataColor)) {
+      return Object.values(catColors.default);
+    } else {
+      return range;
     }
-    else {
-        return noDataColor
-    }
-  })
-  if(range.every(d => d == noDataColor)){
-    return Object.values(catColors.default)
-  }
-  else { return range }
-}
-)
-  let catColorScale = $derived(scaleOrdinal(colorDomain, colorRange).unknown(noDataColor))
+  });
+  let catColorScale = $derived(
+    scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
+  );
 </script>
 
 <g transform={`translate(${margins.left}, ${margins.top})`}>
@@ -127,7 +134,7 @@
     innerWidth={width - margins.left - margins.right}
     scale={xScale}
     ticks={xScale.ticks(5)}
-    axisTitle={axisTitle}
+    {axisTitle}
     divisor={divideValues}
     axisUnits={units}
   />
@@ -140,10 +147,16 @@
         stroke={beeStroke}
         stroke-width={beeStrokeWidth}
         opacity={beeOpacity}
-        fill={valueType == "string" ? catColorScale(bee.datum.color.toLowerCase()) : getFill(data, bee.datum.iso3c, contColorScale, catColorScale, noDataColor)}
+        fill={valueType == 'string'
+          ? catColorScale(bee.datum.color.toLowerCase())
+          : getFill(
+              data,
+              bee.datum.iso3c,
+              contColorScale,
+              catColorScale,
+              noDataColor
+            )}
       ></circle>
     {/each}
   {/if}
 </g>
-
-<!--fill={getFill(data, bee.datum.iso3c, contColorScale, catColorScale, noDataColor)}-->

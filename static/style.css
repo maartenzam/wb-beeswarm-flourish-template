@@ -96,6 +96,128 @@
     height: 2rem;
   }
 
+  .legend.svelte-hjs62s {
+    font-family: var(--font-family);
+  }
+  .legend-text-container.svelte-hjs62s {
+    display: flex;
+  }
+  .no-data-label.svelte-hjs62s {
+    color: var(--lightText);
+    line-height: var(--line-height-120);
+  }
+  .no-data-symbol.svelte-hjs62s {
+    fill: var(--noData);
+    stroke: var(--middle);
+    stroke-width: 0.5px;
+  }
+  .legend-title.svelte-hjs62s {
+    flex-grow: 1;
+    text-align: center;
+    font-weight: var(--font-weight-semibold);
+    color: var(--darkText);
+    line-height: var(--line-height-120);
+    text-align: left;
+  }
+  .gradient-container.svelte-hjs62s {
+    display: flex;
+  }
+  .gradient.svelte-hjs62s {
+    flex-grow: 1;
+  }
+  .label-unit.svelte-hjs62s {
+    font-weight: var(--font-weight-regular);
+  }
+  .gradient-border.svelte-hjs62s {
+    stroke: var(--middle);
+    stroke-width: 0.5px;
+    fill: none;
+  }
+  .bin-color.svelte-hjs62s {
+    stroke: var(--middle);
+    stroke-width: 0.5px;
+  }
+  @media only screen and (max-width: 400px) {
+    .legend.svelte-hjs62s {
+      padding-bottom: var(--space-s-xl);
+    }
+    .legend-text-container.svelte-hjs62s,
+    .gradient-container.svelte-hjs62s {
+      gap: var(--space-s-xl);
+    }
+    .legend-title.svelte-hjs62s {
+      font-size: var(--font-size-s-m);
+      margin-bottom: var(--space-s-xxs);
+    }
+  }
+  @media only screen and (min-width: 400px) and (max-width: 700px) {
+    .legend.svelte-hjs62s {
+      padding-bottom: var(--space-m-xl);
+    }
+    .legend-text-container.svelte-hjs62s,
+    .gradient-container.svelte-hjs62s {
+      gap: var(--space-m-xl);
+    }
+    /* (unused) text.tick-label,*/
+    .no-data-label.svelte-hjs62s {
+      font-size: var(--font-size-m-s);
+    }
+    .legend-title.svelte-hjs62s {
+      font-size: var(--font-size-m-m);
+      margin-bottom: var(--space-m-xxs);
+    }
+  }
+  @media only screen and (min-width: 700px) {
+    .legend.svelte-hjs62s {
+      padding-bottom: var(--space-l-xl);
+    }
+    .legend-text-container.svelte-hjs62s,
+    .gradient-container.svelte-hjs62s {
+      gap: var(--space-l-xl);
+    }
+    .legend-title.svelte-hjs62s {
+      font-size: var(--font-size-l-m);
+      margin-bottom: var(--space-l-xxs);
+    }
+  }
+  .categorical-legend.svelte-hjs62s {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: start;
+    margin: 0;
+    margin: var(--space-s) 0 0 0;
+  }
+
+  .categorical-legend.top.svelte-hjs62s {
+    margin: 0 0 var(--space-s) 0;
+  }
+  .categorical-legend.svelte-hjs62s .pill-container:where(.svelte-hjs62s) {
+    display: flex;
+    align-items: center;
+    margin: 0 15px 5px 0;
+  }
+  .categorical-legend.svelte-hjs62s .pill-container:where(.svelte-hjs62s) .pill:where(.svelte-hjs62s) {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    margin-right: 5px;
+    border: 1px solid transparent;
+  }
+  .categorical-legend.svelte-hjs62s .pill-container:where(.svelte-hjs62s) .pill.square:where(.svelte-hjs62s) {
+    border-radius: 0px;
+  }
+  .categorical-legend.svelte-hjs62s .pill-container:where(.svelte-hjs62s) .pill.line:where(.svelte-hjs62s) {
+    height: 2.5px;
+    width: 20px;
+    border-radius: 2px;
+  }
+  .hidden.svelte-hjs62s {
+    visibility: hidden;
+  }
+  .banner .categorical-legend .label {
+    color: var(--color-theme-dark-text);
+  }
+
   text.svelte-8ff1yv {
     font-family: 'Open Sans';
   }
@@ -122,30 +244,33 @@
     stroke: var(--grey300);
   }
 
-  .chart-container.svelte-1xm5ugn {
+  .chart-container.svelte-vkqg7t {
     display: flex;
     flex-direction: column;
     max-height: 100%;
   }
-  .viz-container.svelte-1xm5ugn {
+  .viz-container.svelte-vkqg7t {
     width: 100%;
     flex-grow: 1;
   }
+  .legend-container.svelte-vkqg7t {
+    width: 100%;
+  }
 
   @media only screen and (max-width: 400px) {
-    .chart-container.svelte-1xm5ugn {
+    .chart-container.svelte-vkqg7t {
       margin-left: var(--font-size-s-m);
       margin-left: var(--font-size-s-m);
     }
   }
   @media only screen and (min-width: 400px) and (max-width: 700px) {
-    .chart-container.svelte-1xm5ugn {
+    .chart-container.svelte-vkqg7t {
       margin-left: var(--font-size-m-m);
       margin-right: var(--font-size-m-m);
     }
   }
   @media only screen and (min-width: 700px) {
-    .chart-container.svelte-1xm5ugn {
+    .chart-container.svelte-vkqg7t {
       margin-left: var(--font-size-l-m);
       margin-right: var(--font-size-l-m);
     }

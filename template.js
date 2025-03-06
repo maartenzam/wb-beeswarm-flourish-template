@@ -14,8 +14,11 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   var _listeners, _observer, _options, _ResizeObserverSingleton_instances, getObserver_fn;
   const EACH_ITEM_REACTIVE = 1;
   const EACH_INDEX_REACTIVE = 1 << 1;
+  const EACH_IS_CONTROLLED = 1 << 2;
+  const EACH_IS_ANIMATED = 1 << 3;
   const EACH_ITEM_IMMUTABLE = 1 << 4;
   const PROPS_IS_IMMUTABLE = 1;
+  const PROPS_IS_RUNES = 1 << 1;
   const PROPS_IS_UPDATED = 1 << 2;
   const PROPS_IS_BINDABLE = 1 << 3;
   const PROPS_IS_LAZY_INITIAL = 1 << 4;
@@ -40,6 +43,7 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   const DESTROYED = 1 << 14;
   const EFFECT_RAN = 1 << 15;
   const EFFECT_TRANSPARENT = 1 << 16;
+  const LEGACY_DERIVED_PROP = 1 << 17;
   const INSPECT_EFFECT = 1 << 18;
   const HEAD_EFFECT = 1 << 19;
   const EFFECT_HAS_DERIVED = 1 << 20;
@@ -56,6 +60,26 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   var object_prototype = Object.prototype;
   var array_prototype = Array.prototype;
   var get_prototype_of = Object.getPrototypeOf;
+  function run(fn) {
+    return fn();
+  }
+  function run_all(arr) {
+    for (var i = 0; i < arr.length; i++) {
+      arr[i]();
+    }
+  }
+  let micro_tasks = [];
+  function run_micro_tasks() {
+    var tasks = micro_tasks;
+    micro_tasks = [];
+    run_all(tasks);
+  }
+  function queue_micro_task(fn) {
+    if (micro_tasks.length === 0) {
+      queueMicrotask(run_micro_tasks);
+    }
+    micro_tasks.push(fn);
+  }
   function equals$1(value) {
     return value === this.v;
   }
@@ -88,6 +112,33 @@ https://svelte.dev/e/component_api_invalid_new`);
       const error = new Error(`derived_references_self
 A derived value cannot reference itself recursively
 https://svelte.dev/e/derived_references_self`);
+      error.name = "Svelte error";
+      throw error;
+    }
+  }
+  function effect_in_teardown(rune) {
+    {
+      const error = new Error(`effect_in_teardown
+\`${rune}\` cannot be used inside an effect cleanup function
+https://svelte.dev/e/effect_in_teardown`);
+      error.name = "Svelte error";
+      throw error;
+    }
+  }
+  function effect_in_unowned_derived() {
+    {
+      const error = new Error(`effect_in_unowned_derived
+Effect cannot be created inside a \`$derived\` value that was not itself created inside an effect
+https://svelte.dev/e/effect_in_unowned_derived`);
+      error.name = "Svelte error";
+      throw error;
+    }
+  }
+  function effect_orphan(rune) {
+    {
+      const error = new Error(`effect_orphan
+\`${rune}\` can only be used inside an effect (e.g. during component initialisation)
+https://svelte.dev/e/effect_orphan`);
       error.name = "Svelte error";
       throw error;
     }
@@ -155,7 +206,11 @@ https://svelte.dev/e/state_unsafe_mutation`);
       throw error;
     }
   }
+  let legacy_mode_flag = false;
   let tracing_mode_flag = false;
+  function enable_legacy_mode_flag() {
+    legacy_mode_flag = true;
+  }
   let inspect_effects = /* @__PURE__ */ new Set();
   function set_inspect_effects(v) {
     inspect_effects = v;
@@ -177,9 +232,13 @@ https://svelte.dev/e/state_unsafe_mutation`);
   }
   // @__NO_SIDE_EFFECTS__
   function mutable_source(initial_value, immutable = false) {
+    var _a;
     const s = source(initial_value);
     if (!immutable) {
       s.equals = safe_equals;
+    }
+    if (legacy_mode_flag && component_context !== null && component_context.l !== null) {
+      ((_a = component_context.l).s ?? (_a.s = [])).push(s);
     }
     return s;
   }
@@ -208,7 +267,7 @@ https://svelte.dev/e/state_unsafe_mutation`);
       source2.v = value;
       source2.wv = increment_write_version();
       mark_reactions(source2, DIRTY);
-      if (active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
+      if (is_runes() && active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
         if (untracked_writes === null) {
           set_untracked_writes([source2]);
         } else {
@@ -233,11 +292,13 @@ https://svelte.dev/e/state_unsafe_mutation`);
   function mark_reactions(signal, status) {
     var reactions = signal.reactions;
     if (reactions === null) return;
+    var runes = is_runes();
     var length = reactions.length;
     for (var i = 0; i < length; i++) {
       var reaction = reactions[i];
       var flags = reaction.f;
       if ((flags & DIRTY) !== 0) continue;
+      if (!runes && reaction === active_effect) continue;
       if ((flags & INSPECT_EFFECT) !== 0) {
         inspect_effects.add(reaction);
         continue;
@@ -722,6 +783,10 @@ https://svelte.dev/e/state_proxy_equality_mismatch`, bold, normal);
   let is_flushing = false;
   let last_scheduled_effect = null;
   let is_updating_effect = false;
+  let is_destroying_effect = false;
+  function set_is_destroying_effect(value) {
+    is_destroying_effect = value;
+  }
   let queued_root_effects = [];
   let dev_effect_stack = [];
   let active_reaction = null;
@@ -1258,6 +1323,60 @@ ${indent}in ${name}`).join("")}
   function set_signal_status(signal, status) {
     signal.f = signal.f & STATUS_MASK | status;
   }
+  function deep_read_state(value) {
+    if (typeof value !== "object" || !value || value instanceof EventTarget) {
+      return;
+    }
+    if (STATE_SYMBOL in value) {
+      deep_read(value);
+    } else if (!Array.isArray(value)) {
+      for (let key in value) {
+        const prop2 = value[key];
+        if (typeof prop2 === "object" && prop2 && STATE_SYMBOL in prop2) {
+          deep_read(prop2);
+        }
+      }
+    }
+  }
+  function deep_read(value, visited = /* @__PURE__ */ new Set()) {
+    if (typeof value === "object" && value !== null && // We don't want to traverse DOM elements
+    !(value instanceof EventTarget) && !visited.has(value)) {
+      visited.add(value);
+      if (value instanceof Date) {
+        value.getTime();
+      }
+      for (let key in value) {
+        try {
+          deep_read(value[key], visited);
+        } catch (e) {
+        }
+      }
+      const proto = get_prototype_of(value);
+      if (proto !== Object.prototype && proto !== Array.prototype && proto !== Map.prototype && proto !== Set.prototype && proto !== Date.prototype) {
+        const descriptors = get_descriptors(proto);
+        for (let key in descriptors) {
+          const get2 = descriptors[key].get;
+          if (get2) {
+            try {
+              get2.call(value);
+            } catch (e) {
+            }
+          }
+        }
+      }
+    }
+  }
+  function validate_effect(rune) {
+    if (active_effect === null && active_reaction === null) {
+      effect_orphan(rune);
+    }
+    if (active_reaction !== null && (active_reaction.f & UNOWNED) !== 0 && active_effect === null) {
+      effect_in_unowned_derived();
+    }
+    if (is_destroying_effect) {
+      effect_in_teardown(rune);
+    }
+  }
   function push_effect(effect2, parent_effect) {
     var parent_last = parent_effect.last;
     if (parent_last === null) {
@@ -1327,6 +1446,38 @@ ${indent}in ${name}`).join("")}
     effect2.teardown = fn;
     return effect2;
   }
+  function user_effect(fn) {
+    validate_effect("$effect");
+    var defer = active_effect !== null && (active_effect.f & BRANCH_EFFECT) !== 0 && component_context !== null && !component_context.m;
+    {
+      define_property(fn, "name", {
+        value: "$effect"
+      });
+    }
+    if (defer) {
+      var context = (
+        /** @type {ComponentContext} */
+        component_context
+      );
+      (context.e ?? (context.e = [])).push({
+        fn,
+        effect: active_effect,
+        reaction: active_reaction
+      });
+    } else {
+      var signal = effect(fn);
+      return signal;
+    }
+  }
+  function user_pre_effect(fn) {
+    validate_effect("$effect.pre");
+    {
+      define_property(fn, "name", {
+        value: "$effect.pre"
+      });
+    }
+    return render_effect(fn);
+  }
   function component_root(fn) {
     const effect2 = create_effect(ROOT_EFFECT, fn, true);
     return (options = {}) => {
@@ -1345,6 +1496,9 @@ ${indent}in ${name}`).join("")}
   }
   function effect(fn) {
     return create_effect(EFFECT, fn, false);
+  }
+  function render_effect(fn) {
+    return create_effect(RENDER_EFFECT, fn, true);
   }
   function template_effect(fn, thunks = [], d = derived) {
     const deriveds = thunks.map(d);
@@ -1365,11 +1519,14 @@ ${indent}in ${name}`).join("")}
   function execute_effect_teardown(effect2) {
     var teardown2 = effect2.teardown;
     if (teardown2 !== null) {
+      const previously_destroying_effect = is_destroying_effect;
       const previous_reaction = active_reaction;
+      set_is_destroying_effect(true);
       set_active_reaction(null);
       try {
         teardown2.call(null);
       } finally {
+        set_is_destroying_effect(previously_destroying_effect);
         set_active_reaction(previous_reaction);
       }
     }
@@ -1630,6 +1787,14 @@ ${indent}in ${name}`).join("")}
       x: null,
       l: null
     };
+    if (legacy_mode_flag && !runes) {
+      component_context.l = {
+        s: null,
+        u: null,
+        r1: [],
+        r2: source(false)
+      };
+    }
     {
       component_context.function = fn;
       dev_current_component_function = fn;
@@ -1669,7 +1834,7 @@ ${indent}in ${name}`).join("")}
     {};
   }
   function is_runes() {
-    return true;
+    return !legacy_mode_flag || component_context !== null && component_context.l === null;
   }
   const PASSIVE_EVENTS = ["touchstart", "touchmove"];
   function is_passive_event(name) {
@@ -2101,6 +2266,14 @@ ${indent}in ${name}`).join("")}
   function each(node, flags, get_collection, get_key, render_fn, fallback_fn = null) {
     var anchor = node;
     var state2 = { flags, items: /* @__PURE__ */ new Map(), first: null };
+    var is_controlled = (flags & EACH_IS_CONTROLLED) !== 0;
+    if (is_controlled) {
+      var parent_node = (
+        /** @type {Element} */
+        node
+      );
+      anchor = parent_node.appendChild(create_text());
+    }
     var fallback = null;
     var was_empty = false;
     var each_array = /* @__PURE__ */ derived_safe_equal(() => {
@@ -2134,18 +2307,33 @@ ${indent}in ${name}`).join("")}
     });
   }
   function reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection) {
+    var _a, _b, _c, _d;
+    var is_animated = (flags & EACH_IS_ANIMATED) !== 0;
+    var should_update = (flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0;
     var length = array.length;
     var items = state2.items;
     var first = state2.first;
     var current = first;
     var seen;
     var prev = null;
+    var to_animate;
     var matched = [];
     var stashed = [];
     var value;
     var key;
     var item;
     var i;
+    if (is_animated) {
+      for (i = 0; i < length; i += 1) {
+        value = array[i];
+        key = get_key(value, i);
+        item = items.get(key);
+        if (item !== void 0) {
+          (_a = item.a) == null ? void 0 : _a.measure();
+          (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).add(item);
+        }
+      }
+    }
     for (i = 0; i < length; i += 1) {
       value = array[i];
       key = get_key(value, i);
@@ -2173,11 +2361,15 @@ ${indent}in ${name}`).join("")}
         current = prev.next;
         continue;
       }
-      {
-        update_item(item, value, i);
+      if (should_update) {
+        update_item(item, value, i, flags);
       }
       if ((item.e.f & INERT) !== 0) {
         resume_effect(item.e);
+        if (is_animated) {
+          (_b = item.a) == null ? void 0 : _b.unfix();
+          (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).delete(item);
+        }
       }
       if (item !== current) {
         if (seen !== void 0 && seen.has(item)) {
@@ -2239,18 +2431,41 @@ ${indent}in ${name}`).join("")}
       }
       var destroy_length = to_destroy.length;
       if (destroy_length > 0) {
-        var controlled_anchor = null;
+        var controlled_anchor = (flags & EACH_IS_CONTROLLED) !== 0 && length === 0 ? anchor : null;
+        if (is_animated) {
+          for (i = 0; i < destroy_length; i += 1) {
+            (_c = to_destroy[i].a) == null ? void 0 : _c.measure();
+          }
+          for (i = 0; i < destroy_length; i += 1) {
+            (_d = to_destroy[i].a) == null ? void 0 : _d.fix();
+          }
+        }
         pause_effects(state2, to_destroy, controlled_anchor, items);
       }
+    }
+    if (is_animated) {
+      queue_micro_task(() => {
+        var _a2;
+        if (to_animate === void 0) return;
+        for (item of to_animate) {
+          (_a2 = item.a) == null ? void 0 : _a2.apply();
+        }
+      });
     }
     active_effect.first = state2.first && state2.first.e;
     active_effect.last = prev && prev.e;
   }
   function update_item(item, value, index2, type) {
-    {
+    if ((type & EACH_ITEM_REACTIVE) !== 0) {
       internal_set(item.v, value);
     }
-    {
+    if ((type & EACH_INDEX_REACTIVE) !== 0) {
+      internal_set(
+        /** @type {Value<number>} */
+        item.i,
+        index2
+      );
+    } else {
       item.i = index2;
     }
   }
@@ -2259,7 +2474,7 @@ ${indent}in ${name}`).join("")}
     var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
     var v = reactive ? mutable ? /* @__PURE__ */ mutable_source(value) : source(value) : value;
     var i = (flags & EACH_INDEX_REACTIVE) === 0 ? index2 : source(index2);
-    {
+    if (reactive) {
       v.debug = () => {
         var collection_index = typeof i === "number" ? index2 : i.v;
         get_collection()[collection_index];
@@ -2360,6 +2575,8 @@ ${indent}in ${name}`).join("")}
       {
         if (next_class_name == null) {
           dom.removeAttribute("class");
+        } else if (is_html) {
+          dom.className = next_class_name;
         } else {
           dom.setAttribute("class", next_class_name);
         }
@@ -2410,6 +2627,18 @@ ${indent}in ${name}`).join("")}
       proto = get_prototype_of(proto);
     }
     return setters;
+  }
+  function set_style(dom, key, value, important) {
+    var styles = dom.__styles ?? (dom.__styles = {});
+    if (styles[key] === value) {
+      return;
+    }
+    styles[key] = value;
+    if (value == null) {
+      dom.style.removeProperty(key);
+    } else {
+      dom.style.setProperty(key, value, "");
+    }
   }
   const _ResizeObserverSingleton = class _ResizeObserverSingleton {
     /** @param {ResizeObserverOptions} options */
@@ -2475,6 +2704,63 @@ ${indent}in ${name}`).join("")}
   function bind_window_size(type, set2) {
     listen(window, ["resize"], () => without_reactive_context(() => set2(window[type])));
   }
+  function init(immutable = false) {
+    const context = (
+      /** @type {ComponentContextLegacy} */
+      component_context
+    );
+    const callbacks = context.l.u;
+    if (!callbacks) return;
+    let props = () => deep_read_state(context.s);
+    if (immutable) {
+      let version = 0;
+      let prev = (
+        /** @type {Record<string, any>} */
+        {}
+      );
+      const d = /* @__PURE__ */ derived(() => {
+        let changed = false;
+        const props2 = context.s;
+        for (const key in props2) {
+          if (props2[key] !== prev[key]) {
+            prev[key] = props2[key];
+            changed = true;
+          }
+        }
+        if (changed) version++;
+        return version;
+      });
+      props = () => get(d);
+    }
+    if (callbacks.b.length) {
+      user_pre_effect(() => {
+        observe_all(context, props);
+        run_all(callbacks.b);
+      });
+    }
+    user_effect(() => {
+      const fns = untrack(() => callbacks.m.map(run));
+      return () => {
+        for (const fn of fns) {
+          if (typeof fn === "function") {
+            fn();
+          }
+        }
+      };
+    });
+    if (callbacks.a.length) {
+      user_effect(() => {
+        observe_all(context, props);
+        run_all(callbacks.a);
+      });
+    }
+  }
+  function observe_all(context, props) {
+    if (context.l.s) {
+      for (const signal of context.l.s) get(signal);
+    }
+    props();
+  }
   {
     let throw_rune_error = function(rune) {
       if (!(rune in globalThis)) {
@@ -2514,7 +2800,7 @@ ${indent}in ${name}`).join("")}
   function prop(props, key, flags, fallback) {
     var _a;
     var immutable = (flags & PROPS_IS_IMMUTABLE) !== 0;
-    var runes = true;
+    var runes = !legacy_mode_flag || (flags & PROPS_IS_RUNES) !== 0;
     var bindable = (flags & PROPS_IS_BINDABLE) !== 0;
     var lazy = (flags & PROPS_IS_LAZY_INITIAL) !== 0;
     var is_store_sub = false;
@@ -2560,7 +2846,7 @@ ${indent}in ${name}`).join("")}
       if (setter) setter(prop_value);
     }
     var getter;
-    {
+    if (runes) {
       getter = () => {
         var value = (
           /** @type {V} */
@@ -2571,6 +2857,20 @@ ${indent}in ${name}`).join("")}
         fallback_used = false;
         return value;
       };
+    } else {
+      var derived_getter = (immutable ? derived : derived_safe_equal)(
+        () => (
+          /** @type {V} */
+          props[key]
+        )
+      );
+      derived_getter.f |= LEGACY_DERIVED_PROP;
+      getter = () => {
+        var value = get(derived_getter);
+        if (value !== void 0) fallback_value = /** @type {V} */
+        void 0;
+        return value === void 0 ? fallback_value : value;
+      };
     }
     if ((flags & PROPS_IS_UPDATED) === 0) {
       return getter;
@@ -2579,7 +2879,7 @@ ${indent}in ${name}`).join("")}
       var legacy_parent = props.$$legacy;
       return function(value, mutation) {
         if (arguments.length > 0) {
-          if (!mutation || legacy_parent || is_store_sub) {
+          if (!runes || !mutation || legacy_parent || is_store_sub) {
             setter(mutation ? getter() : value);
           }
           return value;
@@ -2602,7 +2902,7 @@ ${indent}in ${name}`).join("")}
     if (!immutable) current_value.equals = safe_equals;
     return function(value, mutation) {
       if (arguments.length > 0) {
-        const new_value = mutation ? get(current_value) : bindable ? proxy(value) : value;
+        const new_value = mutation ? get(current_value) : runes && bindable ? proxy(value) : value;
         if (!current_value.equals(new_value)) {
           from_child = true;
           set(inner_current_value, new_value);
@@ -2621,11 +2921,11 @@ ${indent}in ${name}`).join("")}
     (window.__svelte || (window.__svelte = { v: /* @__PURE__ */ new Set() })).v.add(PUBLIC_VERSION);
   mark_module_start();
   Header[FILENAME] = "src/template/Header.svelte";
-  var root$4 = add_locations(/* @__PURE__ */ template2(`<div class="header svelte-1cps9pi"><h2 class="title svelte-1cps9pi"> </h2> <h3 class="subtitle svelte-1cps9pi"> </h3></div>`), Header[FILENAME], [[5, 0, [[6, 2], [7, 2]]]]);
+  var root$5 = add_locations(/* @__PURE__ */ template2(`<div class="header svelte-1cps9pi"><h2 class="title svelte-1cps9pi"> </h2> <h3 class="subtitle svelte-1cps9pi"> </h3></div>`), Header[FILENAME], [[5, 0, [[6, 2], [7, 2]]]]);
   function Header($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Header);
-    var div = root$4();
+    var div = root$5();
     var h2 = child(div);
     var text = child(h2);
     var h3 = sibling(h2, 2);
@@ -2642,13 +2942,13 @@ ${indent}in ${name}`).join("")}
   mark_module_start();
   Footer[FILENAME] = "src/template/Footer.svelte";
   var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="logo svelte-g4y3d9"><img alt="World Bank logo" class="svelte-g4y3d9"></div>`), Footer[FILENAME], [[9, 4, [[9, 22]]]]);
-  var root$3 = add_locations(/* @__PURE__ */ template2(`<div class="footer svelte-g4y3d9"><div class="notes svelte-g4y3d9"><span class="notes-title svelte-g4y3d9"> </span> </div> <!></div>`), Footer[FILENAME], [
+  var root$4 = add_locations(/* @__PURE__ */ template2(`<div class="footer svelte-g4y3d9"><div class="notes svelte-g4y3d9"><span class="notes-title svelte-g4y3d9"> </span> </div> <!></div>`), Footer[FILENAME], [
     [6, 0, [[7, 4, [[7, 23]]]]]
   ]);
   function Footer($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Footer);
-    var div = root$3();
+    var div = root$4();
     var div_1 = child(div);
     var span = child(div_1);
     var text = child(span);
@@ -2673,6 +2973,166 @@ ${indent}in ${name}`).join("")}
     return pop({ ...legacy_api() });
   }
   mark_module_end(Footer);
+  enable_legacy_mode_flag();
+  let wbColors = {
+    "cat1": "#34A7F2",
+    "cat2": "#FF9800",
+    "cat3": "#664AB6",
+    "cat4": "#4EC2C0",
+    "cat5": "#F3578E",
+    "cat6": "#081079",
+    "cat7": "#0C7C68",
+    "cat8": "#AA0000",
+    "cat9": "#DDDA21",
+    "wld": "#081079",
+    "nac": "#34A7F2",
+    "lcn": "#0C7C68",
+    "sas": "#4EC2C0",
+    "mea": "#664AB6",
+    "ecs": "#AA0000",
+    "eas": "#F3578E",
+    "ssf": "#FF9800",
+    "afe": "#FF9800",
+    "afw": "#DDDA21",
+    "hic": "#016B6C",
+    "umc": "#73AF48",
+    "lmc": "#DB95D7",
+    "lic": "#3B4DA6",
+    "male": "#664AB6",
+    "female": "#FF9800",
+    "diverse": "#4EC2C0",
+    "rural": "#54AE89",
+    "urban": "#6D88D1",
+    "youngestAge": "#F8A8DF",
+    "youngerAge": "#B38FD8",
+    "middleAge": "#8A969F",
+    "olderAge": "#6D88D1",
+    "oldestAge": "#A1C6FF",
+    "yes": "#0071BC",
+    "no": "#EBEEF4",
+    "noData": "#CED4DE",
+    "seq1": "#FDF6DB",
+    "seq2": "#A1CBCF",
+    "seq3": "#5D99C2",
+    "seq4": "#2868A0",
+    "seq5": "#023B6F",
+    "seqRev1": "#E3F6FD",
+    "seqRev2": "#91C5F0",
+    "seqRev3": "#8B8AC0",
+    "seqRev4": "#88506E",
+    "seqRev5": "#691B15",
+    "seqB1": "#E3F6FD",
+    "seqB2": "#75CCEC",
+    "seqB3": "#089BD4",
+    "seqB4": "#0169A1",
+    "seqB5": "#023B6F",
+    "seqY1": "#FDF7DB",
+    "seqY2": "#ECB63A",
+    "seqY3": "#BE792B",
+    "seqY4": "#8D4117",
+    "seqY5": "#5C0000",
+    "seqP1": "#FFE2FF",
+    "seqP2": "#D3ACE6",
+    "seqP3": "#A37ACD",
+    "seqP4": "#6F4CB4",
+    "seqP5": "#2F1E9C",
+    "divPos3": "#025288",
+    "divPos2": "#3587C3",
+    "divPos1": "#80BDE7",
+    "divMid": "#EFEFEF",
+    "divNeg1": "#E3A763",
+    "divNeg2": "#BD6126",
+    "divNeg3": "#920000",
+    "div2L3": "#24768E",
+    "div2L2": "#4EA2AC",
+    "div2L1": "#98CBCC",
+    "div2Mid": "#EFEFEF",
+    "div2R1": "#D1AEE3",
+    "div2R2": "#A873C4",
+    "div2R3": "#754493"
+  };
+  mark_module_start();
+  CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
+  var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[26, 6, [[27, 8], [31, 8]]]]);
+  var root_3$1 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[36, 6, [[37, 8], [38, 8]]]]);
+  var root$3 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
+    [
+      17,
+      0,
+      [
+        [18, 2, [[19, 4, [[20, 6]]]]],
+        [23, 2]
+      ]
+    ]
+  ]);
+  function CategoricalColorLegend($$anchor, $$props) {
+    check_target(new.target);
+    push($$props, false, CategoricalColorLegend);
+    let title = prop($$props, "title", 8);
+    let catColorScale = prop($$props, "catColorScale", 8);
+    let includeNoData = prop($$props, "includeNoData", 8);
+    let noDataLabel = prop($$props, "noDataLabel", 8);
+    let usedCats = prop($$props, "usedCats", 8);
+    init();
+    var div = root$3();
+    set_class(div, 1, "legend svelte-hjs62s");
+    var div_1 = child(div);
+    var div_2 = child(div_1);
+    var span = child(div_2);
+    var text = child(span);
+    var div_3 = sibling(div_1, 2);
+    var node = child(div_3);
+    each(node, 1, () => catColorScale().domain(), index, ($$anchor2, item) => {
+      var fragment = comment();
+      var node_1 = first_child(fragment);
+      {
+        var consequent = ($$anchor3) => {
+          var div_4 = root_2$3();
+          var div_5 = child(div_4);
+          set_class(div_5, 1, `pill circle`, "svelte-hjs62s");
+          var div_6 = sibling(div_5, 2);
+          set_class(div_6, 1, "label small");
+          var text_1 = child(div_6);
+          template_effect(
+            ($0) => {
+              set_style(div_5, "background-color", $0);
+              set_text(text_1, get(item));
+            },
+            [() => catColorScale()(get(item))],
+            derived_safe_equal
+          );
+          append($$anchor3, div_4);
+        };
+        if_block(node_1, ($$render) => {
+          if (usedCats().includes(get(item))) $$render(consequent);
+        });
+      }
+      append($$anchor2, fragment);
+    });
+    var node_2 = sibling(node, 2);
+    {
+      var consequent_1 = ($$anchor2) => {
+        var div_7 = root_3$1();
+        var div_8 = child(div_7);
+        set_class(div_8, 1, `pill circle`, "svelte-hjs62s");
+        var div_9 = sibling(div_8, 2);
+        set_class(div_9, 1, "label small");
+        var text_2 = child(div_9);
+        template_effect(() => {
+          set_style(div_8, "background-color", wbColors.noData);
+          set_text(text_2, noDataLabel());
+        });
+        append($$anchor2, div_7);
+      };
+      if_block(node_2, ($$render) => {
+        if (includeNoData()) $$render(consequent_1);
+      });
+    }
+    template_effect(() => set_text(text, title()));
+    append($$anchor, div);
+    return pop({ ...legacy_api() });
+  }
+  mark_module_end(CategoricalColorLegend);
   class AccurateBeeswarm {
     constructor(items, radius, xFun) {
       this.items = items;
@@ -4318,83 +4778,6 @@ ${indent}in ${name}`).join("")}
     };
     return initInterpolator.apply(scale, arguments);
   }
-  let wbColors = {
-    "cat1": "#34A7F2",
-    "cat2": "#FF9800",
-    "cat3": "#664AB6",
-    "cat4": "#4EC2C0",
-    "cat5": "#F3578E",
-    "cat6": "#081079",
-    "cat7": "#0C7C68",
-    "cat8": "#AA0000",
-    "cat9": "#DDDA21",
-    "wld": "#081079",
-    "nac": "#34A7F2",
-    "lcn": "#0C7C68",
-    "sas": "#4EC2C0",
-    "mea": "#664AB6",
-    "ecs": "#AA0000",
-    "eas": "#F3578E",
-    "ssf": "#FF9800",
-    "afe": "#FF9800",
-    "afw": "#DDDA21",
-    "hic": "#016B6C",
-    "umc": "#73AF48",
-    "lmc": "#DB95D7",
-    "lic": "#3B4DA6",
-    "male": "#664AB6",
-    "female": "#FF9800",
-    "diverse": "#4EC2C0",
-    "rural": "#54AE89",
-    "urban": "#6D88D1",
-    "youngestAge": "#F8A8DF",
-    "youngerAge": "#B38FD8",
-    "middleAge": "#8A969F",
-    "olderAge": "#6D88D1",
-    "oldestAge": "#A1C6FF",
-    "yes": "#0071BC",
-    "no": "#EBEEF4",
-    "noData": "#CED4DE",
-    "seq1": "#FDF6DB",
-    "seq2": "#A1CBCF",
-    "seq3": "#5D99C2",
-    "seq4": "#2868A0",
-    "seq5": "#023B6F",
-    "seqRev1": "#E3F6FD",
-    "seqRev2": "#91C5F0",
-    "seqRev3": "#8B8AC0",
-    "seqRev4": "#88506E",
-    "seqRev5": "#691B15",
-    "seqB1": "#E3F6FD",
-    "seqB2": "#75CCEC",
-    "seqB3": "#089BD4",
-    "seqB4": "#0169A1",
-    "seqB5": "#023B6F",
-    "seqY1": "#FDF7DB",
-    "seqY2": "#ECB63A",
-    "seqY3": "#BE792B",
-    "seqY4": "#8D4117",
-    "seqY5": "#5C0000",
-    "seqP1": "#FFE2FF",
-    "seqP2": "#D3ACE6",
-    "seqP3": "#A37ACD",
-    "seqP4": "#6F4CB4",
-    "seqP5": "#2F1E9C",
-    "divPos3": "#025288",
-    "divPos2": "#3587C3",
-    "divPos1": "#80BDE7",
-    "divMid": "#EFEFEF",
-    "divNeg1": "#E3A763",
-    "divNeg2": "#BD6126",
-    "divNeg3": "#920000",
-    "div2L3": "#24768E",
-    "div2L2": "#4EA2AC",
-    "div2L1": "#98CBCC",
-    "div2Mid": "#EFEFEF",
-    "div2R1": "#D1AEE3",
-    "div2R2": "#A873C4",
-    "div2R3": "#754493"
-  };
   let allColors = {
     "wld": wbColors.wld,
     "nac": wbColors.nac,
@@ -4542,7 +4925,7 @@ ${indent}in ${name}`).join("")}
   mark_module_start();
   ChartGrid[FILENAME] = "src/template/ChartGrid.svelte";
   var root_3 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[50, 8]]);
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!>`, 1), ChartGrid[FILENAME], [[39, 6]]);
+  var root_2$2 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!>`, 1), ChartGrid[FILENAME], [[39, 6]]);
   var root_4 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[61, 6]]);
   var root_1 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ChartGrid[FILENAME], []);
   var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[80, 8]]);
@@ -4574,7 +4957,7 @@ ${indent}in ${name}`).join("")}
         var fragment = root_1();
         var node_1 = first_child(fragment);
         each(node_1, 17, () => get(formattedTicks), index, ($$anchor3, tick) => {
-          var fragment_1 = root_2$1();
+          var fragment_1 = root_2$2();
           var line = first_child(fragment_1);
           set_attribute(line, "x1", 0);
           set_attribute(line, "x2", 0);
@@ -4704,8 +5087,8 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[136, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[123, 0]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[143, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[130, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -4776,7 +5159,7 @@ ${indent}in ${name}`).join("")}
         var fragment = comment();
         var node_2 = first_child(fragment);
         each(node_2, 17, () => get(beeswarmData), index, ($$anchor3, bee) => {
-          var circle = root_2();
+          var circle = root_2$1();
           template_effect(
             ($0, $1) => {
               set_attribute(circle, "r", $$props.beeRadius);
@@ -4807,14 +5190,15 @@ ${indent}in ${name}`).join("")}
   mark_module_end(Beeswarm);
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1xm5ugn"><div class="header-container"><!></div> <div class="viz-container svelte-1xm5ugn"><svg><!></svg></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-vkqg7t"><!> <!></div>`), Viz[FILENAME], [[107, 2]]);
+  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-vkqg7t"><div class="header-container"><!></div> <div class="viz-container svelte-vkqg7t"><svg><!></svg></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      38,
+      73,
       0,
       [
-        [39, 2],
-        [45, 2, [[46, 4]]],
-        [71, 2]
+        [74, 2],
+        [80, 2, [[81, 4]]],
+        [134, 2]
       ]
     ]
   ]);
@@ -4825,8 +5209,29 @@ ${indent}in ${name}`).join("")}
     let height = state$1(500);
     let headerHeight = state$1(0);
     let footerHeight = state$1(0);
-    let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight));
+    let legendHeight = state$1(0);
+    let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight) - get(legendHeight));
     let vizWidth = state$1(void 0);
+    let valueType = /* @__PURE__ */ derived(() => $$props.data.plotdata.metadata.color.type);
+    const noDataColor = wbColors.noData;
+    let colorDomain = /* @__PURE__ */ derived(() => [
+      ...new Set($$props.data.plotdata.map((d) => d.color.toLowerCase()))
+    ].filter((d) => equals(d, "", false)));
+    let colorRange = /* @__PURE__ */ derived(() => {
+      let range2 = get(colorDomain).map((d) => {
+        if (allColors[d]) {
+          return allColors[d];
+        } else {
+          return noDataColor;
+        }
+      });
+      if (range2.every((d) => equals(d, noDataColor))) {
+        return Object.values(catColors.default);
+      } else {
+        return range2;
+      }
+    });
+    let catColorScale = /* @__PURE__ */ derived(() => ordinal(get(colorDomain), get(colorRange)).unknown(noDataColor));
     var div = root();
     var div_1 = child(div);
     var node = child(div_1);
@@ -4907,9 +5312,48 @@ ${indent}in ${name}`).join("")}
         return $$props.categoricalColorPalette;
       }
     });
-    var div_3 = sibling(div_2, 2);
-    var node_2 = child(div_3);
-    Footer(node_2, {
+    var node_2 = sibling(div_2, 2);
+    {
+      var consequent_3 = ($$anchor2) => {
+        var div_3 = root_2();
+        var node_3 = child(div_3);
+        {
+          var consequent_1 = ($$anchor3) => {
+          };
+          if_block(node_3, ($$render) => {
+            if (equals(get(valueType), "number")) $$render(consequent_1);
+          });
+        }
+        var node_4 = sibling(node_3, 2);
+        {
+          var consequent_2 = ($$anchor3) => {
+            const expression = /* @__PURE__ */ derived(() => get(catColorScale).domain());
+            CategoricalColorLegend($$anchor3, {
+              title: "legendTitle",
+              get catColorScale() {
+                return get(catColorScale);
+              },
+              get usedCats() {
+                return get(expression);
+              },
+              includeNoData: true,
+              noDataLabel: "noDataLabel"
+            });
+          };
+          if_block(node_4, ($$render) => {
+            if (equals(get(valueType), "string")) $$render(consequent_2);
+          });
+        }
+        bind_element_size(div_3, "clientHeight", ($$value) => set(legendHeight, $$value));
+        append($$anchor2, div_3);
+      };
+      if_block(node_2, ($$render) => {
+        $$render(consequent_3);
+      });
+    }
+    var div_4 = sibling(node_2, 2);
+    var node_5 = child(div_4);
+    Footer(node_5, {
       get notesTitle() {
         return $$props.notesTitle;
       },
@@ -4928,7 +5372,7 @@ ${indent}in ${name}`).join("")}
     bind_window_size("innerHeight", ($$value) => set(height, proxy($$value, null, height)));
     bind_element_size(div_1, "clientHeight", ($$value) => set(headerHeight, $$value));
     bind_element_size(div_2, "clientWidth", ($$value) => set(vizWidth, $$value));
-    bind_element_size(div_3, "clientHeight", ($$value) => set(footerHeight, $$value));
+    bind_element_size(div_4, "clientHeight", ($$value) => set(footerHeight, $$value));
     append($$anchor, div);
     return pop({ ...legacy_api() });
   }

@@ -225,7 +225,7 @@ data:
     description: The values to use for coloring the bees
     dataset: plotdata
     type: column
-    column: "country_data::C"
+    column: "country_data::E"
     data_type:
       - string
       - number
