@@ -3,19 +3,9 @@
   import {
     scaleLinear,
     scaleLog,
-    scaleBand,
-    scaleSequential,
-    scaleQuantize,
-    scaleQuantile,
-    scaleOrdinal,
+    scaleBand
   } from 'd3-scale';
   import { extent } from 'd3-array';
-  import {
-    colorRamps,
-    getDiscreteColors,
-    catColors,
-    allColors,
-  } from './utils/colorramps';
   import { wbColors } from './utils/colors';
   import { getFill } from './utils/utils';
   import ChartGrid from './template/ChartGrid.svelte';
@@ -33,12 +23,6 @@
     divideValues,
     units,
     axisTitle,
-    scaleType,
-    colorScale,
-    colorScaleDiverging,
-    linearOrBinned,
-    binningMode,
-    numberOfBins,
     catColorScale,
     contColorScale
   } = $props();

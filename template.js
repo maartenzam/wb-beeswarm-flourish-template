@@ -5109,128 +5109,6 @@ ${indent}in ${name}`).join("")}
     };
     return initInterpolator.apply(scale, arguments);
   }
-  let allColors = {
-    "wld": wbColors.wld,
-    "nac": wbColors.nac,
-    "lcn": wbColors.lcn,
-    "sas": wbColors.sas,
-    "mea": wbColors.mea,
-    "ecs": wbColors.ecs,
-    "eas": wbColors.eas,
-    "ssf": wbColors.ssf,
-    "afe": wbColors.afe,
-    "afw": wbColors.afw,
-    "world": wbColors.wld,
-    "north america": wbColors.nac,
-    "latin america and caribbean": wbColors.lcn,
-    "south asia": wbColors.sas,
-    "middle east and north africa": wbColors.mea,
-    "europe and central asia": wbColors.ecs,
-    "east asia and pacific": wbColors.eas,
-    "sub-saharan africa": wbColors.ssf,
-    "hic": wbColors.hic,
-    "umc": wbColors.umc,
-    "lmc": wbColors.lmc,
-    "lic": wbColors.lic,
-    "High income": wbColors.hic,
-    "Upper middle income": wbColors.umc,
-    "Lower middle income": wbColors.lmc,
-    "Low income": wbColors.lic,
-    "male": wbColors.male,
-    "female": wbColors.female,
-    "diverse": wbColors.diverse,
-    "rural": wbColors.rural,
-    "urban": wbColors.urban,
-    "youngestage": wbColors.youngestAge,
-    "youngerage": wbColors.youngerAge,
-    "middleage": wbColors.middleAge,
-    "olderage": wbColors.olderAge,
-    "oldestage": wbColors.oldestAge,
-    "yes": wbColors.yes,
-    "no": wbColors.no
-  };
-  let catColors = {
-    default: {
-      cat1: wbColors.cat1,
-      cat2: wbColors.cat2,
-      cat3: wbColors.cat3,
-      cat4: wbColors.cat4,
-      cat5: wbColors.cat5,
-      cat6: wbColors.cat6,
-      cat7: wbColors.cat7,
-      cat8: wbColors.cat8,
-      cat9: wbColors.cat9
-    }
-  };
-  let seqColors = {
-    seq: [
-      wbColors.seq1,
-      wbColors.seq2,
-      wbColors.seq3,
-      wbColors.seq4,
-      wbColors.seq5
-    ],
-    seqRev: [
-      wbColors.seqRev1,
-      wbColors.seqRev2,
-      wbColors.seqRev3,
-      wbColors.seqRev4,
-      wbColors.seqRev5
-    ],
-    seqB: [
-      wbColors.seqB1,
-      wbColors.seqB2,
-      wbColors.seqB3,
-      wbColors.seqB4,
-      wbColors.seqB5
-    ],
-    seqY: [
-      wbColors.seqY1,
-      wbColors.seqY2,
-      wbColors.seqY3,
-      wbColors.seqY4,
-      wbColors.seqY5
-    ],
-    seqP: [
-      wbColors.seqP1,
-      wbColors.seqP2,
-      wbColors.seqP3,
-      wbColors.seqP4,
-      wbColors.seqP5
-    ],
-    div: [
-      wbColors.divNeg3,
-      wbColors.divNeg2,
-      wbColors.divNeg1,
-      wbColors.divMid,
-      wbColors.divPos1,
-      wbColors.divPos2,
-      wbColors.divPos3
-    ],
-    div2: [
-      wbColors.div2L3,
-      wbColors.div2L2,
-      wbColors.div2L1,
-      wbColors.div2Mid,
-      wbColors.div2R1,
-      wbColors.div2R2,
-      wbColors.div2R3
-    ]
-  };
-  let colorRamps = {
-    seq: piecewise(lab, seqColors.seq),
-    seqRev: piecewise(lab, seqColors.seqRev),
-    seqB: piecewise(lab, seqColors.seqB),
-    seqY: piecewise(lab, seqColors.seqY),
-    seqP: piecewise(lab, seqColors.seqP),
-    div: piecewise(lab, seqColors.div),
-    div2: piecewise(lab, seqColors.div2)
-  };
-  let getDiscreteColors = function(colorRamp, colorNumber) {
-    let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
-    let colors = arr.map((d) => colorRamp(d));
-    return colors;
-  };
   let getValue = function(countryCode, data2) {
     if (data2.find((d) => d.iso3c == countryCode)) {
       return data2.find((d) => d.iso3c == countryCode).value;
@@ -5418,8 +5296,8 @@ ${indent}in ${name}`).join("")}
   mark_module_end(ChartGrid);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[123, 6]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[110, 0]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[79, 6]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), Beeswarm[FILENAME], [[66, 0]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -5500,17 +5378,139 @@ ${indent}in ${name}`).join("")}
     return pop({ ...legacy_api() });
   }
   mark_module_end(Beeswarm);
+  let allColors = {
+    "wld": wbColors.wld,
+    "nac": wbColors.nac,
+    "lcn": wbColors.lcn,
+    "sas": wbColors.sas,
+    "mea": wbColors.mea,
+    "ecs": wbColors.ecs,
+    "eas": wbColors.eas,
+    "ssf": wbColors.ssf,
+    "afe": wbColors.afe,
+    "afw": wbColors.afw,
+    "world": wbColors.wld,
+    "north america": wbColors.nac,
+    "latin america and caribbean": wbColors.lcn,
+    "south asia": wbColors.sas,
+    "middle east and north africa": wbColors.mea,
+    "europe and central asia": wbColors.ecs,
+    "east asia and pacific": wbColors.eas,
+    "sub-saharan africa": wbColors.ssf,
+    "hic": wbColors.hic,
+    "umc": wbColors.umc,
+    "lmc": wbColors.lmc,
+    "lic": wbColors.lic,
+    "High income": wbColors.hic,
+    "Upper middle income": wbColors.umc,
+    "Lower middle income": wbColors.lmc,
+    "Low income": wbColors.lic,
+    "male": wbColors.male,
+    "female": wbColors.female,
+    "diverse": wbColors.diverse,
+    "rural": wbColors.rural,
+    "urban": wbColors.urban,
+    "youngestage": wbColors.youngestAge,
+    "youngerage": wbColors.youngerAge,
+    "middleage": wbColors.middleAge,
+    "olderage": wbColors.olderAge,
+    "oldestage": wbColors.oldestAge,
+    "yes": wbColors.yes,
+    "no": wbColors.no
+  };
+  let catColors = {
+    default: {
+      cat1: wbColors.cat1,
+      cat2: wbColors.cat2,
+      cat3: wbColors.cat3,
+      cat4: wbColors.cat4,
+      cat5: wbColors.cat5,
+      cat6: wbColors.cat6,
+      cat7: wbColors.cat7,
+      cat8: wbColors.cat8,
+      cat9: wbColors.cat9
+    }
+  };
+  let seqColors = {
+    seq: [
+      wbColors.seq1,
+      wbColors.seq2,
+      wbColors.seq3,
+      wbColors.seq4,
+      wbColors.seq5
+    ],
+    seqRev: [
+      wbColors.seqRev1,
+      wbColors.seqRev2,
+      wbColors.seqRev3,
+      wbColors.seqRev4,
+      wbColors.seqRev5
+    ],
+    seqB: [
+      wbColors.seqB1,
+      wbColors.seqB2,
+      wbColors.seqB3,
+      wbColors.seqB4,
+      wbColors.seqB5
+    ],
+    seqY: [
+      wbColors.seqY1,
+      wbColors.seqY2,
+      wbColors.seqY3,
+      wbColors.seqY4,
+      wbColors.seqY5
+    ],
+    seqP: [
+      wbColors.seqP1,
+      wbColors.seqP2,
+      wbColors.seqP3,
+      wbColors.seqP4,
+      wbColors.seqP5
+    ],
+    div: [
+      wbColors.divNeg3,
+      wbColors.divNeg2,
+      wbColors.divNeg1,
+      wbColors.divMid,
+      wbColors.divPos1,
+      wbColors.divPos2,
+      wbColors.divPos3
+    ],
+    div2: [
+      wbColors.div2L3,
+      wbColors.div2L2,
+      wbColors.div2L1,
+      wbColors.div2Mid,
+      wbColors.div2R1,
+      wbColors.div2R2,
+      wbColors.div2R3
+    ]
+  };
+  let colorRamps = {
+    seq: piecewise(lab, seqColors.seq),
+    seqRev: piecewise(lab, seqColors.seqRev),
+    seqB: piecewise(lab, seqColors.seqB),
+    seqY: piecewise(lab, seqColors.seqY),
+    seqP: piecewise(lab, seqColors.seqP),
+    div: piecewise(lab, seqColors.div),
+    div2: piecewise(lab, seqColors.div2)
+  };
+  let getDiscreteColors = function(colorRamp, colorNumber) {
+    let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
+    let colors = arr.map((d) => colorRamp(d));
+    return colors;
+  };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-vkqg7t"><!> <!></div>`), Viz[FILENAME], [[160, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-vkqg7t"><!> <!></div>`), Viz[FILENAME], [[158, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-vkqg7t"><div class="header-container"><!></div> <div class="viz-container svelte-vkqg7t"><svg><!></svg></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      125,
+      129,
       0,
       [
-        [126, 2],
-        [132, 2, [[133, 4]]],
-        [186, 2]
+        [130, 2],
+        [136, 2, [[137, 4]]],
+        [184, 2]
       ]
     ]
   ]);
@@ -5614,24 +5614,6 @@ ${indent}in ${name}`).join("")}
       get axisTitle() {
         return $$props.axisTitle;
       },
-      get scaleType() {
-        return $$props.scaleType;
-      },
-      get colorScale() {
-        return $$props.colorScale;
-      },
-      get colorScaleDiverging() {
-        return $$props.colorScaleDiverging;
-      },
-      get linearOrBinned() {
-        return $$props.linearOrBinned;
-      },
-      get binningMode() {
-        return $$props.binningMode;
-      },
-      get numberOfBins() {
-        return $$props.numberOfBins;
-      },
       get catColorScale() {
         return get(catColorScale);
       },
@@ -5650,8 +5632,12 @@ ${indent}in ${name}`).join("")}
               get width() {
                 return get(vizWidth);
               },
-              title: "legendTitle",
-              unitLabel: "unitLabel",
+              get title() {
+                return $$props.legendTitle;
+              },
+              get unitLabel() {
+                return $$props.unitLabel;
+              },
               get contColorScale() {
                 return get(contColorScale);
               },
@@ -5662,8 +5648,12 @@ ${indent}in ${name}`).join("")}
                 return $$props.binningMode;
               },
               units: "%",
-              includeNoData: true,
-              noDataLabel: "noDataLabel"
+              get includeNoData() {
+                return $$props.includeNoData;
+              },
+              get noDataLabel() {
+                return $$props.noDataLabel;
+              }
             });
           };
           if_block(node_3, ($$render) => {
@@ -5675,15 +5665,21 @@ ${indent}in ${name}`).join("")}
           var consequent_2 = ($$anchor3) => {
             const expression = /* @__PURE__ */ derived(() => get(catColorScale).domain());
             CategoricalColorLegend($$anchor3, {
-              title: "legendTitle",
+              get title() {
+                return $$props.legendTitle;
+              },
               get catColorScale() {
                 return get(catColorScale);
               },
               get usedCats() {
                 return get(expression);
               },
-              includeNoData: true,
-              noDataLabel: "noDataLabel"
+              get includeNoData() {
+                return $$props.includeNoData;
+              },
+              get noDataLabel() {
+                return $$props.noDataLabel;
+              }
             });
           };
           if_block(node_4, ($$render) => {
@@ -5694,7 +5690,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, div_3);
       };
       if_block(node_2, ($$render) => {
-        $$render(consequent_3);
+        if ($$props.showLegend) $$render(consequent_3);
       });
     }
     var div_4 = sibling(node_2, 2);
@@ -5753,6 +5749,11 @@ ${indent}in ${name}`).join("")}
     binningMode: "fixedWidth",
     numberOfBins: 4,
     categoricalColorPalette: "default",
+    showLegend: true,
+    legendTitle: "",
+    includeNoData: true,
+    noDataLabel: "No data",
+    unitLabel: "",
     title: "",
     subtitle: "",
     notesTitle: "",

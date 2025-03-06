@@ -41,7 +41,11 @@
     linearOrBinned,
     binningMode,
     numberOfBins,
-    categoricalColorPalette,
+    showLegend,
+    legendTitle,
+    unitLabel,
+    includeNoData,
+    noDataLabel
   } = $props();
 
   let width = $state(500);
@@ -144,40 +148,34 @@
         {divideValues}
         {units}
         {axisTitle}
-        {scaleType}
-        {colorScale}
-        {colorScaleDiverging}
-        {linearOrBinned}
-        {binningMode}
-        {numberOfBins}
         {catColorScale}
         {contColorScale}
       ></Beeswarm>
     </svg>
   </div>
 
-  {#if true}
+  {#if showLegend}
     <div class="legend-container" bind:clientHeight={legendHeight}>
       {#if valueType == 'number'}
         <ContinuousColorLegend
           width={vizWidth}
-          title={"legendTitle"}
-          unitLabel={"unitLabel"}
+          title={legendTitle}
+          unitLabel={unitLabel}
           {contColorScale}
           {linearOrBinned}
           {binningMode}
           units={"%"}
-          includeNoData={true}
-          noDataLabel={"noDataLabel"}
+          includeNoData={includeNoData}
+          noDataLabel={noDataLabel}
         ></ContinuousColorLegend>
       {/if}
       {#if valueType == 'string'}
         <CategoricalColorLegend
-          title={'legendTitle'}
+          title={legendTitle}
           {catColorScale}
           usedCats={catColorScale.domain()}
-          includeNoData={true}
-          noDataLabel={'noDataLabel'}
+          includeNoData={includeNoData}
+          noDataLabel={noDataLabel}
         ></CategoricalColorLegend>
       {/if}
     </div>

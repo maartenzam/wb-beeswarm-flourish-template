@@ -182,6 +182,28 @@ settings:
     hide_if:
       data.plotdata.color.type: number
 
+  - Legend
+  - property: showLegend
+    name: Show legend
+    description: Display the color legend
+    type: boolean
+  - property: legendTitle
+    name: Legend title
+    type: string
+    show_if: showLegend
+  - property: unitLabel
+    name: Units
+    type: string
+    show_if: showLegend
+  - property: includeNoData
+    name: Include 'No data'
+    type: boolean
+    show_if: showLegend
+  - property: noDataLabel
+    name: No data label
+    type: string
+    show_if: showLegend
+
   - Footer
   - property: notesTitle
     name: Notes title
