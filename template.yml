@@ -147,31 +147,30 @@ settings:
     show_if:
       scaleType: diverging
       data.plotdata.color.type: number
-  - property: domainAutoCustom
-    name: Domain
-    type: string
-    choices:
-      - [Auto, auto]
-      - [Custom, custom]
-    width: half
-    style: buttons
-    hide_if:
-      data.plotdata.color.type: string
-  - property: domainMin
-    name: Min
-    type: number
-    show_if:
-      - domainAutoCustom: custom
-      - data.plotdata.color.type: number
-    width: quarter
-      
-  - property: domainMax
-    name: Max
-    type: number
-    show_if:
-      - domainAutoCustom: custom
-      - data.plotdata.color.type: number
-    width: quarter
+# - property: domainAutoCustom
+#   name: Domain
+#   type: string
+#   choices:
+#     - [Auto, auto]
+#     - [Custom, custom]
+#   width: half
+#   style: buttons
+#   hide_if:
+#     data.plotdata.color.type: string
+# - property: domainMin
+#   name: Min
+#   type: number
+#   show_if:
+#     - domainAutoCustom: custom
+#     - data.plotdata.color.type: number
+#   width: quarter
+# - property: domainMax
+#   name: Max
+#   type: number
+#   show_if:
+#     - domainAutoCustom: custom
+#     - data.plotdata.color.type: number
+#   width: quarter
       
 #  - property: categoricalColorPalette
 #    name: Color palette
@@ -267,7 +266,7 @@ data:
     description: The values to use for coloring the bees
     dataset: plotdata
     type: column
-    column: "country_data::F"
+    column: "country_data::D"
     data_type:
       - string
       - number

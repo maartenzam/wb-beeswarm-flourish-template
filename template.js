@@ -7257,8 +7257,8 @@ ${indent}in ${name}`).join("")}
     beeSpacing: 0,
     logScale: false,
     divideValues: 1,
-    units: "",
-    axisTitle: "",
+    units: "years",
+    axisTitle: "Life expectancy at birth",
     ySort: "asInData",
     yReverse: false,
     scaleType: "sequential",
@@ -7273,14 +7273,14 @@ ${indent}in ${name}`).join("")}
     includeNoData: true,
     noDataLabel: "No data",
     unitLabel: "",
-    title: "",
-    subtitle: "",
+    title: "Title",
+    subtitle: "Subtitle",
     addAnnotation: false,
     annotationValue: 0,
     annotationText: "",
-    notesTitle: "",
-    notes: "",
-    includeLogo: false
+    notesTitle: "Source: ",
+    notes: "World Bank",
+    includeLogo: true
   };
   let reactiveState = state$1(proxy({}));
   function draw() {
