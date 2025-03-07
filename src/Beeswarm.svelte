@@ -44,9 +44,10 @@
   const noDataColor = wbColors.noData;
 
   // Get the width of the y axis labels
-  let yLabels = $state();
+  let yLabels
   let yLabelsWidth = $state(0);
   $effect(() => {
+    console.log(yDomain)
     yLabelsWidth = yLabels.getBBox().width;
   });
 

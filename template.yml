@@ -3,7 +3,7 @@ id: 'wb-beeswarm-flourish-template'
 name: World Bank beeswarms
 description: Beeswarm plots styled with the World Bank Data Visualization Style
 author: Maarten Lambrechts
-version: 0.0.4
+version: 0.0.6
 
 # This template is compatible with SDK version 3
 sdk_version: 3

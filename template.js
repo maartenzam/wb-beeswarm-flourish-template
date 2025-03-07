@@ -211,6 +211,116 @@ https://svelte.dev/e/state_unsafe_mutation`);
   function enable_legacy_mode_flag() {
     legacy_mode_flag = true;
   }
+  var bold$1 = "font-weight: bold";
+  var normal$1 = "font-weight: normal";
+  function state_snapshot_uncloneable(properties) {
+    {
+      console.warn(`%c[svelte] state_snapshot_uncloneable
+%c${properties ? `The following properties cannot be cloned with \`$state.snapshot\` — the return value contains the originals:
+
+${properties}` : "Value cannot be cloned with `$state.snapshot` — the original value was returned"}
+https://svelte.dev/e/state_snapshot_uncloneable`, bold$1, normal$1);
+    }
+  }
+  const empty = [];
+  function snapshot(value, skip_warning = false) {
+    if (!skip_warning) {
+      const paths = [];
+      const copy2 = clone(value, /* @__PURE__ */ new Map(), "", paths);
+      if (paths.length === 1 && paths[0] === "") {
+        state_snapshot_uncloneable();
+      } else if (paths.length > 0) {
+        const slice = paths.length > 10 ? paths.slice(0, 7) : paths.slice(0, 10);
+        const excess = paths.length - slice.length;
+        let uncloned = slice.map((path) => `- <value>${path}`).join("\n");
+        if (excess > 0) uncloned += `
+- ...and ${excess} more`;
+        state_snapshot_uncloneable(uncloned);
+      }
+      return copy2;
+    }
+    return clone(value, /* @__PURE__ */ new Map(), "", empty);
+  }
+  function clone(value, cloned, path, paths, original = null) {
+    if (typeof value === "object" && value !== null) {
+      var unwrapped = cloned.get(value);
+      if (unwrapped !== void 0) return unwrapped;
+      if (value instanceof Map) return (
+        /** @type {Snapshot<T>} */
+        new Map(value)
+      );
+      if (value instanceof Set) return (
+        /** @type {Snapshot<T>} */
+        new Set(value)
+      );
+      if (is_array(value)) {
+        var copy2 = (
+          /** @type {Snapshot<any>} */
+          Array(value.length)
+        );
+        cloned.set(value, copy2);
+        if (original !== null) {
+          cloned.set(original, copy2);
+        }
+        for (var i = 0; i < value.length; i += 1) {
+          var element = value[i];
+          if (i in value) {
+            copy2[i] = clone(element, cloned, `${path}[${i}]`, paths);
+          }
+        }
+        return copy2;
+      }
+      if (get_prototype_of(value) === object_prototype) {
+        copy2 = {};
+        cloned.set(value, copy2);
+        if (original !== null) {
+          cloned.set(original, copy2);
+        }
+        for (var key in value) {
+          copy2[key] = clone(value[key], cloned, `${path}.${key}`, paths);
+        }
+        return copy2;
+      }
+      if (value instanceof Date) {
+        return (
+          /** @type {Snapshot<T>} */
+          structuredClone(value)
+        );
+      }
+      if (typeof /** @type {T & { toJSON?: any } } */
+      value.toJSON === "function") {
+        return clone(
+          /** @type {T & { toJSON(): any } } */
+          value.toJSON(),
+          cloned,
+          `${path}.toJSON()`,
+          paths,
+          // Associate the instance with the toJSON clone
+          value
+        );
+      }
+    }
+    if (value instanceof EventTarget) {
+      return (
+        /** @type {Snapshot<T>} */
+        value
+      );
+    }
+    try {
+      return (
+        /** @type {Snapshot<T>} */
+        structuredClone(value)
+      );
+    } catch (e) {
+      {
+        paths.push(path);
+      }
+      return (
+        /** @type {Snapshot<T>} */
+        value
+      );
+    }
+  }
   let inspect_effects = /* @__PURE__ */ new Set();
   function set_inspect_effects(v) {
     inspect_effects = v;
@@ -425,6 +535,13 @@ https://svelte.dev/e/state_unsafe_mutation`);
   }
   var bold = "font-weight: bold";
   var normal = "font-weight: normal";
+  function console_log_state(method) {
+    {
+      console.warn(`%c[svelte] console_log_state
+%cYour \`console.${method}\` contained \`$state\` proxies. Consider using \`$inspect(...)\` or \`$state.snapshot(...)\` instead
+https://svelte.dev/e/console_log_state`, bold, normal);
+    }
+  }
   function ownership_invalid_mutation(component, owner) {
     {
       console.warn(`%c[svelte] ownership_invalid_mutation
@@ -2086,14 +2203,14 @@ ${indent}in ${name}`).join("")}
         node = /** @type {Node} */
         /* @__PURE__ */ get_first_child(node);
       }
-      var clone = (
+      var clone2 = (
         /** @type {TemplateNode} */
         use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
       );
       {
-        assign_nodes(clone, clone);
+        assign_nodes(clone2, clone2);
       }
-      return clone;
+      return clone2;
     };
   }
   // @__NO_SIDE_EFFECTS__
@@ -2125,24 +2242,24 @@ ${indent}in ${name}`).join("")}
           /* @__PURE__ */ get_first_child(root2);
         }
       }
-      var clone = (
+      var clone2 = (
         /** @type {TemplateNode} */
         node.cloneNode(true)
       );
       if (is_fragment) {
         var start = (
           /** @type {TemplateNode} */
-          /* @__PURE__ */ get_first_child(clone)
+          /* @__PURE__ */ get_first_child(clone2)
         );
         var end = (
           /** @type {TemplateNode} */
-          clone.lastChild
+          clone2.lastChild
         );
         assign_nodes(start, end);
       } else {
-        assign_nodes(clone, clone);
+        assign_nodes(clone2, clone2);
       }
-      return clone;
+      return clone2;
     };
   }
   function comment() {
@@ -3045,6 +3162,28 @@ ${indent}in ${name}`).join("")}
       }
       return get(current_value);
     };
+  }
+  function log_if_contains_state(method, ...objects) {
+    untrack(() => {
+      try {
+        let has_state = false;
+        const transformed = [];
+        for (const obj of objects) {
+          if (obj && typeof obj === "object" && STATE_SYMBOL in obj) {
+            transformed.push(snapshot(obj, true));
+            has_state = true;
+          } else {
+            transformed.push(obj);
+          }
+        }
+        if (has_state) {
+          console_log_state(method);
+          console.log("%c[snapshot]", "color: grey", ...transformed);
+        }
+      } catch {
+      }
+    });
+    return objects;
   }
   const PUBLIC_VERSION = "5";
   if (typeof window !== "undefined")
@@ -6627,11 +6766,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[133, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[150, 8]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[165, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[191, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[129, 0, [[130, 2], [138, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[134, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[151, 8]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[166, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[192, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[130, 0, [[131, 2], [139, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6639,10 +6778,11 @@ ${indent}in ${name}`).join("")}
     let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
     let yBinding = /* @__PURE__ */ derived(() => Object.keys($$props.data.metadata).includes("yValue"));
     const noDataColor = wbColors.noData;
-    let yLabels = state$1(void 0);
+    let yLabels;
     let yLabelsWidth = state$1(0);
     user_effect(() => {
-      set(yLabelsWidth, proxy(get(yLabels).getBBox().width, null, yLabelsWidth));
+      console.log(...log_if_contains_state("log", get(yDomain)));
+      set(yLabelsWidth, proxy(yLabels.getBBox().width, null, yLabelsWidth));
     });
     let margins = /* @__PURE__ */ derived(() => ({
       top: 12,
@@ -6728,7 +6868,7 @@ ${indent}in ${name}`).join("")}
         if (get(yBinding)) $$render(consequent);
       });
     }
-    bind_this(g, ($$value) => set(yLabels, $$value), () => get(yLabels));
+    bind_this(g, ($$value) => yLabels = $$value, () => yLabels);
     var g_1 = sibling(g);
     var node_2 = child(g_1);
     const expression = /* @__PURE__ */ derived(() => $$props.height - get(margins).top - get(margins).bottom);
