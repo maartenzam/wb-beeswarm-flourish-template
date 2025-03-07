@@ -45,7 +45,10 @@
     legendTitle,
     unitLabel,
     includeNoData,
-    noDataLabel
+    noDataLabel,
+    addAnnotation,
+    annotationValue,
+    annotationText
   } = $props();
 
   let width = $state(500);
@@ -96,15 +99,15 @@
   let colorDomain = $derived.by(() => {
     if (valueType == 'string') {
       return [
-        ...new Set(data.plotdata.map((d) => d.color.toLowerCase())),
+        ...new Set(data.plotdata.map((d) => d.color)),
       ].filter((d) => d != '');
     }
   });
   let colorRange = $derived.by(() => {
     if (valueType == 'string') {
       let range = colorDomain.map((d) => {
-        if (allColors[d]) {
-          return allColors[d];
+        if (allColors[d.toLowerCase()]) {
+          return allColors[d.toLowerCase()];
         } else {
           return noDataColor;
         }
@@ -148,6 +151,9 @@
         {axisTitle}
         {catColorScale}
         {contColorScale}
+        {addAnnotation}
+        {annotationValue}
+        {annotationText}
       ></Beeswarm>
   </div>
 

@@ -22,6 +22,9 @@
     axisTitle,
     catColorScale,
     contColorScale,
+    addAnnotation,
+    annotationValue,
+    annotationText
   } = $props();
 
   let beeRadius = $derived(width < 401
@@ -125,6 +128,17 @@
       divisor={divideValues}
       axisUnits={units}
     />
+    {#if addAnnotation}
+        <line
+            x1={xScale(annotationValue)}
+            x2={xScale(annotationValue)}
+            y1={0}
+            y2={height - margins.top - margins.bottom}
+            stroke={wbColors.reference}
+            stroke-width={3}
+            stroke-linecap={"round"}
+        ></line>
+    {/if}
     {#if beeswarmDataArray}
       {#each beeswarmDataArray as swarm}
         {#each swarm.data as bee}
@@ -137,7 +151,7 @@
             stroke-width={bee.datum.id == currentFeature ? 2.5 : beeStrokeWidth}
             opacity={beeOpacity}
             fill={valueType == 'string'
-              ? catColorScale(bee.datum.color.toLowerCase())
+              ? catColorScale(bee.datum.color)
               : getFill(
                   data,
                   bee.datum.id,
@@ -153,6 +167,13 @@
         {/each}
       {/each}
     {/if}
+    {#if annotationValue && annotationText}
+    <text
+        class={"annotation"}
+        x={xScale(annotationValue) + 6}
+        y={16}
+    >{annotationText}</text>
+{/if}
   </g>
 </svg>
 
@@ -177,18 +198,24 @@
     text-transform: uppercase;
     fill: var(--text);
   }
+  text.annotation {
+    font-family: 'Open Sans';
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    fill: var(--textSubtle);
+  }
   @media only screen and (max-width: 400px) {
-    text.yTickLabel {
+    text.yTickLabel, text.annotation {
       font-size: var(--font-size-s-s);
     }
   }
   @media only screen and (min-width: 400px) and (max-width: 700px) {
-    text.yTickLabel {
+    text.yTickLabel, text.annotation {
       font-size: var(--font-size-m-s);
     }
   }
   @media only screen and (min-width: 700px) {
-    text.yTickLabel {
+    text.yTickLabel, text.annotation {
       font-size: var(--font-size-l-s);
     }
   }

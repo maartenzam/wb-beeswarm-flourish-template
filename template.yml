@@ -199,6 +199,20 @@ settings:
     type: string
     show_if: showLegend
 
+  - Annotation
+  - property: addAnnotation
+    name: Add annotation
+    type: boolean
+  - property: annotationValue
+    name: Value
+    type: number
+    optional: true
+    show_if: addAnnotation
+  - property: annotationText
+    name: Text
+    type: string
+    show_if: addAnnotation
+
   - Footer
   - property: notesTitle
     name: Notes title
@@ -242,7 +256,7 @@ data:
     description: The values to use for coloring the bees
     dataset: plotdata
     type: column
-    column: "country_data::G"
+    column: "country_data::F"
     data_type:
       - string
       - number
@@ -251,6 +265,6 @@ data:
     description: Categories to use to create multiple beeswarms
     dataset: plotdata
     type: column
-    column: "country_data::F"
+#    column: "country_data::F"
     data_type: string
     optional: true

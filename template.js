@@ -3140,6 +3140,7 @@ ${indent}in ${name}`).join("")}
     "oldestAge": "#A1C6FF",
     "yes": "#0071BC",
     "no": "#EBEEF4",
+    "reference": "#8A969F",
     "noData": "#CED4DE",
     "grey500": "#111111",
     "seq1": "#FDF6DB",
@@ -3184,8 +3185,8 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
-  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[26, 6, [[27, 8], [31, 8]]]]);
-  var root_3$2 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[36, 6, [[37, 8], [38, 8]]]]);
+  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[26, 8, [[27, 10], [31, 10]]]]);
+  var root_3$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[36, 6, [[37, 8], [38, 8]]]]);
   var root$6 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
     [
       17,
@@ -3243,7 +3244,7 @@ ${indent}in ${name}`).join("")}
     var node_2 = sibling(node, 2);
     {
       var consequent_1 = ($$anchor2) => {
-        var div_7 = root_3$2();
+        var div_7 = root_3$3();
         var div_8 = child(div_7);
         set_class(div_8, 1, `pill circle`, "svelte-hjs62s");
         var div_9 = sibling(div_8, 2);
@@ -3858,11 +3859,11 @@ ${indent}in ${name}`).join("")}
     ]
   ]);
   var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[135, 14]]);
-  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[141, 16]]);
-  var root_3$1 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[117, 10], [126, 10], [133, 10]]);
+  var root_6$2 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[141, 16]]);
+  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[117, 10], [126, 10], [133, 10]]);
   var root_8$1 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[150, 12]]);
   var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[160, 16]]);
-  var root_7$1 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
+  var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
   var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), ContinuousColorLegend[FILENAME], [
     [
       92,
@@ -4008,7 +4009,7 @@ ${indent}in ${name}`).join("")}
     var node_2 = child(svg_1);
     {
       var consequent_3 = ($$anchor2) => {
-        var fragment = root_3$1();
+        var fragment = root_3$2();
         var image = first_child(fragment);
         set_attribute(image, "height", 10);
         var rect_1 = sibling(image);
@@ -4035,7 +4036,7 @@ ${indent}in ${name}`).join("")}
             var fragment_1 = comment();
             var node_5 = first_child(fragment_1);
             each(node_5, 1, () => get(domain), index, ($$anchor4, tick) => {
-              var text_5 = root_6$1();
+              var text_5 = root_6$2();
               var text_6 = child(text_5);
               template_effect(
                 ($0) => {
@@ -4072,7 +4073,7 @@ ${indent}in ${name}`).join("")}
     var node_6 = sibling(node_2);
     {
       var consequent_4 = ($$anchor2) => {
-        var fragment_2 = root_7$1();
+        var fragment_2 = root_7$2();
         var node_7 = first_child(fragment_2);
         each(node_7, 1, () => contColorScale().range(), index, ($$anchor3, bin, i) => {
           var rect_2 = root_8$1();
@@ -5223,13 +5224,13 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   ChartGrid[FILENAME] = "src/template/ChartGrid.svelte";
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[50, 8]]);
+  var root_3$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[50, 8]]);
   var root_2$2 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!>`, 1), ChartGrid[FILENAME], [[39, 6]]);
   var root_4 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[61, 6]]);
   var root_1 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ChartGrid[FILENAME], []);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[80, 8]]);
+  var root_7$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[80, 8]]);
   var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[88, 8]]);
-  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[69, 6]]);
+  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[69, 6]]);
   var root$4 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), ChartGrid[FILENAME], [[36, 0]]);
   function ChartGrid($$anchor, $$props) {
     check_target(new.target);
@@ -5263,7 +5264,7 @@ ${indent}in ${name}`).join("")}
           var node_2 = sibling(line);
           {
             var consequent = ($$anchor4) => {
-              var text = root_3();
+              var text = root_3$1();
               set_attribute(text, "x", 0);
               set_attribute(text, "y", 0);
               var text_1 = child(text);
@@ -5323,14 +5324,14 @@ ${indent}in ${name}`).join("")}
         var fragment_2 = comment();
         var node_5 = first_child(fragment_2);
         each(node_5, 17, () => get(formattedTicks), index, ($$anchor3, tick, i) => {
-          var fragment_3 = root_6();
+          var fragment_3 = root_6$1();
           var line_1 = first_child(fragment_3);
           set_attribute(line_1, "y1", 0);
           set_attribute(line_1, "y2", 0);
           var node_6 = sibling(line_1);
           {
             var consequent_3 = ($$anchor4) => {
-              var text_4 = root_7();
+              var text_4 = root_7$1();
               var text_5 = child(text_4);
               template_effect(
                 ($0) => {
@@ -6626,9 +6627,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[112, 8]]);
-  var root_5 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[132, 10]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[108, 0, [[109, 2], [117, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[115, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[132, 8]]);
+  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[146, 10]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[171, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[111, 0, [[112, 2], [120, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6693,7 +6696,7 @@ ${indent}in ${name}`).join("")}
         var node_1 = first_child(fragment_1);
         each(node_1, 17, () => get(yDomain), index, ($$anchor3, yLabel) => {
           var text = root_2$1();
-          set_class(text, 0, "yTickLabel svelte-1n12epo");
+          set_class(text, 0, "yTickLabel svelte-1j34vae");
           set_attribute(text, "x", 0);
           var text_1 = child(text);
           template_effect(
@@ -6746,13 +6749,37 @@ ${indent}in ${name}`).join("")}
     var node_3 = sibling(node_2);
     {
       var consequent_1 = ($$anchor2) => {
+        var line = root_3();
+        set_attribute(line, "y1", 0);
+        set_attribute(line, "stroke-width", 3);
+        set_attribute(line, "stroke-linecap", "round");
+        template_effect(
+          ($0) => {
+            set_attribute(line, "x1", $0);
+            set_attribute(line, "x2", $0);
+            set_attribute(line, "y2", $$props.height - get(margins).top - get(margins).bottom);
+            set_attribute(line, "stroke", wbColors.reference);
+          },
+          [
+            () => get(xScale)($$props.annotationValue)
+          ]
+        );
+        append($$anchor2, line);
+      };
+      if_block(node_3, ($$render) => {
+        if ($$props.addAnnotation) $$render(consequent_1);
+      });
+    }
+    var node_4 = sibling(node_3);
+    {
+      var consequent_2 = ($$anchor2) => {
         var fragment_2 = comment();
-        var node_4 = first_child(fragment_2);
-        each(node_4, 17, () => get(beeswarmDataArray), index, ($$anchor3, swarm) => {
+        var node_5 = first_child(fragment_2);
+        each(node_5, 17, () => get(beeswarmDataArray), index, ($$anchor3, swarm) => {
           var fragment_3 = comment();
-          var node_5 = first_child(fragment_3);
-          each(node_5, 17, () => get(swarm).data, index, ($$anchor4, bee) => {
-            var circle = root_5();
+          var node_6 = first_child(fragment_3);
+          each(node_6, 17, () => get(swarm).data, index, ($$anchor4, bee) => {
+            var circle = root_6();
             template_effect(
               ($0, $1) => {
                 set_attribute(circle, "r", get(beeRadius));
@@ -6765,7 +6792,7 @@ ${indent}in ${name}`).join("")}
               },
               [
                 () => get(yScale)(get(swarm).id) + get(bee).y,
-                () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color.toLowerCase()) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
+                () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
               ]
             );
             event("mouseover", circle, () => {
@@ -6790,13 +6817,35 @@ ${indent}in ${name}`).join("")}
         });
         append($$anchor2, fragment_2);
       };
-      if_block(node_3, ($$render) => {
-        if (get(beeswarmDataArray)) $$render(consequent_1);
+      if_block(node_4, ($$render) => {
+        if (get(beeswarmDataArray)) $$render(consequent_2);
       });
     }
-    var node_6 = sibling(svg);
+    var node_7 = sibling(node_4);
     {
-      var consequent_2 = ($$anchor2) => {
+      var consequent_3 = ($$anchor2) => {
+        var text_2 = root_7();
+        set_class(text_2, 0, "annotation svelte-1j34vae");
+        set_attribute(text_2, "y", 16);
+        var text_3 = child(text_2);
+        template_effect(
+          ($0) => {
+            set_attribute(text_2, "x", $0);
+            set_text(text_3, $$props.annotationText);
+          },
+          [
+            () => get(xScale)($$props.annotationValue) + 6
+          ]
+        );
+        append($$anchor2, text_2);
+      };
+      if_block(node_7, ($$render) => {
+        if ($$props.annotationValue && $$props.annotationText) $$render(consequent_3);
+      });
+    }
+    var node_8 = sibling(svg);
+    {
+      var consequent_4 = ($$anchor2) => {
         Tooltip($$anchor2, {
           visible: tooltipVisible,
           targetPos: mousePos,
@@ -6814,8 +6863,8 @@ ${indent}in ${name}`).join("")}
           $$slots: { default: true }
         });
       };
-      if_block(node_6, ($$render) => {
-        if (get(currentFeatureData) && mousePos) $$render(consequent_2);
+      if_block(node_8, ($$render) => {
+        if (get(currentFeatureData) && mousePos) $$render(consequent_4);
       });
     }
     template_effect(() => {
@@ -6847,6 +6896,10 @@ ${indent}in ${name}`).join("")}
     "europe and central asia": wbColors.ecs,
     "east asia and pacific": wbColors.eas,
     "sub-saharan africa": wbColors.ssf,
+    "latin america & caribbean": wbColors.lcn,
+    "middle east & north africa": wbColors.mea,
+    "europe & central asia": wbColors.ecs,
+    "east asia & pacific": wbColors.eas,
     "hic": wbColors.hic,
     "umc": wbColors.umc,
     "lmc": wbColors.lmc,
@@ -6952,12 +7005,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[155, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[161, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      129,
+      132,
       0,
-      [[130, 2], [136, 2], [181, 2]]
+      [[133, 2], [139, 2], [187, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -6977,15 +7030,15 @@ ${indent}in ${name}`).join("")}
     let colorDomain = /* @__PURE__ */ derived(() => {
       if (equals(get(valueType), "string")) {
         return [
-          ...new Set($$props.data.plotdata.map((d) => d.color.toLowerCase()))
+          ...new Set($$props.data.plotdata.map((d) => d.color))
         ].filter((d) => equals(d, "", false));
       }
     });
     let colorRange = /* @__PURE__ */ derived(() => {
       if (equals(get(valueType), "string")) {
         let range2 = get(colorDomain).map((d) => {
-          if (allColors[d]) {
-            return allColors[d];
+          if (allColors[d.toLowerCase()]) {
+            return allColors[d.toLowerCase()];
           } else {
             return noDataColor;
           }
@@ -7061,6 +7114,15 @@ ${indent}in ${name}`).join("")}
       },
       get contColorScale() {
         return get(contColorScale);
+      },
+      get addAnnotation() {
+        return $$props.addAnnotation;
+      },
+      get annotationValue() {
+        return $$props.annotationValue;
+      },
+      get annotationText() {
+        return $$props.annotationText;
       }
     });
     var node_2 = sibling(div_2, 2);
@@ -7193,6 +7255,9 @@ ${indent}in ${name}`).join("")}
     unitLabel: "",
     title: "",
     subtitle: "",
+    addAnnotation: false,
+    annotationValue: 0,
+    annotationText: "",
     notesTitle: "",
     notes: "",
     includeLogo: false

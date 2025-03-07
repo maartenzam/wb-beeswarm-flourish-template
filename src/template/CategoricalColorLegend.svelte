@@ -4,7 +4,7 @@
   export let includeNoData;
   export let noDataLabel;
   export let usedCats;
-  import { wbColors } from "../utils/colors";
+  import { wbColors } from '../utils/colors';
 
   const margin = {
     top: 0,
@@ -14,7 +14,7 @@
   };
 </script>
 
-<div class={"legend"}>
+<div class={'legend'}>
   <div class="legend-text-container">
     <div class="legend-title">
       <span>{title}</span>
@@ -22,20 +22,20 @@
   </div>
   <div class="categorical-legend" aria-hidden="true">
     {#each catColorScale.domain() as item}
-    {#if usedCats.includes(item)}
-      <div class="pill-container">
-        <div
-          class={`pill circle`}
-          style:background-color={catColorScale(item)}
-        />
-        <div class={"label small"}>{item}</div>
-      </div>
+      {#if usedCats.includes(item)}
+        <div class="pill-container">
+          <div
+            class={`pill circle`}
+            style:background-color={catColorScale(item)}
+          />
+          <div class={'label small'}>{item}</div>
+        </div>
       {/if}
     {/each}
     {#if includeNoData}
       <div class="pill-container">
         <div class={`pill circle`} style:background-color={wbColors.noData} />
-        <div class={"label small"}>{noDataLabel}</div>
+        <div class={'label small'}>{noDataLabel}</div>
       </div>
     {/if}
   </div>

@@ -432,24 +432,30 @@ h3.tooltip-header.svelte-7erzzb {
     }
   }
 
-  text.yTickLabel.svelte-1n12epo {
+  text.yTickLabel.svelte-1j34vae {
     font-family: 'Open Sans';
     font-weight: var(--font-weight-semibold);
     text-transform: uppercase;
     fill: var(--text);
   }
+  text.annotation.svelte-1j34vae {
+    font-family: 'Open Sans';
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    fill: var(--textSubtle);
+  }
   @media only screen and (max-width: 400px) {
-    text.yTickLabel.svelte-1n12epo {
+    text.yTickLabel.svelte-1j34vae, text.annotation.svelte-1j34vae {
       font-size: var(--font-size-s-s);
     }
   }
   @media only screen and (min-width: 400px) and (max-width: 700px) {
-    text.yTickLabel.svelte-1n12epo {
+    text.yTickLabel.svelte-1j34vae, text.annotation.svelte-1j34vae {
       font-size: var(--font-size-m-s);
     }
   }
   @media only screen and (min-width: 700px) {
-    text.yTickLabel.svelte-1n12epo {
+    text.yTickLabel.svelte-1j34vae, text.annotation.svelte-1j34vae {
       font-size: var(--font-size-l-s);
     }
   }

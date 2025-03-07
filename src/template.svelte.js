@@ -45,6 +45,9 @@ export var state = {
   unitLabel: "",
   title: '',
   subtitle: '',
+  addAnnotation: false,
+  annotationValue: 0,
+  annotationText: '',
   notesTitle: '', 
   notes: '',
   includeLogo: false
