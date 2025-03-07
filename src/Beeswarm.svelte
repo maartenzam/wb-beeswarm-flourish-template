@@ -69,7 +69,7 @@
       let domain = [...new Set(data.map((d) => d.yValue))]
       let domainAverages = domain.map(d => {
         let values = data.filter(c => c.yValue == d && c.value != null).map(d => d.value)
-        let average = values.reduce((total, next) => total + next) / values.length
+        let average = values.length > 0 ? values.reduce((total, next) => total + next) / values.length : 0
         return {
             id: d,
             average: average

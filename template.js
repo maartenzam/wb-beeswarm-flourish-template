@@ -6665,7 +6665,7 @@ ${indent}in ${name}`).join("")}
         ];
         let domainAverages = domain.map((d) => {
           let values = $$props.data.filter((c) => equals(c.yValue, d) && equals(c.value, null, false)).map((d2) => d2.value);
-          let average = values.reduce((total, next) => total + next) / values.length;
+          let average = values.length > 0 ? values.reduce((total, next) => total + next) / values.length : 0;
           return { id: d, average };
         });
         if (equals($$props.ySort, "byAverage")) {

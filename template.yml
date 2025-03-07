@@ -276,6 +276,6 @@ data:
     description: Categories to use to create multiple beeswarms
     dataset: plotdata
     type: column
-#    column: "country_data::E"
+    column: "country_data::E"
     data_type: string
     optional: true
