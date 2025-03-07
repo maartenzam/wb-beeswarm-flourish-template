@@ -6650,10 +6650,10 @@ ${indent}in ${name}`).join("")}
       bottom: 56,
       left: get(yLabelsWidth) + 8
     }));
-    let dataExtent = extent($$props.data.map((d) => d.value));
+    let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.map((d) => d.value)));
     let xScale = /* @__PURE__ */ derived(() => {
       let scale = $$props.logScale ? log() : linear();
-      return scale.domain(dataExtent).range([
+      return scale.domain(get(dataExtent)).range([
         0,
         $$props.width - get(margins).left - get(margins).right
       ]);

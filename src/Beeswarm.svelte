@@ -56,7 +56,7 @@
     left: yLabelsWidth + 8,
   });
 
-  let dataExtent = extent(data.map((d) => d.value));
+  let dataExtent = $derived(extent(data.map((d) => d.value)));
   let xScale = $derived.by(() => {
     let scale = logScale ? scaleLog() : scaleLinear();
     return scale
