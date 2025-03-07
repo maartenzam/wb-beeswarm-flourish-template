@@ -195,6 +195,10 @@
         class={"annotation"}
         x={xScale(annotationValue) + 6}
         y={16}
+        paint-order="stroke"
+        stroke-linejoin="round"
+        stroke={"#ffffff"}
+        stroke-width={3}
     >{annotationText}</text>
 {/if}
   </g>

@@ -6630,7 +6630,7 @@ ${indent}in ${name}`).join("")}
   var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[136, 8]]);
   var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[153, 8]]);
   var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[168, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[194, 4]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text paint-order="stroke" stroke-linejoin="round"> </text>`), Beeswarm[FILENAME], [[194, 4]]);
   var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[132, 0, [[133, 2], [141, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
@@ -6850,6 +6850,8 @@ ${indent}in ${name}`).join("")}
         var text_2 = root_8();
         set_class(text_2, 0, "annotation svelte-1j34vae");
         set_attribute(text_2, "y", 16);
+        set_attribute(text_2, "stroke", "#ffffff");
+        set_attribute(text_2, "stroke-width", 3);
         var text_3 = child(text_2);
         template_effect(
           ($0) => {
