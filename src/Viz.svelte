@@ -26,7 +26,6 @@
     notesTitle,
     notes,
     includeLogo,
-    beeRadius,
     beeStroke,
     beeStrokeWidth,
     beeOpacity,
@@ -35,6 +34,8 @@
     divideValues,
     units,
     axisTitle,
+    ySort,
+    yReverse,
     scaleType,
     colorScale,
     colorScaleDiverging,
@@ -149,6 +150,8 @@
         {divideValues}
         {units}
         {axisTitle}
+        {ySort}
+        {yReverse}
         {catColorScale}
         {contColorScale}
         {addAnnotation}

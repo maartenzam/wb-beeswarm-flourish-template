@@ -31,6 +31,8 @@ export var state = {
   divideValues: 1,
   units: '',
   axisTitle: '',
+  ySort: 'asInData',
+  yReverse: false,
   scaleType: "sequential",
   linearOrBinned: "linear",
   colorScale: "seq",

@@ -6627,11 +6627,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[115, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[132, 8]]);
-  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[146, 10]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[171, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[111, 0, [[112, 2], [120, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[132, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[149, 8]]);
+  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[163, 10]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[188, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[128, 0, [[129, 2], [137, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6660,9 +6660,21 @@ ${indent}in ${name}`).join("")}
     });
     let yDomain = /* @__PURE__ */ derived(() => {
       if (yBinding) {
-        return [
+        let domain = [
           ...new Set($$props.data.map((d) => d.yValue))
         ];
+        let domainAverages = domain.map((d) => {
+          let values = $$props.data.filter((c) => equals(c.yValue, d) && equals(c.value, null, false)).map((d2) => d2.value);
+          let average = values.reduce((total, next) => total + next) / values.length;
+          return { id: d, average };
+        });
+        if (equals($$props.ySort, "byAverage")) {
+          domainAverages.sort((a, b) => a.average - b.average);
+        }
+        if ($$props.yReverse) {
+          domainAverages.reverse();
+        }
+        return domainAverages.map((d) => d.id);
       } else {
         return ["solo"];
       }
@@ -7005,12 +7017,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[161, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[164, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      132,
+      133,
       0,
-      [[133, 2], [139, 2], [187, 2]]
+      [[134, 2], [140, 2], [190, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -7108,6 +7120,12 @@ ${indent}in ${name}`).join("")}
       },
       get axisTitle() {
         return $$props.axisTitle;
+      },
+      get ySort() {
+        return $$props.ySort;
+      },
+      get yReverse() {
+        return $$props.yReverse;
       },
       get catColorScale() {
         return get(catColorScale);
@@ -7241,6 +7259,8 @@ ${indent}in ${name}`).join("")}
     divideValues: 1,
     units: "",
     axisTitle: "",
+    ySort: "asInData",
+    yReverse: false,
     scaleType: "sequential",
     linearOrBinned: "linear",
     colorScale: "seq",

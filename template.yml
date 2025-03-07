@@ -75,6 +75,17 @@ settings:
     name: Logarithmic scale
     type: boolean
 
+  - Y Axis
+  - property: ySort
+    name: Sorting
+    type: string
+    choices:
+      - [As in data, asInData]
+      - [By average value, byAverage]
+  - property: yReverse
+    name: Reverse order
+    type: boolean
+
   - Colours
   - property: scaleType
     name: Scale type
@@ -265,6 +276,6 @@ data:
     description: Categories to use to create multiple beeswarms
     dataset: plotdata
     type: column
-#    column: "country_data::F"
+    column: "country_data::F"
     data_type: string
     optional: true

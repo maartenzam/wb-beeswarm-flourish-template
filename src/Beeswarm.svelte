@@ -20,6 +20,8 @@
     divideValues,
     units,
     axisTitle,
+    ySort,
+    yReverse,
     catColorScale,
     contColorScale,
     addAnnotation,
@@ -64,7 +66,22 @@
 
   let yDomain = $derived.by(() => {
     if (yBinding) {
-      return [...new Set(data.map((d) => d.yValue))];
+      let domain = [...new Set(data.map((d) => d.yValue))]
+      let domainAverages = domain.map(d => {
+        let values = data.filter(c => c.yValue == d && c.value != null).map(d => d.value)
+        let average = values.reduce((total, next) => total + next) / values.length
+        return {
+            id: d,
+            average: average
+        }
+      })
+      if(ySort == "byAverage"){
+        domainAverages.sort((a, b) => a.average - b.average)
+      }
+      if(yReverse){
+        domainAverages.reverse()
+      }
+      return domainAverages.map(d => d.id)
     } else {
       return ['solo'];
     }
