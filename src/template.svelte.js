@@ -31,6 +31,7 @@ export var state = {
   divideValues: 1,
   units: 'years',
   axisTitle: 'Life expectancy at birth',
+  tickNumber: 5,
   ySort: 'asInData',
   yReverse: false,
   scaleType: "sequential",

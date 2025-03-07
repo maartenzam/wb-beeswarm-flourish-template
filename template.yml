@@ -66,6 +66,11 @@ settings:
   - property: axisTitle
     name: Axis label
     type: string
+  - property: tickNumber
+    name: Number of ticks (approx.)
+    description: The (approximate) number of ticks
+    type: number
+    min: 0
   - property: divideValues
     name: Divide tick values by
     type: number

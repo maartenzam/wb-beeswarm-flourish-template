@@ -6627,11 +6627,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[132, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[149, 8]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[164, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[190, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[128, 0, [[129, 2], [137, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[133, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[150, 8]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[165, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[191, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[129, 0, [[130, 2], [138, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6639,10 +6639,10 @@ ${indent}in ${name}`).join("")}
     let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
     let yBinding = /* @__PURE__ */ derived(() => Object.keys($$props.data.metadata).includes("yValue"));
     const noDataColor = wbColors.noData;
-    let yLabels;
+    let yLabels = state$1(void 0);
     let yLabelsWidth = state$1(0);
     user_effect(() => {
-      set(yLabelsWidth, proxy(yLabels.getBBox().width, null, yLabelsWidth));
+      set(yLabelsWidth, proxy(get(yLabels).getBBox().width, null, yLabelsWidth));
     });
     let margins = /* @__PURE__ */ derived(() => ({
       top: 12,
@@ -6728,12 +6728,12 @@ ${indent}in ${name}`).join("")}
         if (get(yBinding)) $$render(consequent);
       });
     }
-    bind_this(g, ($$value) => yLabels = $$value, () => yLabels);
+    bind_this(g, ($$value) => set(yLabels, $$value), () => get(yLabels));
     var g_1 = sibling(g);
     var node_2 = child(g_1);
     const expression = /* @__PURE__ */ derived(() => $$props.height - get(margins).top - get(margins).bottom);
     const expression_1 = /* @__PURE__ */ derived(() => $$props.width - get(margins).left - get(margins).right);
-    const expression_2 = /* @__PURE__ */ derived(() => get(xScale).ticks(5));
+    const expression_2 = /* @__PURE__ */ derived(() => get(xScale).ticks($$props.tickNumber));
     ChartGrid(node_2, {
       gridType: "xGrid",
       get innerHeight() {
@@ -7027,12 +7027,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[165, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[167, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      134,
+      135,
       0,
-      [[135, 2], [141, 2], [191, 2]]
+      [[136, 2], [142, 2], [193, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -7132,6 +7132,9 @@ ${indent}in ${name}`).join("")}
       },
       get axisTitle() {
         return $$props.axisTitle;
+      },
+      get tickNumber() {
+        return $$props.tickNumber;
       },
       get ySort() {
         return $$props.ySort;
@@ -7271,6 +7274,7 @@ ${indent}in ${name}`).join("")}
     divideValues: 1,
     units: "years",
     axisTitle: "Life expectancy at birth",
+    tickNumber: 5,
     ySort: "asInData",
     yReverse: false,
     scaleType: "sequential",

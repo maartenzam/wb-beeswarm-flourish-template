@@ -20,6 +20,7 @@
     divideValues,
     units,
     axisTitle,
+    tickNumber,
     ySort,
     yReverse,
     catColorScale,
@@ -43,7 +44,7 @@
   const noDataColor = wbColors.noData;
 
   // Get the width of the y axis labels
-  let yLabels;
+  let yLabels = $state();
   let yLabelsWidth = $state(0);
   $effect(() => {
     yLabelsWidth = yLabels.getBBox().width;
@@ -140,7 +141,7 @@
       innerHeight={height - margins.top - margins.bottom}
       innerWidth={width - margins.left - margins.right}
       scale={xScale}
-      ticks={xScale.ticks(5)}
+      ticks={xScale.ticks(tickNumber)}
       {axisTitle}
       divisor={divideValues}
       axisUnits={units}

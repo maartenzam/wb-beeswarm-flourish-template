@@ -34,6 +34,7 @@
     divideValues,
     units,
     axisTitle,
+    tickNumber,
     ySort,
     yReverse,
     scaleType,
@@ -151,6 +152,7 @@
         {divideValues}
         {units}
         {axisTitle}
+        {tickNumber}
         {ySort}
         {yReverse}
         {catColorScale}
