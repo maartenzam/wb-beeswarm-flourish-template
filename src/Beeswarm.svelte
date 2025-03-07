@@ -46,8 +46,7 @@
   // Get the width of the y axis labels
   let yLabels
   let yLabelsWidth = $state(0);
-  $effect(() => {
-    console.log(yDomain)
+  $effect((yDomain) => {
     yLabelsWidth = yLabels.getBBox().width;
   });
 
