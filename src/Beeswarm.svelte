@@ -46,7 +46,9 @@
   // Get the width of the y axis labels
   let yLabels
   let yLabelsWidth = $state(0);
-  $effect((yDomain) => {
+  $effect(() => {
+    // Included to trigger an update when changed
+    yDomain
     yLabelsWidth = yLabels.getBBox().width;
   });
 

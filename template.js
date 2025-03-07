@@ -6627,11 +6627,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[133, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[150, 8]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[165, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[191, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[129, 0, [[130, 2], [138, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[135, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[152, 8]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[167, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[193, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[131, 0, [[132, 2], [140, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6641,7 +6641,8 @@ ${indent}in ${name}`).join("")}
     const noDataColor = wbColors.noData;
     let yLabels;
     let yLabelsWidth = state$1(0);
-    user_effect((yDomain2) => {
+    user_effect(() => {
+      get(yDomain);
       set(yLabelsWidth, proxy(yLabels.getBBox().width, null, yLabelsWidth));
     });
     let margins = /* @__PURE__ */ derived(() => ({
