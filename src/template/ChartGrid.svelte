@@ -1,4 +1,5 @@
 <script>
+  import { format } from 'd3-format';
   let {
     gridType,
     scale,
@@ -19,13 +20,13 @@
 
   let formattedTicks = $derived(
     ticks.map((d, i) => {
-      let formattedTick = { value: d, label: d };
+      let formattedTick = { value: d, label: format(',')(d) };
       if (isNaN(d)) {
         formattedTick = d;
       }
 
       if (divisor) {
-        formattedTick.label = divideTick(formattedTick.label, divisor);
+        formattedTick.label = format(',')(divideTick(formattedTick.value, divisor));
       }
 
       return formattedTick;

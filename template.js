@@ -5224,14 +5224,14 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   ChartGrid[FILENAME] = "src/template/ChartGrid.svelte";
-  var root_3$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[50, 8]]);
-  var root_2$2 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!>`, 1), ChartGrid[FILENAME], [[39, 6]]);
-  var root_4 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[61, 6]]);
+  var root_3$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[51, 8]]);
+  var root_2$2 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!>`, 1), ChartGrid[FILENAME], [[40, 6]]);
+  var root_4 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[62, 6]]);
   var root_1 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ChartGrid[FILENAME], []);
-  var root_7$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[80, 8]]);
-  var root_8$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[88, 8]]);
-  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[69, 6]]);
-  var root$4 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), ChartGrid[FILENAME], [[36, 0]]);
+  var root_7$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[81, 8]]);
+  var root_8$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[89, 8]]);
+  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[70, 6]]);
+  var root$4 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), ChartGrid[FILENAME], [[37, 0]]);
   function ChartGrid($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, ChartGrid);
@@ -5240,12 +5240,12 @@ ${indent}in ${name}`).join("")}
       return tick / divisor;
     };
     let formattedTicks = /* @__PURE__ */ derived(() => ticks2().map((d, i) => {
-      let formattedTick = { value: d, label: d };
+      let formattedTick = { value: d, label: format(",")(d) };
       if (isNaN(d)) {
         formattedTick = d;
       }
       if ($$props.divisor) {
-        formattedTick.label = divideTick(formattedTick.label, $$props.divisor);
+        formattedTick.label = format(",")(divideTick(formattedTick.value, $$props.divisor));
       }
       return formattedTick;
     }));
@@ -6627,11 +6627,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[135, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[152, 8]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[167, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[193, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[131, 0, [[132, 2], [140, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[136, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[153, 8]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[168, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[194, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[132, 0, [[133, 2], [141, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6873,7 +6873,7 @@ ${indent}in ${name}`).join("")}
           visible: tooltipVisible,
           targetPos: mousePos,
           children: wrap_snippet(Beeswarm, ($$anchor3, $$slotProps) => {
-            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentFeatureData).value, null, false) && equals(get(currentFeatureData).value, "", false) ? equals(get(valueType), "number") ? Math.round(get(currentFeatureData).value * 10) / 10 : get(currentFeatureData).value : "No data");
+            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentFeatureData).value, null, false) && equals(get(currentFeatureData).value, "", false) ? format(",")(get(currentFeatureData).value) : "No data");
             TooltipContent($$anchor3, {
               get tooltipHeader() {
                 return get(currentFeatureData).label;
@@ -7287,7 +7287,7 @@ ${indent}in ${name}`).join("")}
     //categoricalColorPalette: "default",
     showLegend: true,
     legendTitle: "",
-    includeNoData: true,
+    includeNoData: false,
     noDataLabel: "No data",
     unitLabel: "",
     title: "Title",

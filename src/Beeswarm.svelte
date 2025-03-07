@@ -2,6 +2,7 @@
   import { AccurateBeeswarm } from 'accurate-beeswarm-plot';
   import { scaleLinear, scaleLog, scaleBand } from 'd3-scale';
   import { extent } from 'd3-array';
+  import { format } from 'd3-format';
   import { wbColors } from './utils/colors';
   import { getFill } from './utils/utils';
   import ChartGrid from './template/ChartGrid.svelte';
@@ -205,9 +206,7 @@
       tooltipHeader={currentFeatureData.label}
       tooltipBody={currentFeatureData.value != null &&
       currentFeatureData.value != ''
-        ? valueType == 'number'
-          ? Math.round(currentFeatureData.value * 10) / 10
-          : currentFeatureData.value
+        ? format(',')(currentFeatureData.value)
         : 'No data'}
     ></TooltipContent>
   </Tooltip>

@@ -43,7 +43,7 @@ export var state = {
   //categoricalColorPalette: "default",
   showLegend: true,
   legendTitle: "",
-  includeNoData: true,
+  includeNoData: false,
   noDataLabel: "No data",
   unitLabel: "",
   title: 'Title',
