@@ -38,8 +38,8 @@
                 : 8
             )
 
-  let valueType = data.metadata.color.type;
-  let yBinding = Object.keys(data.metadata).includes('yValue');
+  let valueType = $derived(data.metadata.color.type);
+  let yBinding = $derived(Object.keys(data.metadata).includes('yValue'));
   const noDataColor = wbColors.noData;
 
   // Get the width of the y axis labels

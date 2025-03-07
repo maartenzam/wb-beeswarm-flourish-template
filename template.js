@@ -6636,8 +6636,8 @@ ${indent}in ${name}`).join("")}
     check_target(new.target);
     push($$props, true, Beeswarm);
     let beeRadius = /* @__PURE__ */ derived(() => $$props.width < 401 ? 3 : $$props.width > 400 && $$props.width < 701 ? 4.5 : $$props.width < 1001 ? 6 : 8);
-    let valueType = $$props.data.metadata.color.type;
-    let yBinding = Object.keys($$props.data.metadata).includes("yValue");
+    let valueType = /* @__PURE__ */ derived(() => $$props.data.metadata.color.type);
+    let yBinding = /* @__PURE__ */ derived(() => Object.keys($$props.data.metadata).includes("yValue"));
     const noDataColor = wbColors.noData;
     let yLabels;
     let yLabelsWidth = state$1(0);
@@ -6659,7 +6659,7 @@ ${indent}in ${name}`).join("")}
       ]);
     });
     let yDomain = /* @__PURE__ */ derived(() => {
-      if (yBinding) {
+      if (get(yBinding)) {
         let domain = [
           ...new Set($$props.data.map((d) => d.yValue))
         ];
@@ -6683,7 +6683,7 @@ ${indent}in ${name}`).join("")}
     let beeswarmDataArray = /* @__PURE__ */ derived(() => {
       let swarms = [];
       get(yDomain).forEach((c) => {
-        let swarmData = yBinding ? $$props.data.filter((d) => equals(d.yValue, c) && strict_equals(d.value, null, false)) : $$props.data.filter((d) => strict_equals(d.value, null, false));
+        let swarmData = get(yBinding) ? $$props.data.filter((d) => equals(d.yValue, c) && strict_equals(d.value, null, false)) : $$props.data.filter((d) => strict_equals(d.value, null, false));
         swarms.push({
           id: c,
           data: new AccurateBeeswarm(swarmData, get(beeRadius) + $$props.beeSpacing, (d) => get(xScale)(d.value)).calculateYPositions()
@@ -6725,7 +6725,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, fragment_1);
       };
       if_block(node, ($$render) => {
-        if (yBinding) $$render(consequent);
+        if (get(yBinding)) $$render(consequent);
       });
     }
     bind_this(g, ($$value) => yLabels = $$value, () => yLabels);
@@ -6808,7 +6808,7 @@ ${indent}in ${name}`).join("")}
                   },
                   [
                     () => get(yScale)(get(swarm).id) + get(bee).y,
-                    () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
+                    () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
                   ]
                 );
                 event("mouseover", circle, () => {
@@ -6872,7 +6872,7 @@ ${indent}in ${name}`).join("")}
           visible: tooltipVisible,
           targetPos: mousePos,
           children: wrap_snippet(Beeswarm, ($$anchor3, $$slotProps) => {
-            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentFeatureData).value, null, false) && equals(get(currentFeatureData).value, "", false) ? equals(valueType, "number") ? Math.round(get(currentFeatureData).value * 10) / 10 : get(currentFeatureData).value : "No data");
+            const expression_3 = /* @__PURE__ */ derived(() => equals(get(currentFeatureData).value, null, false) && equals(get(currentFeatureData).value, "", false) ? equals(get(valueType), "number") ? Math.round(get(currentFeatureData).value * 10) / 10 : get(currentFeatureData).value : "No data");
             TooltipContent($$anchor3, {
               get tooltipHeader() {
                 return get(currentFeatureData).label;
