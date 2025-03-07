@@ -113,7 +113,7 @@
     {/if}
     <div class="gradient" bind:clientWidth={gradientWidth}>
       <svg width={"100%"} {height}>
-        {#if linearOrBinned == "linear"}
+        {#if linearOrBinned == "linear" && gradientWidth}
           <image
             class="gradient"
             x={margin.left}

@@ -3,7 +3,7 @@ id: 'wb-beeswarm-flourish-template'
 name: World Bank beeswarms
 description: Beeswarm plots styled with the World Bank Data Visualization Style
 author: Maarten Lambrechts
-version: 0.0.1
+version: 0.0.2
 
 # This template is compatible with SDK version 3
 sdk_version: 3
@@ -267,7 +267,7 @@ data:
     description: The values to use for coloring the bees
     dataset: plotdata
     type: column
-    column: "country_data::D"
+    column: "country_data::G"
     data_type:
       - string
       - number

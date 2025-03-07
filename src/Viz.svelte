@@ -124,6 +124,7 @@
     if(valueType == "string"){
       return scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
     }
+    else { return scaleOrdinal() }
   }
   );
 </script>

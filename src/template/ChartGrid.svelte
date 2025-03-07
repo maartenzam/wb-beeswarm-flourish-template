@@ -57,7 +57,7 @@
         >
       {/if}
     {/each}
-    {#if axisTitle}
+    {#if axisTitle && innerWidth}
       <text x={innerWidth / 2} y={innerHeight + 40} class="axisLabel middle"
         >{axisTitle} {axisUnits ? ' (' + axisUnits + ')' : ''}</text
       >

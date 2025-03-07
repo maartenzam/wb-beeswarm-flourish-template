@@ -160,6 +160,7 @@
       {#each beeswarmDataArray as swarm}
         {#each swarm.data as bee}
           <!-- svelte-ignore a11y_no_static_element_interactions -->
+        {#if bee.x}
           <circle
             r={beeRadius}
             cx={bee.x}
@@ -181,6 +182,7 @@
                 on:mouseout={() => {currentFeature = null; tooltipVisible = false}}
                 on:blur={() => {currentFeature = null; tooltipVisible = false}}
           ></circle>
+          {/if}
         {/each}
       {/each}
     {/if}

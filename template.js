@@ -3859,9 +3859,9 @@ ${indent}in ${name}`).join("")}
     ]
   ]);
   var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[135, 14]]);
-  var root_6$2 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[141, 16]]);
+  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[141, 16]]);
   var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[117, 10], [126, 10], [133, 10]]);
-  var root_8$1 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[150, 12]]);
+  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[150, 12]]);
   var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[160, 16]]);
   var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
   var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), ContinuousColorLegend[FILENAME], [
@@ -4036,7 +4036,7 @@ ${indent}in ${name}`).join("")}
             var fragment_1 = comment();
             var node_5 = first_child(fragment_1);
             each(node_5, 1, () => get(domain), index, ($$anchor4, tick) => {
-              var text_5 = root_6$2();
+              var text_5 = root_6$1();
               var text_6 = child(text_5);
               template_effect(
                 ($0) => {
@@ -4067,7 +4067,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, fragment);
       };
       if_block(node_2, ($$render) => {
-        if (equals(linearOrBinned(), "linear")) $$render(consequent_3);
+        if (equals(linearOrBinned(), "linear") && get(gradientWidth)) $$render(consequent_3);
       });
     }
     var node_6 = sibling(node_2);
@@ -4076,7 +4076,7 @@ ${indent}in ${name}`).join("")}
         var fragment_2 = root_7$2();
         var node_7 = first_child(fragment_2);
         each(node_7, 1, () => contColorScale().range(), index, ($$anchor3, bin, i) => {
-          var rect_2 = root_8$1();
+          var rect_2 = root_8$2();
           set_class(rect_2, 0, "bin-color svelte-1af89zx");
           set_attribute(rect_2, "height", 10);
           template_effect(
@@ -5229,8 +5229,8 @@ ${indent}in ${name}`).join("")}
   var root_4 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[61, 6]]);
   var root_1 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ChartGrid[FILENAME], []);
   var root_7$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel y end svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[80, 8]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[88, 8]]);
-  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[69, 6]]);
+  var root_8$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="axisLabel svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[88, 8]]);
+  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<line></line><!><!>`, 1), ChartGrid[FILENAME], [[69, 6]]);
   var root$4 = add_locations(/* @__PURE__ */ ns_template(`<g><!><!></g>`), ChartGrid[FILENAME], [[36, 0]]);
   function ChartGrid($$anchor, $$props) {
     check_target(new.target);
@@ -5309,7 +5309,7 @@ ${indent}in ${name}`).join("")}
             append($$anchor3, text_2);
           };
           if_block(node_3, ($$render) => {
-            if ($$props.axisTitle) $$render(consequent_1);
+            if ($$props.axisTitle && $$props.innerWidth) $$render(consequent_1);
           });
         }
         append($$anchor2, fragment);
@@ -5324,7 +5324,7 @@ ${indent}in ${name}`).join("")}
         var fragment_2 = comment();
         var node_5 = first_child(fragment_2);
         each(node_5, 17, () => get(formattedTicks), index, ($$anchor3, tick, i) => {
-          var fragment_3 = root_6$1();
+          var fragment_3 = root_6();
           var line_1 = first_child(fragment_3);
           set_attribute(line_1, "y1", 0);
           set_attribute(line_1, "y2", 0);
@@ -5351,7 +5351,7 @@ ${indent}in ${name}`).join("")}
           var node_7 = sibling(node_6);
           {
             var consequent_4 = ($$anchor4) => {
-              var text_6 = root_8();
+              var text_6 = root_8$1();
               set_attribute(text_6, "transform", `translate(5,${-8})`);
               var text_7 = child(text_6);
               template_effect(() => set_text(text_7, `${$$props.axisTitle ?? ""} ${($$props.axisUnits ? " (" + $$props.axisUnits + ")" : "") ?? ""}`));
@@ -6629,8 +6629,8 @@ ${indent}in ${name}`).join("")}
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
   var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[132, 8]]);
   var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[149, 8]]);
-  var root_6 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[163, 10]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[188, 4]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[164, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[190, 4]]);
   var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[128, 0, [[129, 2], [137, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
@@ -6784,59 +6784,69 @@ ${indent}in ${name}`).join("")}
     }
     var node_4 = sibling(node_3);
     {
-      var consequent_2 = ($$anchor2) => {
+      var consequent_3 = ($$anchor2) => {
         var fragment_2 = comment();
         var node_5 = first_child(fragment_2);
         each(node_5, 17, () => get(beeswarmDataArray), index, ($$anchor3, swarm) => {
           var fragment_3 = comment();
           var node_6 = first_child(fragment_3);
           each(node_6, 17, () => get(swarm).data, index, ($$anchor4, bee) => {
-            var circle = root_6();
-            template_effect(
-              ($0, $1) => {
-                set_attribute(circle, "r", get(beeRadius));
-                set_attribute(circle, "cx", get(bee).x);
-                set_attribute(circle, "cy", $0);
-                set_attribute(circle, "stroke", equals(get(bee).datum.id, get(currentFeature)) ? wbColors.grey500 : $$props.beeStroke);
-                set_attribute(circle, "stroke-width", equals(get(bee).datum.id, get(currentFeature)) ? 2.5 : $$props.beeStrokeWidth);
-                set_attribute(circle, "opacity", $$props.beeOpacity);
-                set_attribute(circle, "fill", $1);
-              },
-              [
-                () => get(yScale)(get(swarm).id) + get(bee).y,
-                () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
-              ]
-            );
-            event("mouseover", circle, () => {
-              set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
-              tooltipVisible = true;
-            });
-            event("focus", circle, () => {
-              set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
-              tooltipVisible = true;
-            });
-            event("mouseout", circle, () => {
-              set(currentFeature, null);
-              tooltipVisible = false;
-            });
-            event("blur", circle, () => {
-              set(currentFeature, null);
-              tooltipVisible = false;
-            });
-            append($$anchor4, circle);
+            var fragment_4 = comment();
+            var node_7 = first_child(fragment_4);
+            {
+              var consequent_2 = ($$anchor5) => {
+                var circle = root_7();
+                template_effect(
+                  ($0, $1) => {
+                    set_attribute(circle, "r", get(beeRadius));
+                    set_attribute(circle, "cx", get(bee).x);
+                    set_attribute(circle, "cy", $0);
+                    set_attribute(circle, "stroke", equals(get(bee).datum.id, get(currentFeature)) ? wbColors.grey500 : $$props.beeStroke);
+                    set_attribute(circle, "stroke-width", equals(get(bee).datum.id, get(currentFeature)) ? 2.5 : $$props.beeStrokeWidth);
+                    set_attribute(circle, "opacity", $$props.beeOpacity);
+                    set_attribute(circle, "fill", $1);
+                  },
+                  [
+                    () => get(yScale)(get(swarm).id) + get(bee).y,
+                    () => equals(valueType, "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
+                  ]
+                );
+                event("mouseover", circle, () => {
+                  set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
+                  tooltipVisible = true;
+                });
+                event("focus", circle, () => {
+                  set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
+                  tooltipVisible = true;
+                });
+                event("mouseout", circle, () => {
+                  set(currentFeature, null);
+                  tooltipVisible = false;
+                });
+                event("blur", circle, () => {
+                  set(currentFeature, null);
+                  tooltipVisible = false;
+                });
+                append($$anchor5, circle);
+              };
+              if_block(node_7, ($$render) => {
+                if (get(bee).x) $$render(consequent_2);
+              });
+            }
+            append($$anchor4, fragment_4);
           });
           append($$anchor3, fragment_3);
         });
         append($$anchor2, fragment_2);
       };
       if_block(node_4, ($$render) => {
-        if (get(beeswarmDataArray)) $$render(consequent_2);
+        if (get(beeswarmDataArray)) $$render(consequent_3);
       });
     }
-    var node_7 = sibling(node_4);
+    var node_8 = sibling(node_4);
     {
-      var consequent_3 = ($$anchor2) => {
-        var text_2 = root_7();
+      var consequent_4 = ($$anchor2) => {
+        var text_2 = root_8();
         set_class(text_2, 0, "annotation svelte-1j34vae");
         set_attribute(text_2, "y", 16);
         var text_3 = child(text_2);
@@ -6851,13 +6861,13 @@ ${indent}in ${name}`).join("")}
         );
         append($$anchor2, text_2);
       };
-      if_block(node_7, ($$render) => {
-        if ($$props.annotationValue && $$props.annotationText) $$render(consequent_3);
+      if_block(node_8, ($$render) => {
+        if ($$props.annotationValue && $$props.annotationText) $$render(consequent_4);
       });
     }
-    var node_8 = sibling(svg);
+    var node_9 = sibling(svg);
     {
-      var consequent_4 = ($$anchor2) => {
+      var consequent_5 = ($$anchor2) => {
         Tooltip($$anchor2, {
           visible: tooltipVisible,
           targetPos: mousePos,
@@ -6875,8 +6885,8 @@ ${indent}in ${name}`).join("")}
           $$slots: { default: true }
         });
       };
-      if_block(node_8, ($$render) => {
-        if (get(currentFeatureData) && mousePos) $$render(consequent_4);
+      if_block(node_9, ($$render) => {
+        if (get(currentFeatureData) && mousePos) $$render(consequent_5);
       });
     }
     template_effect(() => {
@@ -7017,12 +7027,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[164, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[165, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      133,
+      134,
       0,
-      [[134, 2], [140, 2], [190, 2]]
+      [[135, 2], [141, 2], [191, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -7065,6 +7075,8 @@ ${indent}in ${name}`).join("")}
     let catColorScale = /* @__PURE__ */ derived(() => {
       if (equals(get(valueType), "string")) {
         return ordinal(get(colorDomain), get(colorRange)).unknown(noDataColor);
+      } else {
+        return ordinal();
       }
     });
     var div = root();
