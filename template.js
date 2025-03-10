@@ -7275,8 +7275,8 @@ ${indent}in ${name}`).join("")}
     beeSpacing: 0,
     logScale: false,
     divideValues: 1,
-    units: "years",
-    axisTitle: "Life expectancy at birth",
+    units: "",
+    axisTitle: "",
     tickNumber: 5,
     ySort: "asInData",
     yReverse: false,
@@ -7303,6 +7303,7 @@ ${indent}in ${name}`).join("")}
   };
   let reactiveState = state$1(proxy({}));
   function draw() {
+    state.axisTitle = data.plotdata.column_names.value;
     set(reactiveState, proxy({ ...state }, null, reactiveState));
     get(reactiveState).data = data;
     mount(Viz, {

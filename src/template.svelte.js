@@ -29,8 +29,8 @@ export var state = {
   beeSpacing: 0,
   logScale: false,
   divideValues: 1,
-  units: 'years',
-  axisTitle: 'Life expectancy at birth',
+  units: '',
+  axisTitle: '',
   tickNumber: 5,
   ySort: 'asInData',
   yReverse: false,
@@ -61,6 +61,7 @@ let reactiveState = $state({});
 
 // The draw function is called when the template first loads
 export function draw() {
+  state.axisTitle = data.plotdata.column_names.value
   reactiveState = { ...state };
   reactiveState.data = data;
 
