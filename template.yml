@@ -213,7 +213,7 @@ settings:
   - property: noDataLabel
     name: No data label
     type: string
-    show_if: showLegend
+    show_if: includeNoData
 
   - Annotation
   - property: addAnnotation
