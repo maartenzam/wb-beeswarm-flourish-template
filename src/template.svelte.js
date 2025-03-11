@@ -61,7 +61,6 @@ let reactiveState = $state({});
 
 // The draw function is called when the template first loads
 export function draw() {
-  state.axisTitle = data.plotdata.column_names.value
   reactiveState = { ...state };
   reactiveState.data = data;
 

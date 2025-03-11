@@ -7303,7 +7303,6 @@ ${indent}in ${name}`).join("")}
   };
   let reactiveState = state$1(proxy({}));
   function draw() {
-    state.axisTitle = data.plotdata.column_names.value;
     set(reactiveState, proxy({ ...state }, null, reactiveState));
     get(reactiveState).data = data;
     mount(Viz, {
