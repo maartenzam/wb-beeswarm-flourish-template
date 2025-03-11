@@ -14,11 +14,8 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   var _listeners, _observer, _options, _ResizeObserverSingleton_instances, getObserver_fn;
   const EACH_ITEM_REACTIVE = 1;
   const EACH_INDEX_REACTIVE = 1 << 1;
-  const EACH_IS_CONTROLLED = 1 << 2;
-  const EACH_IS_ANIMATED = 1 << 3;
   const EACH_ITEM_IMMUTABLE = 1 << 4;
   const PROPS_IS_IMMUTABLE = 1;
-  const PROPS_IS_RUNES = 1 << 1;
   const PROPS_IS_UPDATED = 1 << 2;
   const PROPS_IS_BINDABLE = 1 << 3;
   const PROPS_IS_LAZY_INITIAL = 1 << 4;
@@ -43,7 +40,6 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   const DESTROYED = 1 << 14;
   const EFFECT_RAN = 1 << 15;
   const EFFECT_TRANSPARENT = 1 << 16;
-  const LEGACY_DERIVED_PROP = 1 << 17;
   const INSPECT_EFFECT = 1 << 18;
   const HEAD_EFFECT = 1 << 19;
   const EFFECT_HAS_DERIVED = 1 << 20;
@@ -60,9 +56,8 @@ var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "acce
   var object_prototype = Object.prototype;
   var array_prototype = Array.prototype;
   var get_prototype_of = Object.getPrototypeOf;
-  function run(fn) {
-    return fn();
-  }
+  const noop = () => {
+  };
   function run_all(arr) {
     for (var i = 0; i < arr.length; i++) {
       arr[i]();
@@ -152,6 +147,15 @@ https://svelte.dev/e/effect_update_depth_exceeded`);
       throw error;
     }
   }
+  function invalid_snippet() {
+    {
+      const error = new Error(`invalid_snippet
+Could not \`{@render}\` snippet due to the expression being \`null\` or \`undefined\`. Consider using optional chaining \`{@render snippet?.()}\`
+https://svelte.dev/e/invalid_snippet`);
+      error.name = "Svelte error";
+      throw error;
+    }
+  }
   function props_invalid_value(key) {
     {
       const error = new Error(`props_invalid_value
@@ -206,11 +210,7 @@ https://svelte.dev/e/state_unsafe_mutation`);
       throw error;
     }
   }
-  let legacy_mode_flag = false;
   let tracing_mode_flag = false;
-  function enable_legacy_mode_flag() {
-    legacy_mode_flag = true;
-  }
   let inspect_effects = /* @__PURE__ */ new Set();
   function set_inspect_effects(v) {
     inspect_effects = v;
@@ -232,18 +232,11 @@ https://svelte.dev/e/state_unsafe_mutation`);
   }
   // @__NO_SIDE_EFFECTS__
   function mutable_source(initial_value, immutable = false) {
-    var _a;
     const s = source(initial_value);
     if (!immutable) {
       s.equals = safe_equals;
     }
-    if (legacy_mode_flag && component_context !== null && component_context.l !== null) {
-      ((_a = component_context.l).s ?? (_a.s = [])).push(s);
-    }
     return s;
-  }
-  function mutable_state(v, immutable = false) {
-    return /* @__PURE__ */ push_derived_source(/* @__PURE__ */ mutable_source(v, immutable));
   }
   // @__NO_SIDE_EFFECTS__
   function push_derived_source(source2) {
@@ -255,13 +248,6 @@ https://svelte.dev/e/state_unsafe_mutation`);
       }
     }
     return source2;
-  }
-  function mutate(source2, value) {
-    set(
-      source2,
-      untrack(() => get(source2))
-    );
-    return value;
   }
   function set(source2, value) {
     if (active_reaction !== null && !untracking && is_runes() && (active_reaction.f & (DERIVED | BLOCK_EFFECT)) !== 0 && // If the source was created locally within the current derived, then
@@ -277,7 +263,7 @@ https://svelte.dev/e/state_unsafe_mutation`);
       source2.v = value;
       source2.wv = increment_write_version();
       mark_reactions(source2, DIRTY);
-      if (is_runes() && active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
+      if (active_effect !== null && (active_effect.f & CLEAN) !== 0 && (active_effect.f & (BRANCH_EFFECT | ROOT_EFFECT)) === 0) {
         if (untracked_writes === null) {
           set_untracked_writes([source2]);
         } else {
@@ -302,13 +288,11 @@ https://svelte.dev/e/state_unsafe_mutation`);
   function mark_reactions(signal, status) {
     var reactions = signal.reactions;
     if (reactions === null) return;
-    var runes = is_runes();
     var length = reactions.length;
     for (var i = 0; i < length; i++) {
       var reaction = reactions[i];
       var flags = reaction.f;
       if ((flags & DIRTY) !== 0) continue;
-      if (!runes && reaction === active_effect) continue;
       if ((flags & INSPECT_EFFECT) !== 0) {
         inspect_effects.add(reaction);
         continue;
@@ -1333,49 +1317,6 @@ ${indent}in ${name}`).join("")}
   function set_signal_status(signal, status) {
     signal.f = signal.f & STATUS_MASK | status;
   }
-  function deep_read_state(value) {
-    if (typeof value !== "object" || !value || value instanceof EventTarget) {
-      return;
-    }
-    if (STATE_SYMBOL in value) {
-      deep_read(value);
-    } else if (!Array.isArray(value)) {
-      for (let key in value) {
-        const prop2 = value[key];
-        if (typeof prop2 === "object" && prop2 && STATE_SYMBOL in prop2) {
-          deep_read(prop2);
-        }
-      }
-    }
-  }
-  function deep_read(value, visited = /* @__PURE__ */ new Set()) {
-    if (typeof value === "object" && value !== null && // We don't want to traverse DOM elements
-    !(value instanceof EventTarget) && !visited.has(value)) {
-      visited.add(value);
-      if (value instanceof Date) {
-        value.getTime();
-      }
-      for (let key in value) {
-        try {
-          deep_read(value[key], visited);
-        } catch (e) {
-        }
-      }
-      const proto = get_prototype_of(value);
-      if (proto !== Object.prototype && proto !== Array.prototype && proto !== Map.prototype && proto !== Set.prototype && proto !== Date.prototype) {
-        const descriptors = get_descriptors(proto);
-        for (let key in descriptors) {
-          const get2 = descriptors[key].get;
-          if (get2) {
-            try {
-              get2.call(value);
-            } catch (e) {
-            }
-          }
-        }
-      }
-    }
-  }
   function validate_effect(rune) {
     if (active_effect === null && active_reaction === null) {
       effect_orphan(rune);
@@ -1479,15 +1420,6 @@ ${indent}in ${name}`).join("")}
       return signal;
     }
   }
-  function user_pre_effect(fn) {
-    validate_effect("$effect.pre");
-    {
-      define_property(fn, "name", {
-        value: "$effect.pre"
-      });
-    }
-    return render_effect(fn);
-  }
   function component_root(fn) {
     const effect2 = create_effect(ROOT_EFFECT, fn, true);
     return (options = {}) => {
@@ -1506,41 +1438,6 @@ ${indent}in ${name}`).join("")}
   }
   function effect(fn) {
     return create_effect(EFFECT, fn, false);
-  }
-  function legacy_pre_effect(deps, fn) {
-    var context = (
-      /** @type {ComponentContextLegacy} */
-      component_context
-    );
-    var token = { effect: null, ran: false };
-    context.l.r1.push(token);
-    token.effect = render_effect(() => {
-      deps();
-      if (token.ran) return;
-      token.ran = true;
-      set(context.l.r2, true);
-      untrack(fn);
-    });
-  }
-  function legacy_pre_effect_reset() {
-    var context = (
-      /** @type {ComponentContextLegacy} */
-      component_context
-    );
-    render_effect(() => {
-      if (!get(context.l.r2)) return;
-      for (var token of context.l.r1) {
-        var effect2 = token.effect;
-        if ((effect2.f & CLEAN) !== 0) {
-          set_signal_status(effect2, MAYBE_DIRTY);
-        }
-        if (check_dirtiness(effect2)) {
-          update_effect(effect2);
-        }
-        token.ran = false;
-      }
-      context.l.r2.v = false;
-    });
   }
   function render_effect(fn) {
     return create_effect(RENDER_EFFECT, fn, true);
@@ -1832,14 +1729,6 @@ ${indent}in ${name}`).join("")}
       x: null,
       l: null
     };
-    if (legacy_mode_flag && !runes) {
-      component_context.l = {
-        s: null,
-        u: null,
-        r1: [],
-        r2: source(false)
-      };
-    }
     {
       component_context.function = fn;
       dev_current_component_function = fn;
@@ -1879,7 +1768,7 @@ ${indent}in ${name}`).join("")}
     {};
   }
   function is_runes() {
-    return !legacy_mode_flag || component_context !== null && component_context.l === null;
+    return true;
   }
   const PASSIVE_EVENTS = ["touchstart", "touchmove"];
   function is_passive_event(name) {
@@ -2340,14 +2229,6 @@ ${indent}in ${name}`).join("")}
   function each(node, flags, get_collection, get_key, render_fn, fallback_fn = null) {
     var anchor = node;
     var state2 = { flags, items: /* @__PURE__ */ new Map(), first: null };
-    var is_controlled = (flags & EACH_IS_CONTROLLED) !== 0;
-    if (is_controlled) {
-      var parent_node = (
-        /** @type {Element} */
-        node
-      );
-      anchor = parent_node.appendChild(create_text());
-    }
     var fallback = null;
     var was_empty = false;
     var each_array = /* @__PURE__ */ derived_safe_equal(() => {
@@ -2381,33 +2262,18 @@ ${indent}in ${name}`).join("")}
     });
   }
   function reconcile(array, state2, anchor, render_fn, flags, get_key, get_collection) {
-    var _a, _b, _c, _d;
-    var is_animated = (flags & EACH_IS_ANIMATED) !== 0;
-    var should_update = (flags & (EACH_ITEM_REACTIVE | EACH_INDEX_REACTIVE)) !== 0;
     var length = array.length;
     var items = state2.items;
     var first = state2.first;
     var current = first;
     var seen;
     var prev = null;
-    var to_animate;
     var matched = [];
     var stashed = [];
     var value;
     var key;
     var item;
     var i;
-    if (is_animated) {
-      for (i = 0; i < length; i += 1) {
-        value = array[i];
-        key = get_key(value, i);
-        item = items.get(key);
-        if (item !== void 0) {
-          (_a = item.a) == null ? void 0 : _a.measure();
-          (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).add(item);
-        }
-      }
-    }
     for (i = 0; i < length; i += 1) {
       value = array[i];
       key = get_key(value, i);
@@ -2435,15 +2301,11 @@ ${indent}in ${name}`).join("")}
         current = prev.next;
         continue;
       }
-      if (should_update) {
-        update_item(item, value, i, flags);
+      {
+        update_item(item, value, i);
       }
       if ((item.e.f & INERT) !== 0) {
         resume_effect(item.e);
-        if (is_animated) {
-          (_b = item.a) == null ? void 0 : _b.unfix();
-          (to_animate ?? (to_animate = /* @__PURE__ */ new Set())).delete(item);
-        }
       }
       if (item !== current) {
         if (seen !== void 0 && seen.has(item)) {
@@ -2505,41 +2367,18 @@ ${indent}in ${name}`).join("")}
       }
       var destroy_length = to_destroy.length;
       if (destroy_length > 0) {
-        var controlled_anchor = (flags & EACH_IS_CONTROLLED) !== 0 && length === 0 ? anchor : null;
-        if (is_animated) {
-          for (i = 0; i < destroy_length; i += 1) {
-            (_c = to_destroy[i].a) == null ? void 0 : _c.measure();
-          }
-          for (i = 0; i < destroy_length; i += 1) {
-            (_d = to_destroy[i].a) == null ? void 0 : _d.fix();
-          }
-        }
+        var controlled_anchor = null;
         pause_effects(state2, to_destroy, controlled_anchor, items);
       }
-    }
-    if (is_animated) {
-      queue_micro_task(() => {
-        var _a2;
-        if (to_animate === void 0) return;
-        for (item of to_animate) {
-          (_a2 = item.a) == null ? void 0 : _a2.apply();
-        }
-      });
     }
     active_effect.first = state2.first && state2.first.e;
     active_effect.last = prev && prev.e;
   }
   function update_item(item, value, index2, type) {
-    if ((type & EACH_ITEM_REACTIVE) !== 0) {
+    {
       internal_set(item.v, value);
     }
-    if ((type & EACH_INDEX_REACTIVE) !== 0) {
-      internal_set(
-        /** @type {Value<number>} */
-        item.i,
-        index2
-      );
-    } else {
+    {
       item.i = index2;
     }
   }
@@ -2548,7 +2387,7 @@ ${indent}in ${name}`).join("")}
     var mutable = (flags & EACH_ITEM_IMMUTABLE) === 0;
     var v = reactive ? mutable ? /* @__PURE__ */ mutable_source(value) : source(value) : value;
     var i = (flags & EACH_INDEX_REACTIVE) === 0 ? index2 : source(index2);
-    if (reactive) {
+    {
       v.debug = () => {
         var collection_index = typeof i === "number" ? index2 : i.v;
         get_collection()[collection_index];
@@ -2616,18 +2455,24 @@ ${indent}in ${name}`).join("")}
       next.e.prev = prev && prev.e;
     }
   }
-  function slot(anchor, $$props, name, slot_props, fallback_fn) {
-    var _a;
-    var slot_fn = (_a = $$props.$$slots) == null ? void 0 : _a[name];
-    var is_interop = false;
-    if (slot_fn === true) {
-      slot_fn = $$props["children"];
-      is_interop = true;
-    }
-    if (slot_fn === void 0) ;
-    else {
-      slot_fn(anchor, is_interop ? () => slot_props : slot_props);
-    }
+  function snippet(node, get_snippet, ...args) {
+    var anchor = node;
+    var snippet2 = noop;
+    var snippet_effect;
+    block(() => {
+      if (snippet2 === (snippet2 = get_snippet())) return;
+      if (snippet_effect) {
+        destroy_effect(snippet_effect);
+        snippet_effect = null;
+      }
+      if (snippet2 == null) {
+        invalid_snippet();
+      }
+      snippet_effect = branch(() => (
+        /** @type {SnippetFn} */
+        snippet2(anchor, ...args)
+      ));
+    }, EFFECT_TRANSPARENT);
   }
   function wrap_snippet(component, fn) {
     return (node, ...args) => {
@@ -2834,63 +2679,6 @@ ${indent}in ${name}`).join("")}
   function bind_window_size(type, set2) {
     listen(window, ["resize"], () => without_reactive_context(() => set2(window[type])));
   }
-  function init(immutable = false) {
-    const context = (
-      /** @type {ComponentContextLegacy} */
-      component_context
-    );
-    const callbacks = context.l.u;
-    if (!callbacks) return;
-    let props = () => deep_read_state(context.s);
-    if (immutable) {
-      let version = 0;
-      let prev = (
-        /** @type {Record<string, any>} */
-        {}
-      );
-      const d = /* @__PURE__ */ derived(() => {
-        let changed = false;
-        const props2 = context.s;
-        for (const key in props2) {
-          if (props2[key] !== prev[key]) {
-            prev[key] = props2[key];
-            changed = true;
-          }
-        }
-        if (changed) version++;
-        return version;
-      });
-      props = () => get(d);
-    }
-    if (callbacks.b.length) {
-      user_pre_effect(() => {
-        observe_all(context, props);
-        run_all(callbacks.b);
-      });
-    }
-    user_effect(() => {
-      const fns = untrack(() => callbacks.m.map(run));
-      return () => {
-        for (const fn of fns) {
-          if (typeof fn === "function") {
-            fn();
-          }
-        }
-      };
-    });
-    if (callbacks.a.length) {
-      user_effect(() => {
-        observe_all(context, props);
-        run_all(callbacks.a);
-      });
-    }
-  }
-  function observe_all(context, props) {
-    if (context.l.s) {
-      for (const signal of context.l.s) get(signal);
-    }
-    props();
-  }
   {
     let throw_rune_error = function(rune) {
       if (!(rune in globalThis)) {
@@ -2930,7 +2718,7 @@ ${indent}in ${name}`).join("")}
   function prop(props, key, flags, fallback) {
     var _a;
     var immutable = (flags & PROPS_IS_IMMUTABLE) !== 0;
-    var runes = !legacy_mode_flag || (flags & PROPS_IS_RUNES) !== 0;
+    var runes = true;
     var bindable = (flags & PROPS_IS_BINDABLE) !== 0;
     var lazy = (flags & PROPS_IS_LAZY_INITIAL) !== 0;
     var is_store_sub = false;
@@ -2976,7 +2764,7 @@ ${indent}in ${name}`).join("")}
       if (setter) setter(prop_value);
     }
     var getter;
-    if (runes) {
+    {
       getter = () => {
         var value = (
           /** @type {V} */
@@ -2987,20 +2775,6 @@ ${indent}in ${name}`).join("")}
         fallback_used = false;
         return value;
       };
-    } else {
-      var derived_getter = (immutable ? derived : derived_safe_equal)(
-        () => (
-          /** @type {V} */
-          props[key]
-        )
-      );
-      derived_getter.f |= LEGACY_DERIVED_PROP;
-      getter = () => {
-        var value = get(derived_getter);
-        if (value !== void 0) fallback_value = /** @type {V} */
-        void 0;
-        return value === void 0 ? fallback_value : value;
-      };
     }
     if ((flags & PROPS_IS_UPDATED) === 0) {
       return getter;
@@ -3009,7 +2783,7 @@ ${indent}in ${name}`).join("")}
       var legacy_parent = props.$$legacy;
       return function(value, mutation) {
         if (arguments.length > 0) {
-          if (!runes || !mutation || legacy_parent || is_store_sub) {
+          if (!mutation || legacy_parent || is_store_sub) {
             setter(mutation ? getter() : value);
           }
           return value;
@@ -3032,7 +2806,7 @@ ${indent}in ${name}`).join("")}
     if (!immutable) current_value.equals = safe_equals;
     return function(value, mutation) {
       if (arguments.length > 0) {
-        const new_value = mutation ? get(current_value) : runes && bindable ? proxy(value) : value;
+        const new_value = mutation ? get(current_value) : bindable ? proxy(value) : value;
         if (!current_value.equals(new_value)) {
           from_child = true;
           set(inner_current_value, new_value);
@@ -3103,7 +2877,6 @@ ${indent}in ${name}`).join("")}
     return pop({ ...legacy_api() });
   }
   mark_module_end(Footer);
-  enable_legacy_mode_flag();
   let wbColors = {
     "cat1": "#34A7F2",
     "cat2": "#FF9800",
@@ -3185,27 +2958,21 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
-  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[26, 8, [[27, 10], [31, 10]]]]);
-  var root_3$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[36, 6, [[37, 8], [38, 8]]]]);
+  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[15, 8, [[16, 10], [20, 10]]]]);
+  var root_3$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[25, 6, [[26, 8], [27, 8]]]]);
   var root$6 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
     [
-      17,
+      6,
       0,
       [
-        [18, 2, [[19, 4, [[20, 6]]]]],
-        [23, 2]
+        [7, 2, [[8, 4, [[9, 6]]]]],
+        [12, 2]
       ]
     ]
   ]);
   function CategoricalColorLegend($$anchor, $$props) {
     check_target(new.target);
-    push($$props, false, CategoricalColorLegend);
-    let title = prop($$props, "title", 8);
-    let catColorScale = prop($$props, "catColorScale", 8);
-    let includeNoData = prop($$props, "includeNoData", 8);
-    let noDataLabel = prop($$props, "noDataLabel", 8);
-    let usedCats = prop($$props, "usedCats", 8);
-    init();
+    push($$props, true, CategoricalColorLegend);
     var div = root$6();
     set_class(div, 1, "legend svelte-hjs62s");
     var div_1 = child(div);
@@ -3214,7 +2981,7 @@ ${indent}in ${name}`).join("")}
     var text = child(span);
     var div_3 = sibling(div_1, 2);
     var node = child(div_3);
-    each(node, 1, () => catColorScale().domain(), index, ($$anchor2, item) => {
+    each(node, 17, () => $$props.catColorScale.domain(), index, ($$anchor2, item) => {
       var fragment = comment();
       var node_1 = first_child(fragment);
       {
@@ -3230,13 +2997,14 @@ ${indent}in ${name}`).join("")}
               set_style(div_5, "background-color", $0);
               set_text(text_1, get(item));
             },
-            [() => catColorScale()(get(item))],
-            derived_safe_equal
+            [
+              () => $$props.catColorScale(get(item))
+            ]
           );
           append($$anchor3, div_4);
         };
         if_block(node_1, ($$render) => {
-          if (usedCats().includes(get(item))) $$render(consequent);
+          if ($$props.usedCats.includes(get(item))) $$render(consequent);
         });
       }
       append($$anchor2, fragment);
@@ -3252,15 +3020,15 @@ ${indent}in ${name}`).join("")}
         var text_2 = child(div_9);
         template_effect(() => {
           set_style(div_8, "background-color", wbColors.noData);
-          set_text(text_2, noDataLabel());
+          set_text(text_2, $$props.noDataLabel);
         });
         append($$anchor2, div_7);
       };
       if_block(node_2, ($$render) => {
-        if (includeNoData()) $$render(consequent_1);
+        if ($$props.includeNoData) $$render(consequent_1);
       });
     }
-    template_effect(() => set_text(text, title()));
+    template_effect(() => set_text(text, $$props.title));
     append($$anchor, div);
     return pop({ ...legacy_api() });
   }
@@ -3844,60 +3612,44 @@ ${indent}in ${name}`).join("")}
   }
   mark_module_start();
   ContinuousColorLegend[FILENAME] = "src/template/ContinuousColorLegend.svelte";
-  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), ContinuousColorLegend[FILENAME], [[95, 6]]);
+  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), ContinuousColorLegend[FILENAME], [[81, 6]]);
   var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="no-data"><div class="no-data-symbol svelte-1af89zx"><svg class="no-data-symbol svelte-1af89zx"><rect class="no-data-rect"></rect></svg></div></div>`), ContinuousColorLegend[FILENAME], [
     [
-      105,
+      91,
       4,
       [
-        [
-          106,
-          6,
-          [[107, 8, [[108, 10]]]]
-        ]
+        [92, 6, [[93, 8, [[94, 10]]]]]
       ]
     ]
   ]);
-  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[135, 14]]);
-  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[141, 16]]);
-  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[117, 10], [126, 10], [133, 10]]);
-  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[150, 12]]);
-  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[160, 16]]);
+  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[121, 14]]);
+  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[127, 16]]);
+  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[103, 10], [112, 10], [119, 10]]);
+  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[136, 12]]);
+  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[146, 16]]);
   var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
   var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), ContinuousColorLegend[FILENAME], [
     [
-      92,
+      78,
       0,
       [
         [
-          93,
+          79,
           2,
-          [[97, 4, [[98, 6], [98, 32]]]]
+          [[83, 4, [[84, 6], [84, 32]]]]
         ],
         [
-          103,
+          89,
           2,
-          [[114, 4, [[115, 6]]]]
+          [[100, 4, [[101, 6]]]]
         ]
       ]
     ]
   ]);
   function ContinuousColorLegend($$anchor, $$props) {
     check_target(new.target);
-    push($$props, false, ContinuousColorLegend);
-    const noDataWidth = mutable_state();
-    const discreteTicks = mutable_state();
-    let width = prop($$props, "width", 8);
-    let units = prop($$props, "units", 8, "");
-    let title = prop($$props, "title", 8);
-    let unitLabel = prop($$props, "unitLabel", 8);
-    let contColorScale = prop($$props, "contColorScale", 8);
-    let tickLabels = prop($$props, "tickLabels", 24, () => []);
-    let linearOrBinned = prop($$props, "linearOrBinned", 8);
-    let binningMode = prop($$props, "binningMode", 8);
-    let includeNoData = prop($$props, "includeNoData", 8);
-    let noDataLabel = prop($$props, "noDataLabel", 8);
-    let domain = mutable_state([0, 1]);
+    push($$props, true, ContinuousColorLegend);
+    let units = prop($$props, "units", 3, ""), tickLabels = prop($$props, "tickLabels", 19, () => []);
     let tickSize = 12;
     let height = 12 + tickSize;
     const margin = {
@@ -3905,6 +3657,14 @@ ${indent}in ${name}`).join("")}
       right: 14,
       left: 0
     };
+    let domain = /* @__PURE__ */ derived(() => {
+      const d = $$props.contColorScale.domain();
+      if (equals(d.length, 2)) {
+        return [d[0], d[0] + (d[1] - d[0]) / 2, d[1]];
+      } else {
+        return d;
+      }
+    });
     function ramp(color2, n2 = 256) {
       const canvas = document.createElement("canvas");
       canvas.width = n2;
@@ -3916,45 +3676,37 @@ ${indent}in ${name}`).join("")}
       }
       return canvas;
     }
-    let x = mutable_state(), n = mutable_state(), href = mutable_state();
-    let gradientWidth = mutable_state();
-    legacy_pre_effect(() => deep_read_state(contColorScale()), () => {
-      const d = contColorScale().domain();
-      set(domain, []);
-      if (equals(d.length, 2)) {
-        set(domain, [d[0], d[0] + (d[1] - d[0]) / 2, d[1]]);
-      } else {
-        set(domain, d);
+    let n = /* @__PURE__ */ derived(() => {
+      if ($$props.contColorScale.interpolate) {
+        return Math.min($$props.contColorScale.domain().length, $$props.contColorScale.range().length);
+      }
+      if ($$props.contColorScale.interpolator) {
+        return;
       }
     });
-    legacy_pre_effect(
-      () => (deep_read_state(contColorScale()), get(n), get(gradientWidth), deep_read_state(width())),
-      () => {
-        if (contColorScale().interpolate) {
-          set(n, Math.min(contColorScale().domain().length, contColorScale().range().length));
-          set(x, contColorScale().copy().rangeRound(quantize$1(interpolate(margin.left, get(gradientWidth) - margin.right), get(n))));
-          set(href, ramp(contColorScale().copy().domain(quantize$1(interpolate(0, 1), get(n)))).toDataURL());
-        } else if (contColorScale().interpolator) {
-          set(x, Object.assign(contColorScale().copy().interpolator(interpolateRound(margin.left, get(gradientWidth) - margin.right)), {
-            range() {
-              return [margin.left, width() - margin.right];
-            }
-          }));
-          set(href, ramp(contColorScale().interpolator()).toDataURL());
-        }
+    let x = /* @__PURE__ */ derived(() => {
+      if ($$props.contColorScale.interpolate) {
+        return $$props.contColorScale.copy().rangeRound(quantize$1(interpolate(margin.left, $$props.width - margin.right), get(n)));
       }
-    );
-    legacy_pre_effect(() => deep_read_state(includeNoData()), () => {
-      set(noDataWidth, includeNoData() ? 70 : 0);
+      if ($$props.contColorScale.interpolator) {
+        return Object.assign($$props.contColorScale.copy().interpolator(interpolateRound(margin.left, $$props.width - margin.right)), {
+          range() {
+            return [margin.left, $$props.width - margin.right];
+          }
+        });
+      }
     });
-    legacy_pre_effect(
-      () => (deep_read_state(linearOrBinned()), deep_read_state(binningMode()), deep_read_state(contColorScale())),
-      () => {
-        set(discreteTicks, equals(linearOrBinned(), "linear") ? [] : equals(binningMode(), "fixedWidth") ? contColorScale().thresholds() : contColorScale().quantiles());
+    let href = /* @__PURE__ */ derived(() => {
+      if ($$props.contColorScale.interpolate) {
+        return ramp($$props.contColorScale.copy().domain(quantize$1(interpolate(0, 1), get(n)))).toDataURL();
       }
-    );
-    legacy_pre_effect_reset();
-    init();
+      if ($$props.contColorScale.interpolator) {
+        return ramp($$props.contColorScale.interpolator()).toDataURL();
+      }
+    });
+    let noDataWidth = /* @__PURE__ */ derived(() => $$props.includeNoData ? 70 : 0);
+    let gradientWidth = state$1(0);
+    let discreteTicks = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? [] : equals($$props.binningMode, "fixedWidth") ? $$props.contColorScale.thresholds() : $$props.contColorScale.quantiles());
     var div = root$5();
     set_class(div, 1, "legend svelte-1af89zx");
     var div_1 = child(div);
@@ -3965,12 +3717,12 @@ ${indent}in ${name}`).join("")}
         var text = child(div_2);
         template_effect(() => {
           set_style(div_2, "width", get(noDataWidth) + "px");
-          set_text(text, noDataLabel());
+          set_text(text, $$props.noDataLabel);
         });
         append($$anchor2, div_2);
       };
       if_block(node, ($$render) => {
-        if (includeNoData()) $$render(consequent);
+        if ($$props.includeNoData) $$render(consequent);
       });
     }
     var div_3 = sibling(node, 2);
@@ -3999,7 +3751,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, div_5);
       };
       if_block(node_1, ($$render) => {
-        if (includeNoData()) $$render(consequent_1);
+        if ($$props.includeNoData) $$render(consequent_1);
       });
     }
     var div_7 = sibling(node_1, 2);
@@ -4016,7 +3768,7 @@ ${indent}in ${name}`).join("")}
         set_attribute(rect_1, "height", 10);
         var g = sibling(rect_1);
         var node_3 = child(g);
-        each(node_3, 1, tickLabels, index, ($$anchor3, tick) => {
+        each(node_3, 17, tickLabels, index, ($$anchor3, tick) => {
           var text_3 = root_4$1();
           var text_4 = child(text_3);
           template_effect(
@@ -4025,8 +3777,7 @@ ${indent}in ${name}`).join("")}
               set_attribute(text_3, "y", margin.top + 24);
               set_text(text_4, get(tick).label + units());
             },
-            [() => get(x)(get(tick).value)],
-            derived_safe_equal
+            [() => get(x)(get(tick).value)]
           );
           append($$anchor3, text_3);
         });
@@ -4035,7 +3786,7 @@ ${indent}in ${name}`).join("")}
           var consequent_2 = ($$anchor3) => {
             var fragment_1 = comment();
             var node_5 = first_child(fragment_1);
-            each(node_5, 1, () => get(domain), index, ($$anchor4, tick) => {
+            each(node_5, 17, () => get(domain), index, ($$anchor4, tick) => {
               var text_5 = root_6$1();
               var text_6 = child(text_5);
               template_effect(
@@ -4044,8 +3795,7 @@ ${indent}in ${name}`).join("")}
                   set_attribute(text_5, "y", margin.top + 24);
                   set_text(text_6, get(tick) + units());
                 },
-                [() => get(x)(get(tick))],
-                derived_safe_equal
+                [() => get(x)(get(tick))]
               );
               append($$anchor4, text_5);
             });
@@ -4067,7 +3817,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, fragment);
       };
       if_block(node_2, ($$render) => {
-        if (equals(linearOrBinned(), "linear") && get(gradientWidth)) $$render(consequent_3);
+        if (equals($$props.linearOrBinned, "linear") && get(gradientWidth)) $$render(consequent_3);
       });
     }
     var node_6 = sibling(node_2);
@@ -4075,7 +3825,7 @@ ${indent}in ${name}`).join("")}
       var consequent_4 = ($$anchor2) => {
         var fragment_2 = root_7$2();
         var node_7 = first_child(fragment_2);
-        each(node_7, 1, () => contColorScale().range(), index, ($$anchor3, bin, i) => {
+        each(node_7, 17, () => $$props.contColorScale.range(), index, ($$anchor3, bin, i) => {
           var rect_2 = root_8$2();
           set_class(rect_2, 0, "bin-color svelte-1af89zx");
           set_attribute(rect_2, "height", 10);
@@ -4087,15 +3837,14 @@ ${indent}in ${name}`).join("")}
               set_attribute(rect_2, "fill", get(bin));
             },
             [
-              () => margin.left + i * get(gradientWidth) / contColorScale().range().length,
-              () => get(gradientWidth) / contColorScale().range().length
-            ],
-            derived_safe_equal
+              () => margin.left + i * get(gradientWidth) / $$props.contColorScale.range().length,
+              () => get(gradientWidth) / $$props.contColorScale.range().length
+            ]
           );
           append($$anchor3, rect_2);
         });
         var node_8 = sibling(node_7);
-        each(node_8, 1, () => get(discreteTicks), index, ($$anchor3, tick, i) => {
+        each(node_8, 17, () => get(discreteTicks), index, ($$anchor3, tick, i) => {
           var text_7 = root_9();
           var text_8 = child(text_7);
           template_effect(
@@ -4105,22 +3854,21 @@ ${indent}in ${name}`).join("")}
               set_text(text_8, $1);
             },
             [
-              () => margin.left + (i + 1) * get(gradientWidth) / contColorScale().range().length,
+              () => margin.left + (i + 1) * get(gradientWidth) / $$props.contColorScale.range().length,
               () => Math.round(get(tick) * 10) / 10 + units()
-            ],
-            derived_safe_equal
+            ]
           );
           append($$anchor3, text_7);
         });
         append($$anchor2, fragment_2);
       };
       if_block(node_6, ($$render) => {
-        if (equals(linearOrBinned(), "binned")) $$render(consequent_4);
+        if (equals($$props.linearOrBinned, "binned")) $$render(consequent_4);
       });
     }
     template_effect(() => {
-      set_text(text_1, title());
-      set_text(text_2, unitLabel() ? "(" + unitLabel() + ")" : "");
+      set_text(text_1, $$props.title);
+      set_text(text_2, $$props.unitLabel ? "(" + $$props.unitLabel + ")" : "");
     });
     bind_element_size(div_7, "clientWidth", ($$value) => set(gradientWidth, $$value));
     append($$anchor, div);
@@ -6537,65 +6285,52 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Tooltip[FILENAME] = "src/template/Tooltip.svelte";
-  var root$3 = add_locations(/* @__PURE__ */ template2(`<div><!></div>`), Tooltip[FILENAME], [[49, 0]]);
+  var root$3 = add_locations(/* @__PURE__ */ template2(`<div><!></div>`), Tooltip[FILENAME], [[46, 0]]);
   function Tooltip($$anchor, $$props) {
     check_target(new.target);
-    push($$props, false, Tooltip);
-    let visible = prop($$props, "visible", 8);
-    let targetPos = prop($$props, "targetPos", 8);
-    let placement = prop($$props, "placement", 8, "right");
-    let showBackground = prop($$props, "showBackground", 8, true);
-    let component = mutable_state();
-    let lastTargetPos = mutable_state({ x: 0, y: 0 });
-    let x = mutable_state(), y = mutable_state();
-    legacy_pre_effect(() => deep_read_state(targetPos()), () => {
-      set(x, targetPos().x);
-    });
-    legacy_pre_effect(() => deep_read_state(targetPos()), () => {
-      set(y, targetPos().y);
-    });
-    legacy_pre_effect(
-      () => (get(component), deep_read_state(targetPos()), get(lastTargetPos), get(x), get(y), deep_read_state(placement()), shift),
-      () => {
-        if (get(component) && targetPos() && (strict_equals(targetPos().x, get(lastTargetPos).x, false) || strict_equals(targetPos().y, get(lastTargetPos).y, false))) {
-          set(lastTargetPos, { ...targetPos() });
-          const virtualTarget = {
-            getBoundingClientRect() {
-              return {
-                width: 0,
-                height: 0,
-                x: get(x),
-                y: get(y),
-                top: get(y),
-                left: get(x),
-                right: get(x),
-                bottom: get(y)
-              };
-            }
-          };
-          computePosition(virtualTarget, get(component), {
-            placement: placement(),
-            middleware: [
-              offset(24),
-              flip(),
-              shift({ padding: 5 })
-            ]
-          }).then(({ x: x2, y: y2 }) => {
-            mutate(component, get(component).style.left = x2 + "px");
-            mutate(component, get(component).style.top = y2 + "px");
-          });
-        }
+    push($$props, true, Tooltip);
+    let placement = prop($$props, "placement", 3, "right"), showBackground = prop($$props, "showBackground", 3, true);
+    let component;
+    let lastTargetPos = { x: 0, y: 0 };
+    let x = /* @__PURE__ */ derived(() => $$props.targetPos.x);
+    let y = /* @__PURE__ */ derived(() => $$props.targetPos.y);
+    user_effect(() => {
+      if (component && $$props.targetPos && (strict_equals($$props.targetPos.x, lastTargetPos.x, false) || strict_equals($$props.targetPos.y, lastTargetPos.y, false))) {
+        lastTargetPos = { ...$$props.targetPos };
+        const virtualTarget = {
+          getBoundingClientRect() {
+            return {
+              width: 0,
+              height: 0,
+              x: get(x),
+              y: get(y),
+              top: get(y),
+              left: get(x),
+              right: get(x),
+              bottom: get(y)
+            };
+          }
+        };
+        computePosition(virtualTarget, component, {
+          placement: placement(),
+          middleware: [
+            offset(24),
+            flip(),
+            shift({ padding: 5 })
+          ]
+        }).then(({ x: x2, y: y2 }) => {
+          component.style.left = x2 + "px";
+          component.style.top = y2 + "px";
+        });
       }
-    );
-    legacy_pre_effect_reset();
-    init();
+    });
     var div = root$3();
     let classes;
     var node = child(div);
-    slot(node, $$props, "default", {});
-    bind_this(div, ($$value) => set(component, $$value), () => get(component));
+    snippet(node, () => $$props.children ?? noop);
+    bind_this(div, ($$value) => component = $$value, () => component);
     template_effect(() => classes = set_class(div, 1, "tooltip svelte-1jlc8vz", null, classes, {
-      visible: visible(),
+      visible: $$props.visible,
       background: strict_equals(showBackground(), true)
     }));
     append($$anchor, div);
@@ -6604,12 +6339,10 @@ ${indent}in ${name}`).join("")}
   mark_module_end(Tooltip);
   mark_module_start();
   TooltipContent[FILENAME] = "src/template/TooltipContent.svelte";
-  var root$2 = add_locations(/* @__PURE__ */ template2(`<div class="tooltip-container svelte-7erzzb"><h3> </h3> <div> </div></div>`), TooltipContent[FILENAME], [[6, 0, [[7, 0], [8, 0]]]]);
+  var root$2 = add_locations(/* @__PURE__ */ template2(`<div class="tooltip-container svelte-7erzzb"><h3> </h3> <div> </div></div>`), TooltipContent[FILENAME], [[5, 0, [[6, 2], [7, 2]]]]);
   function TooltipContent($$anchor, $$props) {
     check_target(new.target);
-    push($$props, false, TooltipContent);
-    let tooltipHeader = prop($$props, "tooltipHeader", 8);
-    let tooltipBody = prop($$props, "tooltipBody", 8);
+    push($$props, true, TooltipContent);
     var div = root$2();
     var h3 = child(div);
     set_class(h3, 1, "tooltip-header svelte-7erzzb");
@@ -6618,8 +6351,8 @@ ${indent}in ${name}`).join("")}
     set_class(div_1, 1, "tooltip-content svelte-7erzzb");
     var text_1 = child(div_1);
     template_effect(() => {
-      set_text(text, tooltipHeader());
-      set_text(text_1, tooltipBody());
+      set_text(text, $$props.tooltipHeader);
+      set_text(text_1, $$props.tooltipBody);
     });
     append($$anchor, div);
     return pop({ ...legacy_api() });

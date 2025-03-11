@@ -1,11 +1,10 @@
 <script>
-    export let tooltipHeader
-    export let tooltipBody
+  let { tooltipHeader, tooltipBody } = $props()
 </script>
 
 <div class="tooltip-container">
-<h3 class={"tooltip-header"}>{tooltipHeader}</h3>
-<div class={"tooltip-content"}>{tooltipBody}</div>
+  <h3 class={"tooltip-header"}>{tooltipHeader}</h3>
+  <div class={"tooltip-content"}>{tooltipBody}</div>
 </div>
 
 <style>

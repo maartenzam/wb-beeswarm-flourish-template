@@ -272,7 +272,7 @@ data:
     description: The values to use for coloring the bees. Regions and income levels (both codes and names) are mapped automatically to the right colors
     dataset: plotdata
     type: column
-    column: "country_data::F"
+    column: "country_data::C"
     data_type:
       - string
       - number

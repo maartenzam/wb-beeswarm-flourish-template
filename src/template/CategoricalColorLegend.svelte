@@ -1,17 +1,6 @@
 <script>
-  export let title;
-  export let catColorScale;
-  export let includeNoData;
-  export let noDataLabel;
-  export let usedCats;
+  let { title, catColorScale, includeNoData, noDataLabel, usedCats } = $props()
   import { wbColors } from '../utils/colors';
-
-  const margin = {
-    top: 0,
-    right: 14,
-    bottom: 4,
-    left: 0,
-  };
 </script>
 
 <div class={'legend'}>
@@ -27,14 +16,14 @@
           <div
             class={`pill circle`}
             style:background-color={catColorScale(item)}
-          />
+          ></div>
           <div class={'label small'}>{item}</div>
         </div>
       {/if}
     {/each}
     {#if includeNoData}
       <div class="pill-container">
-        <div class={`pill circle`} style:background-color={wbColors.noData} />
+        <div class={`pill circle`} style:background-color={wbColors.noData}></div>
         <div class={'label small'}>{noDataLabel}</div>
       </div>
     {/if}
