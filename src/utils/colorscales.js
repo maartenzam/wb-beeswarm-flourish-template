@@ -1,10 +1,8 @@
-import { extent } from 'd3-array';
 import { scaleSequential, scaleQuantize, scaleQuantile, scaleOrdinal } from 'd3-scale';
 import { colorRamps, catColors, allColors } from './colorramps';
 import { wbColors } from './colors';
 
 export let getNumericalColorScale = function(data, domain, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins){
-  //let dataExtent = extent(data.plotdata.map((d) => d.color))
 
   if(linearOrBinned == 'linear'){
     return scaleSequential(
