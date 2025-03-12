@@ -23,7 +23,7 @@
     tickNumber,
     ySort,
     yReverse,
-    catColorScale,
+    categoricalColorScale,
     numericalColorScale,
     addAnnotation,
     annotationValue,
@@ -172,7 +172,7 @@
             stroke-width={bee.datum.id == currentFeature ? 2.5 : beeStrokeWidth}
             opacity={beeOpacity}
             fill={valueType == 'string'
-              ? catColorScale(bee.datum.color)
+              ? categoricalColorScale(bee.datum.color)
               : bee.datum.color
                 ? numericalColorScale(bee.datum.color)
                 : noDataColor

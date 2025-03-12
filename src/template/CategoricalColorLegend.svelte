@@ -1,5 +1,5 @@
 <script>
-  let { title, catColorScale, includeNoData, noDataLabel, usedCats } = $props()
+  let { title, categoricalColorScale, includeNoData, noDataLabel } = $props()
   import { wbColors } from '../utils/colors';
 </script>
 
@@ -10,16 +10,14 @@
     </div>
   </div>
   <div class="categorical-legend" aria-hidden="true">
-    {#each catColorScale.domain() as item}
-      {#if usedCats.includes(item)}
+    {#each categoricalColorScale.domain() as item}
         <div class="pill-container">
           <div
             class={`pill circle`}
-            style:background-color={catColorScale(item)}
+            style:background-color={categoricalColorScale(item)}
           ></div>
           <div class={'label'}>{item}</div>
         </div>
-      {/if}
     {/each}
     {#if includeNoData}
       <div class="pill-container">

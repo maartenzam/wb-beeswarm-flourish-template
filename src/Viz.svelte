@@ -64,7 +64,7 @@
   let domain = $derived(domainAutoCustom == "auto" ? dataDomain : customDomain)
 
   let numericalColorScale = $derived(getNumericalColorScale(data, domain, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
-  let catColorScale = $derived(getCategoricalColorScale(data))
+  let categoricalColorScale = $derived(getCategoricalColorScale(data))
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />
@@ -92,7 +92,7 @@
         {tickNumber}
         {ySort}
         {yReverse}
-        {catColorScale}
+        {categoricalColorScale}
         {numericalColorScale}
         {addAnnotation}
         {annotationValue}
@@ -104,13 +104,11 @@
   {#if showLegend}
       {#if valueType == 'number'}
         <NumericalColorLegend
-          width={vizWidth}
           title={legendTitle}
           unitLabel={unitLabel}
           {numericalColorScale}
           {linearOrBinned}
           {binningMode}
-          units={""}
           includeNoData={includeNoData}
           noDataLabel={noDataLabel}
         ></NumericalColorLegend>
@@ -118,8 +116,7 @@
       {#if valueType == 'string'}
         <CategoricalColorLegend
           title={legendTitle}
-          {catColorScale}
-          usedCats={catColorScale.domain()}
+          {categoricalColorScale}
           includeNoData={includeNoData}
           noDataLabel={noDataLabel}
         ></CategoricalColorLegend>
