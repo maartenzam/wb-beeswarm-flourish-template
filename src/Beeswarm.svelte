@@ -148,7 +148,7 @@
       divisor={divideValues}
       axisUnits={units}
     />
-    {#if addAnnotation}
+    {#if addAnnotation && annotationValue}
         <line
             x1={xScale(annotationValue)}
             x2={xScale(annotationValue)}

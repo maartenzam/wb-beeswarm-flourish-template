@@ -6540,7 +6540,7 @@ ${indent}in ${name}`).join("")}
         append($$anchor2, line);
       };
       if_block(node_3, ($$render) => {
-        if ($$props.addAnnotation) $$render(consequent_1);
+        if ($$props.addAnnotation && $$props.annotationValue) $$render(consequent_1);
       });
     }
     var node_4 = sibling(node_3);
@@ -6815,7 +6815,6 @@ ${indent}in ${name}`).join("")}
     let colorDomain = [...new Set(data2.plotdata.map((d) => d.color))].filter(
       (d) => d != ""
     );
-    console.log(allColors);
     let colorRange = colorDomain.map((d) => {
       if (allColors[d.toLowerCase()]) {
         return allColors[d.toLowerCase()];
