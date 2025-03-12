@@ -1860,6 +1860,14 @@ ${indent}in ${name}`).join("")}
       });
     }
   }
+  function delegate(events) {
+    for (var i = 0; i < events.length; i++) {
+      all_registered_events.add(events[i]);
+    }
+    for (var fn of root_event_handles) {
+      fn(events);
+    }
+  }
   function handle_event_propagation(event2) {
     var _a;
     var handler_element = this;
@@ -2887,20 +2895,6 @@ ${indent}in ${name}`).join("")}
     "cat7": "#0C7C68",
     "cat8": "#AA0000",
     "cat9": "#DDDA21",
-    "wld": "#081079",
-    "nac": "#34A7F2",
-    "lcn": "#0C7C68",
-    "sas": "#4EC2C0",
-    "mea": "#664AB6",
-    "ecs": "#AA0000",
-    "eas": "#F3578E",
-    "ssf": "#FF9800",
-    "afe": "#FF9800",
-    "afw": "#DDDA21",
-    "hic": "#016B6C",
-    "umc": "#73AF48",
-    "lmc": "#DB95D7",
-    "lic": "#3B4DA6",
     "male": "#664AB6",
     "female": "#FF9800",
     "diverse": "#4EC2C0",
@@ -2908,7 +2902,7 @@ ${indent}in ${name}`).join("")}
     "urban": "#6D88D1",
     "youngestAge": "#F8A8DF",
     "youngerAge": "#B38FD8",
-    "middleAge": "#8A969F",
+    "middleAge": "#462f98",
     "olderAge": "#6D88D1",
     "oldestAge": "#A1C6FF",
     "yes": "#0071BC",
@@ -3612,36 +3606,42 @@ ${indent}in ${name}`).join("")}
   }
   mark_module_start();
   ContinuousColorLegend[FILENAME] = "src/template/ContinuousColorLegend.svelte";
-  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), ContinuousColorLegend[FILENAME], [[81, 6]]);
+  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), ContinuousColorLegend[FILENAME], [[105, 6]]);
   var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="no-data"><div class="no-data-symbol svelte-1af89zx"><svg class="no-data-symbol svelte-1af89zx"><rect class="no-data-rect"></rect></svg></div></div>`), ContinuousColorLegend[FILENAME], [
     [
-      91,
-      4,
+      117,
+      6,
       [
-        [92, 6, [[93, 8, [[94, 10]]]]]
+        [
+          118,
+          8,
+          [[119, 10, [[120, 12]]]]
+        ]
       ]
     ]
   ]);
-  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[121, 14]]);
-  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[127, 16]]);
-  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[103, 10], [112, 10], [119, 10]]);
-  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[136, 12]]);
-  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[146, 16]]);
+  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[152, 14]]);
+  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[158, 16]]);
+  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[134, 10], [143, 10], [150, 10]]);
+  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[167, 12]]);
+  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[178, 12]]);
   var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
   var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), ContinuousColorLegend[FILENAME], [
     [
-      78,
+      102,
       0,
       [
         [
-          79,
+          103,
           2,
-          [[83, 4, [[84, 6], [84, 32]]]]
+          [
+            [109, 4, [[110, 6], [110, 32]]]
+          ]
         ],
         [
-          89,
+          115,
           2,
-          [[100, 4, [[101, 6]]]]
+          [[131, 4, [[132, 6]]]]
         ]
       ]
     ]
@@ -4948,28 +4948,6 @@ ${indent}in ${name}`).join("")}
     };
     return initInterpolator.apply(scale, arguments);
   }
-  let getValue = function(id, data2) {
-    if (data2.find((d) => d.id == id)) {
-      return data2.find((d) => d.id == id).value;
-    } else return void 0;
-  };
-  let getFill = function(data2, id, sColorScale, cColorScale, noDataColor) {
-    let valueType = data2.metadata.color.type;
-    if (valueType == "number") {
-      if (getValue(id, data2)) {
-        return sColorScale(getValue(id, data2));
-      } else {
-        return noDataColor;
-      }
-    }
-    if (valueType == "string") {
-      if (getValue(id, data2)) {
-        return cColorScale(getValue(id, data2));
-      } else {
-        return noDataColor;
-      }
-    }
-  };
   mark_module_start();
   ChartGrid[FILENAME] = "src/template/ChartGrid.svelte";
   var root_3$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tickLabel x middle svelte-8ff1yv"> </text>`), ChartGrid[FILENAME], [[51, 8]]);
@@ -6360,11 +6338,11 @@ ${indent}in ${name}`).join("")}
   mark_module_end(TooltipContent);
   mark_module_start();
   Beeswarm[FILENAME] = "src/Beeswarm.svelte";
-  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[136, 8]]);
-  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[153, 8]]);
-  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[168, 10]]);
-  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text paint-order="stroke" stroke-linejoin="round"> </text>`), Beeswarm[FILENAME], [[194, 4]]);
-  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[132, 0, [[133, 2], [141, 2]]]]);
+  var root_2$1 = add_locations(/* @__PURE__ */ ns_template(`<text> </text>`), Beeswarm[FILENAME], [[135, 8]]);
+  var root_3 = add_locations(/* @__PURE__ */ ns_template(`<line></line>`), Beeswarm[FILENAME], [[152, 8]]);
+  var root_7 = add_locations(/* @__PURE__ */ ns_template(`<circle></circle>`), Beeswarm[FILENAME], [[167, 10]]);
+  var root_8 = add_locations(/* @__PURE__ */ ns_template(`<text paint-order="stroke" stroke-linejoin="round"> </text>`), Beeswarm[FILENAME], [[190, 4]]);
+  var root$1 = add_locations(/* @__PURE__ */ ns_template(`<svg><g><!></g><g><!><!><!><!></g></svg><!>`, 1), Beeswarm[FILENAME], [[131, 0, [[132, 2], [140, 2]]]]);
   function Beeswarm($$anchor, $$props) {
     check_target(new.target);
     push($$props, true, Beeswarm);
@@ -6434,6 +6412,7 @@ ${indent}in ${name}`).join("")}
     let tooltipVisible;
     var fragment = root$1();
     var svg = first_child(fragment);
+    svg.__mousemove = updateMouse;
     var g = child(svg);
     var node = child(g);
     {
@@ -6530,6 +6509,14 @@ ${indent}in ${name}`).join("")}
             {
               var consequent_2 = ($$anchor5) => {
                 var circle = root_7();
+                circle.__mouseover = () => {
+                  set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
+                  tooltipVisible = true;
+                };
+                circle.__mouseout = () => {
+                  set(currentFeature, null);
+                  tooltipVisible = false;
+                };
                 template_effect(
                   ($0, $1) => {
                     set_attribute(circle, "r", get(beeRadius));
@@ -6542,20 +6529,12 @@ ${indent}in ${name}`).join("")}
                   },
                   [
                     () => get(yScale)(get(swarm).id) + get(bee).y,
-                    () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color) : getFill($$props.data, get(bee).datum.id, $$props.contColorScale, $$props.catColorScale, noDataColor)
+                    () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color) : get(bee).datum.color ? $$props.contColorScale(get(bee).datum.color) : noDataColor
                   ]
                 );
-                event("mouseover", circle, () => {
-                  set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
-                  tooltipVisible = true;
-                });
                 event("focus", circle, () => {
                   set(currentFeature, proxy(get(bee).datum.id, null, currentFeature));
                   tooltipVisible = true;
-                });
-                event("mouseout", circle, () => {
-                  set(currentFeature, null);
-                  tooltipVisible = false;
                 });
                 event("blur", circle, () => {
                   set(currentFeature, null);
@@ -6630,11 +6609,11 @@ ${indent}in ${name}`).join("")}
       set_attribute(svg, "height", $$props.height);
       set_attribute(g_1, "transform", `translate(${get(margins).left}, ${get(margins).top})`);
     });
-    event("mousemove", svg, updateMouse);
     append($$anchor, fragment);
     return pop({ ...legacy_api() });
   }
   mark_module_end(Beeswarm);
+  delegate(["mousemove", "mouseover", "mouseout"]);
   let allColors = {
     "wld": wbColors.wld,
     "nac": wbColors.nac,
@@ -6756,19 +6735,59 @@ ${indent}in ${name}`).join("")}
     div: piecewise(lab, seqColors.div),
     div2: piecewise(lab, seqColors.div2)
   };
-  let getDiscreteColors = function(colorRamp, colorNumber) {
-    let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
-    let colors = arr.map((d) => colorRamp(d));
-    return colors;
+  let getNumericalColorScale = function(data2, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins) {
+    let dataExtent = extent(data2.plotdata.map((d) => d.color));
+    if (linearOrBinned == "linear") {
+      return sequential(
+        colorRamps[scaleType == "sequential" ? colorScale : colorScaleDiverging]
+      ).domain(dataExtent);
+    }
+    let getDiscreteColors = function(colorRamp, colorNumber) {
+      let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
+      let colors = arr.map((d) => colorRamp(d));
+      return colors;
+    };
+    if (linearOrBinned == "binned" && binningMode == "fixedWidth") {
+      return quantize(
+        getDiscreteColors(
+          colorRamps[scaleType == "sequential" ? colorScale : colorScaleDiverging],
+          numberOfBins
+        )
+      ).domain(dataExtent);
+    }
+    if (linearOrBinned == "binned" && binningMode == "quantile") {
+      return quantile(
+        getDiscreteColors(
+          colorRamps[scaleType == "sequential" ? colorScale : colorScaleDiverging],
+          numberOfBins
+        )
+      ).domain(data2.plotdata.map((d) => d.color));
+    }
+  };
+  let getCategoricalColorScale = function(data2) {
+    let colorDomain = [...new Set(data2.plotdata.map((d) => d.color))].filter(
+      (d) => d != ""
+    );
+    let colorRange = colorDomain.map((d) => {
+      if (allColors[d.toLowerCase()]) {
+        return allColors[d.toLowerCase()];
+      } else {
+        return wbColors.noData;
+      }
+    });
+    if (colorRange.every((d) => d == wbColors.noData)) {
+      colorRange = Object.values(catColors.default);
+    }
+    return ordinal(colorDomain, colorRange).unknown(wbColors.noData);
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[167, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[94, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      135,
+      62,
       0,
-      [[136, 2], [142, 2], [193, 2]]
+      [[63, 2], [69, 2], [120, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -6782,39 +6801,8 @@ ${indent}in ${name}`).join("")}
     let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight) - get(legendHeight));
     let vizWidth = state$1(void 0);
     let valueType = /* @__PURE__ */ derived(() => $$props.data.plotdata.metadata.color.type);
-    const noDataColor = wbColors.noData;
-    let dataExtent = /* @__PURE__ */ derived(() => extent($$props.data.plotdata.map((d) => d.value)));
-    let contColorScale = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? sequential(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging]).domain(get(dataExtent)) : equals($$props.binningMode, "fixedWidth") ? quantize(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain(get(dataExtent)) : quantile(getDiscreteColors(colorRamps[equals($$props.scaleType, "sequential") ? $$props.colorScale : $$props.colorScaleDiverging], $$props.numberOfBins)).domain($$props.data.plotdata.map((d) => d.value)));
-    let colorDomain = /* @__PURE__ */ derived(() => {
-      if (equals(get(valueType), "string")) {
-        return [
-          ...new Set($$props.data.plotdata.map((d) => d.color))
-        ].filter((d) => equals(d, "", false));
-      }
-    });
-    let colorRange = /* @__PURE__ */ derived(() => {
-      if (equals(get(valueType), "string")) {
-        let range2 = get(colorDomain).map((d) => {
-          if (allColors[d.toLowerCase()]) {
-            return allColors[d.toLowerCase()];
-          } else {
-            return noDataColor;
-          }
-        });
-        if (range2.every((d) => equals(d, noDataColor))) {
-          return Object.values(catColors.default);
-        } else {
-          return range2;
-        }
-      }
-    });
-    let catColorScale = /* @__PURE__ */ derived(() => {
-      if (equals(get(valueType), "string")) {
-        return ordinal(get(colorDomain), get(colorRange)).unknown(noDataColor);
-      } else {
-        return ordinal();
-      }
-    });
+    let contColorScale = /* @__PURE__ */ derived(() => getNumericalColorScale($$props.data, $$props.linearOrBinned, $$props.scaleType, $$props.colorScale, $$props.colorScaleDiverging, $$props.binningMode, $$props.numberOfBins));
+    let catColorScale = /* @__PURE__ */ derived(() => getCategoricalColorScale($$props.data));
     var div = root();
     var div_1 = child(div);
     var node = child(div_1);

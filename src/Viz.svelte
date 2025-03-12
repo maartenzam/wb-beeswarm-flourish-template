@@ -4,20 +4,7 @@
   import CategoricalColorLegend from './template/CategoricalColorLegend.svelte';
   import ContinuousColorLegend from './template/ContinuousColorLegend.svelte';
   import Beeswarm from './Beeswarm.svelte';
-  import {
-    colorRamps,
-    getDiscreteColors,
-    catColors,
-    allColors,
-  } from './utils/colorramps';
-  import { wbColors } from './utils/colors';
-  import {
-    scaleOrdinal,
-    scaleSequential,
-    scaleQuantize,
-    scaleQuantile,
-  } from 'd3-scale';
-  import { extent } from 'd3-array';
+  import { getCategoricalColorScale, getNumericalColorScale } from './utils/colorscales';
 
   let {
     data,
@@ -66,68 +53,8 @@
 
   let valueType = $derived(data.plotdata.metadata.color.type);
 
-  const noDataColor = wbColors.noData;
-
-  // COLORS
-  // Numerical color values
-  let dataExtent = $derived(extent(data.plotdata.map((d) => d.value)));
-  let contColorScale = $derived(
-    linearOrBinned == 'linear'
-      ? scaleSequential(
-          colorRamps[
-            scaleType == 'sequential' ? colorScale : colorScaleDiverging
-          ]
-        ).domain(dataExtent)
-      : binningMode == 'fixedWidth'
-        ? scaleQuantize(
-            getDiscreteColors(
-              colorRamps[
-                scaleType == 'sequential' ? colorScale : colorScaleDiverging
-              ],
-              numberOfBins
-            )
-          ).domain(dataExtent)
-        : scaleQuantile(
-            getDiscreteColors(
-              colorRamps[
-                scaleType == 'sequential' ? colorScale : colorScaleDiverging
-              ],
-              numberOfBins
-            )
-          ).domain(data.plotdata.map((d) => d.value))
-  );
-
-  // Categorical colors
-  let colorDomain = $derived.by(() => {
-    if (valueType == 'string') {
-      return [
-        ...new Set(data.plotdata.map((d) => d.color)),
-      ].filter((d) => d != '');
-    }
-  });
-  let colorRange = $derived.by(() => {
-    if (valueType == 'string') {
-      let range = colorDomain.map((d) => {
-        if (allColors[d.toLowerCase()]) {
-          return allColors[d.toLowerCase()];
-        } else {
-          return noDataColor;
-        }
-      });
-      if (range.every((d) => d == noDataColor)) {
-        return Object.values(catColors.default);
-      } else {
-        return range;
-      }
-    }
-  });
-  let catColorScale = $derived.by(() => {
-    if(valueType == "string"){
-      return scaleOrdinal(colorDomain, colorRange).unknown(noDataColor)
-    }
-    else { return scaleOrdinal() }
-  }
-  );
+  let contColorScale = $derived(getNumericalColorScale(data, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
+  let catColorScale = $derived(getCategoricalColorScale(data))
 </script>
 
 <svelte:window bind:innerWidth={width} bind:innerHeight={height} />

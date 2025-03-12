@@ -186,9 +186,3 @@ export let colorRamps = {
   div: piecewise(interpolateLab, seqColors.div),
   div2: piecewise(interpolateLab, seqColors.div2),
 };
-
-export let getDiscreteColors = function (colorRamp, colorNumber) {
-  let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
-  let colors = arr.map((d) => colorRamp(d));
-  return colors;
-};

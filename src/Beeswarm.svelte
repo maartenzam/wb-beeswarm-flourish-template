@@ -4,7 +4,6 @@
   import { extent } from 'd3-array';
   import { format } from 'd3-format';
   import { wbColors } from './utils/colors';
-  import { getFill } from './utils/utils';
   import ChartGrid from './template/ChartGrid.svelte';
   import Tooltip from './template/Tooltip.svelte';
   import TooltipContent from './template/TooltipContent.svelte';
@@ -129,7 +128,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<svg {width} {height} on:mousemove={updateMouse}>
+<svg {width} {height} onmousemove={updateMouse}>
   <g bind:this={yLabels}>
     {#if yBinding}
       {#each yDomain as yLabel}
@@ -174,17 +173,14 @@
             opacity={beeOpacity}
             fill={valueType == 'string'
               ? catColorScale(bee.datum.color)
-              : getFill(
-                  data,
-                  bee.datum.id,
-                  contColorScale,
-                  catColorScale,
-                  noDataColor
-                )}
-                on:mouseover={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
-                on:focus={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
-                on:mouseout={() => {currentFeature = null; tooltipVisible = false}}
-                on:blur={() => {currentFeature = null; tooltipVisible = false}}
+              : bee.datum.color
+                ? contColorScale(bee.datum.color)
+                : noDataColor
+            }
+                onmouseover={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
+                onfocus={() => {currentFeature = bee.datum.id; tooltipVisible = true}}
+                onmouseout={() => {currentFeature = null; tooltipVisible = false}}
+                onblur={() => {currentFeature = null; tooltipVisible = false}}
           ></circle>
           {/if}
         {/each}
