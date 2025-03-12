@@ -2885,148 +2885,6 @@ ${indent}in ${name}`).join("")}
     return pop({ ...legacy_api() });
   }
   mark_module_end(Footer);
-  let wbColors = {
-    "cat1": "#34A7F2",
-    "cat2": "#FF9800",
-    "cat3": "#664AB6",
-    "cat4": "#4EC2C0",
-    "cat5": "#F3578E",
-    "cat6": "#081079",
-    "cat7": "#0C7C68",
-    "cat8": "#AA0000",
-    "cat9": "#DDDA21",
-    "male": "#664AB6",
-    "female": "#FF9800",
-    "diverse": "#4EC2C0",
-    "rural": "#54AE89",
-    "urban": "#6D88D1",
-    "youngestAge": "#F8A8DF",
-    "youngerAge": "#B38FD8",
-    "middleAge": "#462f98",
-    "olderAge": "#6D88D1",
-    "oldestAge": "#A1C6FF",
-    "yes": "#0071BC",
-    "no": "#EBEEF4",
-    "reference": "#8A969F",
-    "noData": "#CED4DE",
-    "grey500": "#111111",
-    "seq1": "#FDF6DB",
-    "seq2": "#A1CBCF",
-    "seq3": "#5D99C2",
-    "seq4": "#2868A0",
-    "seq5": "#023B6F",
-    "seqRev1": "#E3F6FD",
-    "seqRev2": "#91C5F0",
-    "seqRev3": "#8B8AC0",
-    "seqRev4": "#88506E",
-    "seqRev5": "#691B15",
-    "seqB1": "#E3F6FD",
-    "seqB2": "#75CCEC",
-    "seqB3": "#089BD4",
-    "seqB4": "#0169A1",
-    "seqB5": "#023B6F",
-    "seqY1": "#FDF7DB",
-    "seqY2": "#ECB63A",
-    "seqY3": "#BE792B",
-    "seqY4": "#8D4117",
-    "seqY5": "#5C0000",
-    "seqP1": "#FFE2FF",
-    "seqP2": "#D3ACE6",
-    "seqP3": "#A37ACD",
-    "seqP4": "#6F4CB4",
-    "seqP5": "#2F1E9C",
-    "divPos3": "#025288",
-    "divPos2": "#3587C3",
-    "divPos1": "#80BDE7",
-    "divMid": "#EFEFEF",
-    "divNeg1": "#E3A763",
-    "divNeg2": "#BD6126",
-    "divNeg3": "#920000",
-    "div2L3": "#24768E",
-    "div2L2": "#4EA2AC",
-    "div2L1": "#98CBCC",
-    "div2Mid": "#EFEFEF",
-    "div2R1": "#D1AEE3",
-    "div2R2": "#A873C4",
-    "div2R3": "#754493"
-  };
-  mark_module_start();
-  CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
-  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[15, 8, [[16, 10], [20, 10]]]]);
-  var root_3$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[25, 6, [[26, 8], [27, 8]]]]);
-  var root$6 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
-    [
-      6,
-      0,
-      [
-        [7, 2, [[8, 4, [[9, 6]]]]],
-        [12, 2]
-      ]
-    ]
-  ]);
-  function CategoricalColorLegend($$anchor, $$props) {
-    check_target(new.target);
-    push($$props, true, CategoricalColorLegend);
-    var div = root$6();
-    set_class(div, 1, "legend svelte-hjs62s");
-    var div_1 = child(div);
-    var div_2 = child(div_1);
-    var span = child(div_2);
-    var text = child(span);
-    var div_3 = sibling(div_1, 2);
-    var node = child(div_3);
-    each(node, 17, () => $$props.catColorScale.domain(), index, ($$anchor2, item) => {
-      var fragment = comment();
-      var node_1 = first_child(fragment);
-      {
-        var consequent = ($$anchor3) => {
-          var div_4 = root_2$4();
-          var div_5 = child(div_4);
-          set_class(div_5, 1, `pill circle`, "svelte-hjs62s");
-          var div_6 = sibling(div_5, 2);
-          set_class(div_6, 1, "label small");
-          var text_1 = child(div_6);
-          template_effect(
-            ($0) => {
-              set_style(div_5, "background-color", $0);
-              set_text(text_1, get(item));
-            },
-            [
-              () => $$props.catColorScale(get(item))
-            ]
-          );
-          append($$anchor3, div_4);
-        };
-        if_block(node_1, ($$render) => {
-          if ($$props.usedCats.includes(get(item))) $$render(consequent);
-        });
-      }
-      append($$anchor2, fragment);
-    });
-    var node_2 = sibling(node, 2);
-    {
-      var consequent_1 = ($$anchor2) => {
-        var div_7 = root_3$3();
-        var div_8 = child(div_7);
-        set_class(div_8, 1, `pill circle`, "svelte-hjs62s");
-        var div_9 = sibling(div_8, 2);
-        set_class(div_9, 1, "label small");
-        var text_2 = child(div_9);
-        template_effect(() => {
-          set_style(div_8, "background-color", wbColors.noData);
-          set_text(text_2, $$props.noDataLabel);
-        });
-        append($$anchor2, div_7);
-      };
-      if_block(node_2, ($$render) => {
-        if ($$props.includeNoData) $$render(consequent_1);
-      });
-    }
-    template_effect(() => set_text(text, $$props.title));
-    append($$anchor, div);
-    return pop({ ...legacy_api() });
-  }
-  mark_module_end(CategoricalColorLegend);
   function define(constructor, factory, prototype) {
     constructor.prototype = factory.prototype = prototype;
     prototype.constructor = constructor;
@@ -3605,9 +3463,9 @@ ${indent}in ${name}`).join("")}
     return samples;
   }
   mark_module_start();
-  ContinuousColorLegend[FILENAME] = "src/template/ContinuousColorLegend.svelte";
-  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), ContinuousColorLegend[FILENAME], [[105, 6]]);
-  var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="no-data"><div class="no-data-symbol svelte-1af89zx"><svg class="no-data-symbol svelte-1af89zx"><rect class="no-data-rect"></rect></svg></div></div>`), ContinuousColorLegend[FILENAME], [
+  NumericalColorLegend[FILENAME] = "src/template/NumericalColorLegend.svelte";
+  var root_1$1 = add_locations(/* @__PURE__ */ template2(`<div class="no-data-label svelte-1af89zx"> </div>`), NumericalColorLegend[FILENAME], [[105, 6]]);
+  var root_2$4 = add_locations(/* @__PURE__ */ template2(`<div class="no-data"><div class="no-data-symbol svelte-1af89zx"><svg class="no-data-symbol svelte-1af89zx"><rect class="no-data-rect"></rect></svg></div></div>`), NumericalColorLegend[FILENAME], [
     [
       117,
       6,
@@ -3620,13 +3478,13 @@ ${indent}in ${name}`).join("")}
       ]
     ]
   ]);
-  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[152, 14]]);
-  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[158, 16]]);
-  var root_3$2 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), ContinuousColorLegend[FILENAME], [[134, 10], [143, 10], [150, 10]]);
-  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), ContinuousColorLegend[FILENAME], [[167, 12]]);
-  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), ContinuousColorLegend[FILENAME], [[178, 12]]);
-  var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), ContinuousColorLegend[FILENAME], []);
-  var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), ContinuousColorLegend[FILENAME], [
+  var root_4$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), NumericalColorLegend[FILENAME], [[152, 14]]);
+  var root_6$1 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), NumericalColorLegend[FILENAME], [[158, 16]]);
+  var root_3$3 = add_locations(/* @__PURE__ */ ns_template(`<image class="gradient svelte-1af89zx" preserveAspectRatio="none"></image><rect class="gradient-border svelte-1af89zx"></rect><g class="ticks"><!><!></g>`, 1), NumericalColorLegend[FILENAME], [[134, 10], [143, 10], [150, 10]]);
+  var root_8$2 = add_locations(/* @__PURE__ */ ns_template(`<rect></rect>`), NumericalColorLegend[FILENAME], [[167, 12]]);
+  var root_9 = add_locations(/* @__PURE__ */ ns_template(`<text class="tick-label svelte-1af89zx"> </text>`), NumericalColorLegend[FILENAME], [[178, 12]]);
+  var root_7$2 = add_locations(/* @__PURE__ */ ns_template(`<!><!>`, 1), NumericalColorLegend[FILENAME], []);
+  var root$6 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1af89zx"><!> <div class="legend-title svelte-1af89zx"><span> </span>&nbsp;<span class="label-unit svelte-1af89zx"> </span></div></div> <div class="gradient-container svelte-1af89zx"><!> <div class="gradient svelte-1af89zx"><svg class="svelte-1af89zx"><!><!></svg></div></div></div>`), NumericalColorLegend[FILENAME], [
     [
       102,
       0,
@@ -3646,9 +3504,9 @@ ${indent}in ${name}`).join("")}
       ]
     ]
   ]);
-  function ContinuousColorLegend($$anchor, $$props) {
+  function NumericalColorLegend($$anchor, $$props) {
     check_target(new.target);
-    push($$props, true, ContinuousColorLegend);
+    push($$props, true, NumericalColorLegend);
     let units = prop($$props, "units", 3, ""), tickLabels = prop($$props, "tickLabels", 19, () => []);
     let tickSize = 12;
     let height = 12 + tickSize;
@@ -3658,7 +3516,7 @@ ${indent}in ${name}`).join("")}
       left: 0
     };
     let domain = /* @__PURE__ */ derived(() => {
-      const d = $$props.contColorScale.domain();
+      const d = $$props.numericalColorScale.domain();
       if (equals(d.length, 2)) {
         return [d[0], d[0] + (d[1] - d[0]) / 2, d[1]];
       } else {
@@ -3677,19 +3535,19 @@ ${indent}in ${name}`).join("")}
       return canvas;
     }
     let n = /* @__PURE__ */ derived(() => {
-      if ($$props.contColorScale.interpolate) {
-        return Math.min($$props.contColorScale.domain().length, $$props.contColorScale.range().length);
+      if ($$props.numericalColorScale.interpolate) {
+        return Math.min($$props.numericalColorScale.domain().length, $$props.numericalColorScale.range().length);
       }
-      if ($$props.contColorScale.interpolator) {
+      if ($$props.numericalColorScale.interpolator) {
         return;
       }
     });
     let x = /* @__PURE__ */ derived(() => {
-      if ($$props.contColorScale.interpolate) {
-        return $$props.contColorScale.copy().rangeRound(quantize$1(interpolate(margin.left, $$props.width - margin.right), get(n)));
+      if ($$props.numericalColorScale.interpolate) {
+        return $$props.numericalColorScale.copy().rangeRound(quantize$1(interpolate(margin.left, $$props.width - margin.right), get(n)));
       }
-      if ($$props.contColorScale.interpolator) {
-        return Object.assign($$props.contColorScale.copy().interpolator(interpolateRound(margin.left, $$props.width - margin.right)), {
+      if ($$props.numericalColorScale.interpolator) {
+        return Object.assign($$props.numericalColorScale.copy().interpolator(interpolateRound(margin.left, $$props.width - margin.right)), {
           range() {
             return [margin.left, $$props.width - margin.right];
           }
@@ -3697,17 +3555,17 @@ ${indent}in ${name}`).join("")}
       }
     });
     let href = /* @__PURE__ */ derived(() => {
-      if ($$props.contColorScale.interpolate) {
-        return ramp($$props.contColorScale.copy().domain(quantize$1(interpolate(0, 1), get(n)))).toDataURL();
+      if ($$props.numericalColorScale.interpolate) {
+        return ramp($$props.numericalColorScale.copy().domain(quantize$1(interpolate(0, 1), get(n)))).toDataURL();
       }
-      if ($$props.contColorScale.interpolator) {
-        return ramp($$props.contColorScale.interpolator()).toDataURL();
+      if ($$props.numericalColorScale.interpolator) {
+        return ramp($$props.numericalColorScale.interpolator()).toDataURL();
       }
     });
     let noDataWidth = /* @__PURE__ */ derived(() => $$props.includeNoData ? 70 : 0);
     let gradientWidth = state$1(0);
-    let discreteTicks = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? [] : equals($$props.binningMode, "fixedWidth") ? $$props.contColorScale.thresholds() : $$props.contColorScale.quantiles());
-    var div = root$5();
+    let discreteTicks = /* @__PURE__ */ derived(() => equals($$props.linearOrBinned, "linear") ? [] : equals($$props.binningMode, "fixedWidth") ? $$props.numericalColorScale.thresholds() : $$props.numericalColorScale.quantiles());
+    var div = root$6();
     set_class(div, 1, "legend svelte-1af89zx");
     var div_1 = child(div);
     var node = child(div_1);
@@ -3734,7 +3592,7 @@ ${indent}in ${name}`).join("")}
     var node_1 = child(div_4);
     {
       var consequent_1 = ($$anchor2) => {
-        var div_5 = root_2$3();
+        var div_5 = root_2$4();
         var div_6 = child(div_5);
         var svg = child(div_6);
         set_attribute(svg, "height", height);
@@ -3761,7 +3619,7 @@ ${indent}in ${name}`).join("")}
     var node_2 = child(svg_1);
     {
       var consequent_3 = ($$anchor2) => {
-        var fragment = root_3$2();
+        var fragment = root_3$3();
         var image = first_child(fragment);
         set_attribute(image, "height", 10);
         var rect_1 = sibling(image);
@@ -3825,7 +3683,7 @@ ${indent}in ${name}`).join("")}
       var consequent_4 = ($$anchor2) => {
         var fragment_2 = root_7$2();
         var node_7 = first_child(fragment_2);
-        each(node_7, 17, () => $$props.contColorScale.range(), index, ($$anchor3, bin, i) => {
+        each(node_7, 17, () => $$props.numericalColorScale.range(), index, ($$anchor3, bin, i) => {
           var rect_2 = root_8$2();
           set_class(rect_2, 0, "bin-color svelte-1af89zx");
           set_attribute(rect_2, "height", 10);
@@ -3837,8 +3695,8 @@ ${indent}in ${name}`).join("")}
               set_attribute(rect_2, "fill", get(bin));
             },
             [
-              () => margin.left + i * get(gradientWidth) / $$props.contColorScale.range().length,
-              () => get(gradientWidth) / $$props.contColorScale.range().length
+              () => margin.left + i * get(gradientWidth) / $$props.numericalColorScale.range().length,
+              () => get(gradientWidth) / $$props.numericalColorScale.range().length
             ]
           );
           append($$anchor3, rect_2);
@@ -3854,7 +3712,7 @@ ${indent}in ${name}`).join("")}
               set_text(text_8, $1);
             },
             [
-              () => margin.left + (i + 1) * get(gradientWidth) / $$props.contColorScale.range().length,
+              () => margin.left + (i + 1) * get(gradientWidth) / $$props.numericalColorScale.range().length,
               () => Math.round(get(tick) * 10) / 10 + units()
             ]
           );
@@ -3874,7 +3732,149 @@ ${indent}in ${name}`).join("")}
     append($$anchor, div);
     return pop({ ...legacy_api() });
   }
-  mark_module_end(ContinuousColorLegend);
+  mark_module_end(NumericalColorLegend);
+  let wbColors = {
+    "cat1": "#34A7F2",
+    "cat2": "#FF9800",
+    "cat3": "#664AB6",
+    "cat4": "#4EC2C0",
+    "cat5": "#F3578E",
+    "cat6": "#081079",
+    "cat7": "#0C7C68",
+    "cat8": "#AA0000",
+    "cat9": "#DDDA21",
+    "male": "#664AB6",
+    "female": "#FF9800",
+    "diverse": "#4EC2C0",
+    "rural": "#54AE89",
+    "urban": "#6D88D1",
+    "youngestAge": "#F8A8DF",
+    "youngerAge": "#B38FD8",
+    "middleAge": "#462f98",
+    "olderAge": "#6D88D1",
+    "oldestAge": "#A1C6FF",
+    "yes": "#0071BC",
+    "no": "#EBEEF4",
+    "reference": "#8A969F",
+    "noData": "#CED4DE",
+    "grey500": "#111111",
+    "seq1": "#FDF6DB",
+    "seq2": "#A1CBCF",
+    "seq3": "#5D99C2",
+    "seq4": "#2868A0",
+    "seq5": "#023B6F",
+    "seqRev1": "#E3F6FD",
+    "seqRev2": "#91C5F0",
+    "seqRev3": "#8B8AC0",
+    "seqRev4": "#88506E",
+    "seqRev5": "#691B15",
+    "seqB1": "#E3F6FD",
+    "seqB2": "#75CCEC",
+    "seqB3": "#089BD4",
+    "seqB4": "#0169A1",
+    "seqB5": "#023B6F",
+    "seqY1": "#FDF7DB",
+    "seqY2": "#ECB63A",
+    "seqY3": "#BE792B",
+    "seqY4": "#8D4117",
+    "seqY5": "#5C0000",
+    "seqP1": "#FFE2FF",
+    "seqP2": "#D3ACE6",
+    "seqP3": "#A37ACD",
+    "seqP4": "#6F4CB4",
+    "seqP5": "#2F1E9C",
+    "divPos3": "#025288",
+    "divPos2": "#3587C3",
+    "divPos1": "#80BDE7",
+    "divMid": "#EFEFEF",
+    "divNeg1": "#E3A763",
+    "divNeg2": "#BD6126",
+    "divNeg3": "#920000",
+    "div2L3": "#24768E",
+    "div2L2": "#4EA2AC",
+    "div2L1": "#98CBCC",
+    "div2Mid": "#EFEFEF",
+    "div2R1": "#D1AEE3",
+    "div2R2": "#A873C4",
+    "div2R3": "#754493"
+  };
+  mark_module_start();
+  CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
+  var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[15, 8, [[16, 10], [20, 10]]]]);
+  var root_3$2 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[25, 6, [[26, 8], [27, 8]]]]);
+  var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
+    [
+      6,
+      0,
+      [
+        [7, 2, [[8, 4, [[9, 6]]]]],
+        [12, 2]
+      ]
+    ]
+  ]);
+  function CategoricalColorLegend($$anchor, $$props) {
+    check_target(new.target);
+    push($$props, true, CategoricalColorLegend);
+    var div = root$5();
+    set_class(div, 1, "legend svelte-hjs62s");
+    var div_1 = child(div);
+    var div_2 = child(div_1);
+    var span = child(div_2);
+    var text = child(span);
+    var div_3 = sibling(div_1, 2);
+    var node = child(div_3);
+    each(node, 17, () => $$props.catColorScale.domain(), index, ($$anchor2, item) => {
+      var fragment = comment();
+      var node_1 = first_child(fragment);
+      {
+        var consequent = ($$anchor3) => {
+          var div_4 = root_2$3();
+          var div_5 = child(div_4);
+          set_class(div_5, 1, `pill circle`, "svelte-hjs62s");
+          var div_6 = sibling(div_5, 2);
+          set_class(div_6, 1, "label small");
+          var text_1 = child(div_6);
+          template_effect(
+            ($0) => {
+              set_style(div_5, "background-color", $0);
+              set_text(text_1, get(item));
+            },
+            [
+              () => $$props.catColorScale(get(item))
+            ]
+          );
+          append($$anchor3, div_4);
+        };
+        if_block(node_1, ($$render) => {
+          if ($$props.usedCats.includes(get(item))) $$render(consequent);
+        });
+      }
+      append($$anchor2, fragment);
+    });
+    var node_2 = sibling(node, 2);
+    {
+      var consequent_1 = ($$anchor2) => {
+        var div_7 = root_3$2();
+        var div_8 = child(div_7);
+        set_class(div_8, 1, `pill circle`, "svelte-hjs62s");
+        var div_9 = sibling(div_8, 2);
+        set_class(div_9, 1, "label small");
+        var text_2 = child(div_9);
+        template_effect(() => {
+          set_style(div_8, "background-color", wbColors.noData);
+          set_text(text_2, $$props.noDataLabel);
+        });
+        append($$anchor2, div_7);
+      };
+      if_block(node_2, ($$render) => {
+        if ($$props.includeNoData) $$render(consequent_1);
+      });
+    }
+    template_effect(() => set_text(text, $$props.title));
+    append($$anchor, div);
+    return pop({ ...legacy_api() });
+  }
+  mark_module_end(CategoricalColorLegend);
   class AccurateBeeswarm {
     constructor(items, radius, xFun) {
       this.items = items;
@@ -6529,7 +6529,7 @@ ${indent}in ${name}`).join("")}
                   },
                   [
                     () => get(yScale)(get(swarm).id) + get(bee).y,
-                    () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color) : get(bee).datum.color ? $$props.contColorScale(get(bee).datum.color) : noDataColor
+                    () => equals(get(valueType), "string") ? $$props.catColorScale(get(bee).datum.color) : get(bee).datum.color ? $$props.numericalColorScale(get(bee).datum.color) : noDataColor
                   ]
                 );
                 event("focus", circle, () => {
@@ -6801,7 +6801,7 @@ ${indent}in ${name}`).join("")}
     let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight) - get(legendHeight));
     let vizWidth = state$1(void 0);
     let valueType = /* @__PURE__ */ derived(() => $$props.data.plotdata.metadata.color.type);
-    let contColorScale = /* @__PURE__ */ derived(() => getNumericalColorScale($$props.data, $$props.linearOrBinned, $$props.scaleType, $$props.colorScale, $$props.colorScaleDiverging, $$props.binningMode, $$props.numberOfBins));
+    let numericalColorScale = /* @__PURE__ */ derived(() => getNumericalColorScale($$props.data, $$props.linearOrBinned, $$props.scaleType, $$props.colorScale, $$props.colorScaleDiverging, $$props.binningMode, $$props.numberOfBins));
     let catColorScale = /* @__PURE__ */ derived(() => getCategoricalColorScale($$props.data));
     var div = root();
     var div_1 = child(div);
@@ -6869,8 +6869,8 @@ ${indent}in ${name}`).join("")}
       get catColorScale() {
         return get(catColorScale);
       },
-      get contColorScale() {
-        return get(contColorScale);
+      get numericalColorScale() {
+        return get(numericalColorScale);
       },
       get addAnnotation() {
         return $$props.addAnnotation;
@@ -6889,7 +6889,7 @@ ${indent}in ${name}`).join("")}
         var node_3 = child(div_3);
         {
           var consequent_1 = ($$anchor3) => {
-            ContinuousColorLegend($$anchor3, {
+            NumericalColorLegend($$anchor3, {
               get width() {
                 return get(vizWidth);
               },
@@ -6899,8 +6899,8 @@ ${indent}in ${name}`).join("")}
               get unitLabel() {
                 return $$props.unitLabel;
               },
-              get contColorScale() {
-                return get(contColorScale);
+              get numericalColorScale() {
+                return get(numericalColorScale);
               },
               get linearOrBinned() {
                 return $$props.linearOrBinned;

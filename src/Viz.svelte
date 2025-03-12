@@ -1,8 +1,8 @@
 <script>
   import Header from './template/Header.svelte';
   import Footer from './template/Footer.svelte';
+  import NumericalColorLegend from './template/NumericalColorLegend.svelte';
   import CategoricalColorLegend from './template/CategoricalColorLegend.svelte';
-  import ContinuousColorLegend from './template/ContinuousColorLegend.svelte';
   import Beeswarm from './Beeswarm.svelte';
   import { getCategoricalColorScale, getNumericalColorScale } from './utils/colorscales';
 
@@ -47,13 +47,13 @@
   let headerHeight = $state(0);
   let footerHeight = $state(0);
   let legendHeight = $state(0);
-
   let vizHeight = $derived(height - headerHeight - footerHeight - legendHeight);
   let vizWidth = $state();
 
   let valueType = $derived(data.plotdata.metadata.color.type);
 
-  let contColorScale = $derived(getNumericalColorScale(data, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
+
+  let numericalColorScale = $derived(getNumericalColorScale(data, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
   let catColorScale = $derived(getCategoricalColorScale(data))
 </script>
 
@@ -83,7 +83,7 @@
         {ySort}
         {yReverse}
         {catColorScale}
-        {contColorScale}
+        {numericalColorScale}
         {addAnnotation}
         {annotationValue}
         {annotationText}
@@ -93,17 +93,17 @@
   {#if showLegend}
     <div class="legend-container" bind:clientHeight={legendHeight}>
       {#if valueType == 'number'}
-        <ContinuousColorLegend
+        <NumericalColorLegend
           width={vizWidth}
           title={legendTitle}
           unitLabel={unitLabel}
-          {contColorScale}
+          {numericalColorScale}
           {linearOrBinned}
           {binningMode}
           units={""}
           includeNoData={includeNoData}
           noDataLabel={noDataLabel}
-        ></ContinuousColorLegend>
+        ></NumericalColorLegend>
       {/if}
       {#if valueType == 'string'}
         <CategoricalColorLegend

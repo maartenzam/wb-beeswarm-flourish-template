@@ -24,7 +24,7 @@
     ySort,
     yReverse,
     catColorScale,
-    contColorScale,
+    numericalColorScale,
     addAnnotation,
     annotationValue,
     annotationText
@@ -174,7 +174,7 @@
             fill={valueType == 'string'
               ? catColorScale(bee.datum.color)
               : bee.datum.color
-                ? contColorScale(bee.datum.color)
+                ? numericalColorScale(bee.datum.color)
                 : noDataColor
             }
                 onmouseover={() => {currentFeature = bee.datum.id; tooltipVisible = true}}

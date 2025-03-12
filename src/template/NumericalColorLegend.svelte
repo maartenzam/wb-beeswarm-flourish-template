@@ -6,7 +6,7 @@
     units = '',
     title,
     unitLabel,
-    contColorScale,
+    numericalColorScale,
     tickLabels = [],
     linearOrBinned,
     binningMode,
@@ -24,7 +24,7 @@
   };
 
   let domain = $derived.by(() => {
-    const d = contColorScale.domain();
+    const d = numericalColorScale.domain();
     if (d.length == 2) {
       return [d[0], d[0] + (d[1] - d[0]) / 2, d[1]];
     } else {
@@ -45,27 +45,27 @@
   }
 
   let n = $derived.by(() => {
-    if (contColorScale.interpolate) {
+    if (numericalColorScale.interpolate) {
       return Math.min(
-        contColorScale.domain().length,
-        contColorScale.range().length
+        numericalColorScale.domain().length,
+        numericalColorScale.range().length
       );
     }
-    if (contColorScale.interpolator) {
+    if (numericalColorScale.interpolator) {
       return;
     }
   });
   let x = $derived.by(() => {
-    if (contColorScale.interpolate) {
-      return contColorScale
+    if (numericalColorScale.interpolate) {
+      return numericalColorScale
         .copy()
         .rangeRound(
           quantize(interpolate(margin.left, width - margin.right), n)
         );
     }
-    if (contColorScale.interpolator) {
+    if (numericalColorScale.interpolator) {
       return Object.assign(
-        contColorScale
+        numericalColorScale
           .copy()
           .interpolator(interpolateRound(margin.left, width - margin.right)),
         {
@@ -77,13 +77,13 @@
     }
   });
   let href = $derived.by(() => {
-    if (contColorScale.interpolate) {
+    if (numericalColorScale.interpolate) {
       return ramp(
-        contColorScale.copy().domain(quantize(interpolate(0, 1), n))
+        numericalColorScale.copy().domain(quantize(interpolate(0, 1), n))
       ).toDataURL();
     }
-    if (contColorScale.interpolator) {
-      return ramp(contColorScale.interpolator()).toDataURL();
+    if (numericalColorScale.interpolator) {
+      return ramp(numericalColorScale.interpolator()).toDataURL();
     }
   });
 
@@ -94,8 +94,8 @@
     linearOrBinned == 'linear'
       ? []
       : binningMode == 'fixedWidth'
-        ? contColorScale.thresholds()
-        : contColorScale.quantiles()
+        ? numericalColorScale.thresholds()
+        : numericalColorScale.quantiles()
   );
 </script>
 
@@ -163,13 +163,13 @@
           </g>
         {/if}
         {#if linearOrBinned == 'binned'}
-          {#each contColorScale.range() as bin, i}
+          {#each numericalColorScale.range() as bin, i}
             <rect
               class={'bin-color'}
               x={margin.left +
-                (i * gradientWidth) / contColorScale.range().length}
+                (i * gradientWidth) / numericalColorScale.range().length}
               y={margin.top}
-              width={gradientWidth / contColorScale.range().length}
+              width={gradientWidth / numericalColorScale.range().length}
               height={10}
               fill={bin}
             ></rect>
@@ -178,7 +178,7 @@
             <text
               class="tick-label"
               x={margin.left +
-                ((i + 1) * gradientWidth) / contColorScale.range().length}
+                ((i + 1) * gradientWidth) / numericalColorScale.range().length}
               y={margin.top + 24}>{Math.round(tick * 10) / 10 + units}</text
             >
           {/each}
