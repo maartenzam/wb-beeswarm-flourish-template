@@ -211,6 +211,116 @@ https://svelte.dev/e/state_unsafe_mutation`);
     }
   }
   let tracing_mode_flag = false;
+  var bold$1 = "font-weight: bold";
+  var normal$1 = "font-weight: normal";
+  function state_snapshot_uncloneable(properties) {
+    {
+      console.warn(`%c[svelte] state_snapshot_uncloneable
+%c${properties ? `The following properties cannot be cloned with \`$state.snapshot\` — the return value contains the originals:
+
+${properties}` : "Value cannot be cloned with `$state.snapshot` — the original value was returned"}
+https://svelte.dev/e/state_snapshot_uncloneable`, bold$1, normal$1);
+    }
+  }
+  const empty = [];
+  function snapshot(value, skip_warning = false) {
+    if (!skip_warning) {
+      const paths = [];
+      const copy2 = clone(value, /* @__PURE__ */ new Map(), "", paths);
+      if (paths.length === 1 && paths[0] === "") {
+        state_snapshot_uncloneable();
+      } else if (paths.length > 0) {
+        const slice = paths.length > 10 ? paths.slice(0, 7) : paths.slice(0, 10);
+        const excess = paths.length - slice.length;
+        let uncloned = slice.map((path) => `- <value>${path}`).join("\n");
+        if (excess > 0) uncloned += `
+- ...and ${excess} more`;
+        state_snapshot_uncloneable(uncloned);
+      }
+      return copy2;
+    }
+    return clone(value, /* @__PURE__ */ new Map(), "", empty);
+  }
+  function clone(value, cloned, path, paths, original = null) {
+    if (typeof value === "object" && value !== null) {
+      var unwrapped = cloned.get(value);
+      if (unwrapped !== void 0) return unwrapped;
+      if (value instanceof Map) return (
+        /** @type {Snapshot<T>} */
+        new Map(value)
+      );
+      if (value instanceof Set) return (
+        /** @type {Snapshot<T>} */
+        new Set(value)
+      );
+      if (is_array(value)) {
+        var copy2 = (
+          /** @type {Snapshot<any>} */
+          Array(value.length)
+        );
+        cloned.set(value, copy2);
+        if (original !== null) {
+          cloned.set(original, copy2);
+        }
+        for (var i = 0; i < value.length; i += 1) {
+          var element = value[i];
+          if (i in value) {
+            copy2[i] = clone(element, cloned, `${path}[${i}]`, paths);
+          }
+        }
+        return copy2;
+      }
+      if (get_prototype_of(value) === object_prototype) {
+        copy2 = {};
+        cloned.set(value, copy2);
+        if (original !== null) {
+          cloned.set(original, copy2);
+        }
+        for (var key in value) {
+          copy2[key] = clone(value[key], cloned, `${path}.${key}`, paths);
+        }
+        return copy2;
+      }
+      if (value instanceof Date) {
+        return (
+          /** @type {Snapshot<T>} */
+          structuredClone(value)
+        );
+      }
+      if (typeof /** @type {T & { toJSON?: any } } */
+      value.toJSON === "function") {
+        return clone(
+          /** @type {T & { toJSON(): any } } */
+          value.toJSON(),
+          cloned,
+          `${path}.toJSON()`,
+          paths,
+          // Associate the instance with the toJSON clone
+          value
+        );
+      }
+    }
+    if (value instanceof EventTarget) {
+      return (
+        /** @type {Snapshot<T>} */
+        value
+      );
+    }
+    try {
+      return (
+        /** @type {Snapshot<T>} */
+        structuredClone(value)
+      );
+    } catch (e) {
+      {
+        paths.push(path);
+      }
+      return (
+        /** @type {Snapshot<T>} */
+        value
+      );
+    }
+  }
   let inspect_effects = /* @__PURE__ */ new Set();
   function set_inspect_effects(v) {
     inspect_effects = v;
@@ -1420,6 +1530,9 @@ ${indent}in ${name}`).join("")}
       return signal;
     }
   }
+  function inspect_effect(fn) {
+    return create_effect(INSPECT_EFFECT, fn, true);
+  }
   function component_root(fn) {
     const effect2 = create_effect(ROOT_EFFECT, fn, true);
     return (options = {}) => {
@@ -1983,14 +2096,14 @@ ${indent}in ${name}`).join("")}
         node = /** @type {Node} */
         /* @__PURE__ */ get_first_child(node);
       }
-      var clone = (
+      var clone2 = (
         /** @type {TemplateNode} */
         use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
       );
       {
-        assign_nodes(clone, clone);
+        assign_nodes(clone2, clone2);
       }
-      return clone;
+      return clone2;
     };
   }
   // @__NO_SIDE_EFFECTS__
@@ -2022,24 +2135,24 @@ ${indent}in ${name}`).join("")}
           /* @__PURE__ */ get_first_child(root2);
         }
       }
-      var clone = (
+      var clone2 = (
         /** @type {TemplateNode} */
         node.cloneNode(true)
       );
       if (is_fragment) {
         var start = (
           /** @type {TemplateNode} */
-          /* @__PURE__ */ get_first_child(clone)
+          /* @__PURE__ */ get_first_child(clone2)
         );
         var end = (
           /** @type {TemplateNode} */
-          clone.lastChild
+          clone2.lastChild
         );
         assign_nodes(start, end);
       } else {
-        assign_nodes(clone, clone);
+        assign_nodes(clone2, clone2);
       }
-      return clone;
+      return clone2;
     };
   }
   function comment() {
@@ -2153,6 +2266,22 @@ ${indent}in ${name}`).join("")}
       $on: () => error("$on(...)"),
       $set: () => error("$set(...)")
     };
+  }
+  function inspect(get_value, inspector = console.log) {
+    validate_effect("$inspect");
+    let initial = true;
+    inspect_effect(() => {
+      var value = UNINITIALIZED;
+      try {
+        value = get_value();
+      } catch (error) {
+        console.error(error);
+      }
+      if (value !== UNINITIALIZED) {
+        inspector(initial ? "init" : "update", ...snapshot(value, true));
+      }
+      initial = false;
+    });
   }
   function if_block(node, fn, [root_index, hydrate_index] = [0, 0]) {
     var anchor = node;
@@ -4108,9 +4237,21 @@ ${indent}in ${name}`).join("")}
   function extent(values, valueof) {
     let min2;
     let max2;
-    {
+    if (valueof === void 0) {
       for (const value of values) {
         if (value != null) {
+          if (min2 === void 0) {
+            if (value >= value) min2 = max2 = value;
+          } else {
+            if (min2 > value) min2 = value;
+            if (max2 < value) max2 = value;
+          }
+        }
+      }
+    } else {
+      let index2 = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index2, values)) != null) {
           if (min2 === void 0) {
             if (value >= value) min2 = max2 = value;
           } else {
@@ -4207,6 +4348,28 @@ ${indent}in ${name}`).join("")}
     stop = +stop, start = +start, count = +count;
     const reverse = stop < start, inc = reverse ? tickIncrement(stop, start, count) : tickIncrement(start, stop, count);
     return (reverse ? -1 : 1) * (inc < 0 ? 1 / -inc : inc);
+  }
+  function max$1(values, valueof) {
+    let max2;
+    {
+      for (const value of values) {
+        if (value != null && (max2 < value || max2 === void 0 && value >= value)) {
+          max2 = value;
+        }
+      }
+    }
+    return max2;
+  }
+  function min$1(values, valueof) {
+    let min2;
+    {
+      for (const value of values) {
+        if (value != null && (min2 > value || min2 === void 0 && value >= value)) {
+          min2 = value;
+        }
+      }
+    }
+    return min2;
   }
   function quantileSorted(values, p, valueof = number$1) {
     if (!(n = values.length) || isNaN(p = +p)) return;
@@ -6735,12 +6898,11 @@ ${indent}in ${name}`).join("")}
     div: piecewise(lab, seqColors.div),
     div2: piecewise(lab, seqColors.div2)
   };
-  let getNumericalColorScale = function(data2, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins) {
-    let dataExtent = extent(data2.plotdata.map((d) => d.color));
+  let getNumericalColorScale = function(data2, domain, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins) {
     if (linearOrBinned == "linear") {
       return sequential(
         colorRamps[scaleType == "sequential" ? colorScale : colorScaleDiverging]
-      ).domain(dataExtent);
+      ).domain(domain);
     }
     let getDiscreteColors = function(colorRamp, colorNumber) {
       let arr = [...Array(colorNumber).keys()].map((i) => i / (colorNumber - 1));
@@ -6753,7 +6915,7 @@ ${indent}in ${name}`).join("")}
           colorRamps[scaleType == "sequential" ? colorScale : colorScaleDiverging],
           numberOfBins
         )
-      ).domain(dataExtent);
+      ).domain(domain);
     }
     if (linearOrBinned == "binned" && binningMode == "quantile") {
       return quantile(
@@ -6782,12 +6944,12 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[94, 4]]);
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[105, 4]]);
   var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
-      62,
+      73,
       0,
-      [[63, 2], [69, 2], [120, 2]]
+      [[74, 2], [80, 2], [131, 2]]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -6801,7 +6963,16 @@ ${indent}in ${name}`).join("")}
     let vizHeight = /* @__PURE__ */ derived(() => get(height) - get(headerHeight) - get(footerHeight) - get(legendHeight));
     let vizWidth = state$1(void 0);
     let valueType = /* @__PURE__ */ derived(() => $$props.data.plotdata.metadata.color.type);
-    let numericalColorScale = /* @__PURE__ */ derived(() => getNumericalColorScale($$props.data, $$props.linearOrBinned, $$props.scaleType, $$props.colorScale, $$props.colorScaleDiverging, $$props.binningMode, $$props.numberOfBins));
+    inspect(() => [$$props.domainMin]);
+    let domainMinimum = /* @__PURE__ */ derived(() => strict_equals(typeof $$props.domainMin, "undefined") ? Math.floor(min$1($$props.data.plotdata.map((d) => d.color))) : $$props.domainMin);
+    let domainMaximum = /* @__PURE__ */ derived(() => strict_equals(typeof $$props.domainMax, "undefined") ? Math.ceil(max$1($$props.data.plotdata.map((d) => d.color))) : $$props.domainMax);
+    let dataDomain = /* @__PURE__ */ derived(() => extent($$props.data.plotdata, (d) => d.color));
+    let customDomain = /* @__PURE__ */ derived(() => [
+      get(domainMinimum),
+      get(domainMaximum)
+    ]);
+    let domain = /* @__PURE__ */ derived(() => equals($$props.domainAutoCustom, "auto") ? get(dataDomain) : get(customDomain));
+    let numericalColorScale = /* @__PURE__ */ derived(() => getNumericalColorScale($$props.data, get(domain), $$props.linearOrBinned, $$props.scaleType, $$props.colorScale, $$props.colorScaleDiverging, $$props.binningMode, $$props.numberOfBins));
     let catColorScale = /* @__PURE__ */ derived(() => getCategoricalColorScale($$props.data));
     var div = root();
     var div_1 = child(div);
@@ -7008,6 +7179,9 @@ ${indent}in ${name}`).join("")}
     binningMode: "fixedWidth",
     numberOfBins: 4,
     //categoricalColorPalette: "default",
+    domainAutoCustom: "auto",
+    domainMin: void 0,
+    domainMax: void 0,
     showLegend: true,
     legendTitle: "",
     includeNoData: false,

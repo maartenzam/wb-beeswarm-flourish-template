@@ -5,6 +5,7 @@
   import CategoricalColorLegend from './template/CategoricalColorLegend.svelte';
   import Beeswarm from './Beeswarm.svelte';
   import { getCategoricalColorScale, getNumericalColorScale } from './utils/colorscales';
+  import { min, max, extent } from 'd3-array';
 
   let {
     data,
@@ -30,6 +31,9 @@
     linearOrBinned,
     binningMode,
     numberOfBins,
+    domainAutoCustom,
+    domainMin,
+    domainMax,
     showLegend,
     legendTitle,
     unitLabel,
@@ -52,8 +56,14 @@
 
   let valueType = $derived(data.plotdata.metadata.color.type);
 
+  // Color scales
+  let domainMinimum = $derived(typeof domainMin === "undefined" ? Math.floor(min(data.plotdata.map((d) => d.color))) : domainMin)
+  let domainMaximum = $derived(typeof domainMax === "undefined"  ? Math.ceil(max(data.plotdata.map((d) => d.color))) : domainMax)
+  let dataDomain = $derived(extent(data.plotdata, d => d.color))
+  let customDomain = $derived([domainMinimum, domainMaximum])
+  let domain = $derived(domainAutoCustom == "auto" ? dataDomain : customDomain)
 
-  let numericalColorScale = $derived(getNumericalColorScale(data, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
+  let numericalColorScale = $derived(getNumericalColorScale(data, domain, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins))
   let catColorScale = $derived(getCategoricalColorScale(data))
 </script>
 

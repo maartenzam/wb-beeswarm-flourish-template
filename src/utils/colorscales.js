@@ -3,15 +3,15 @@ import { scaleSequential, scaleQuantize, scaleQuantile, scaleOrdinal } from 'd3-
 import { colorRamps, catColors, allColors } from './colorramps';
 import { wbColors } from './colors';
 
-export let getNumericalColorScale = function(data, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins){
-  let dataExtent = extent(data.plotdata.map((d) => d.color))
+export let getNumericalColorScale = function(data, domain, linearOrBinned, scaleType, colorScale, colorScaleDiverging, binningMode, numberOfBins){
+  //let dataExtent = extent(data.plotdata.map((d) => d.color))
 
   if(linearOrBinned == 'linear'){
     return scaleSequential(
       colorRamps[
         scaleType == 'sequential' ? colorScale : colorScaleDiverging
       ]
-    ).domain(dataExtent)
+    ).domain(domain)
   }
 
   let getDiscreteColors = function (colorRamp, colorNumber) {
@@ -28,7 +28,7 @@ export let getNumericalColorScale = function(data, linearOrBinned, scaleType, co
         ],
         numberOfBins
       )
-    ).domain(dataExtent)
+    ).domain(domain)
   }
 
   if(linearOrBinned == 'binned' && binningMode == 'quantile'){
