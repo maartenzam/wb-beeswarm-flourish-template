@@ -47,6 +47,7 @@ export let getCategoricalColorScale = function (data) {
   let colorDomain = [...new Set(data.plotdata.map((d) => d.color))].filter(
     (d) => d != ''
   );
+  console.log(allColors)
   // Automatically map regions, income levels, ... to their colors
   let colorRange = colorDomain.map((d) => {
     if (allColors[d.toLowerCase()]) {
