@@ -17,7 +17,7 @@
             class={`pill circle`}
             style:background-color={catColorScale(item)}
           ></div>
-          <div class={'label small'}>{item}</div>
+          <div class={'label'}>{item}</div>
         </div>
       {/if}
     {/each}
@@ -80,6 +80,10 @@
     .gradient-container {
       gap: var(--space-s-xl);
     }
+    div.label,
+    .no-data-label {
+      font-size: var(--font-size-s-s);
+    }
     .legend-title {
       font-size: var(--font-size-s-m);
       margin-bottom: var(--space-s-xxs);
@@ -93,7 +97,7 @@
     .gradient-container {
       gap: var(--space-m-xl);
     }
-    text.tick-label,
+    div.label,
     .no-data-label {
       font-size: var(--font-size-m-s);
     }
@@ -109,6 +113,10 @@
     .legend-text-container,
     .gradient-container {
       gap: var(--space-l-xl);
+    }
+    div.label,
+    .no-data-label {
+      font-size: var(--font-size-l-s);
     }
     .legend-title {
       font-size: var(--font-size-l-m);

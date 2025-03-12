@@ -3814,9 +3814,9 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   CategoricalColorLegend[FILENAME] = "src/template/CategoricalColorLegend.svelte";
-  var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[15, 8, [[16, 10], [20, 10]]]]);
-  var root_3$2 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-hjs62s"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[25, 6, [[26, 8], [27, 8]]]]);
-  var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-hjs62s"><div class="legend-title svelte-hjs62s"><span> </span></div></div> <div class="categorical-legend svelte-hjs62s" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
+  var root_2$3 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-1ervix3"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[15, 8, [[16, 10], [20, 10]]]]);
+  var root_3$2 = add_locations(/* @__PURE__ */ template2(`<div class="pill-container svelte-1ervix3"><div></div> <div> </div></div>`), CategoricalColorLegend[FILENAME], [[25, 6, [[26, 8], [27, 8]]]]);
+  var root$5 = add_locations(/* @__PURE__ */ template2(`<div><div class="legend-text-container svelte-1ervix3"><div class="legend-title svelte-1ervix3"><span> </span></div></div> <div class="categorical-legend svelte-1ervix3" aria-hidden="true"><!> <!></div></div>`), CategoricalColorLegend[FILENAME], [
     [
       6,
       0,
@@ -3830,7 +3830,7 @@ ${indent}in ${name}`).join("")}
     check_target(new.target);
     push($$props, true, CategoricalColorLegend);
     var div = root$5();
-    set_class(div, 1, "legend svelte-hjs62s");
+    set_class(div, 1, "legend svelte-1ervix3");
     var div_1 = child(div);
     var div_2 = child(div_1);
     var span = child(div_2);
@@ -3844,9 +3844,9 @@ ${indent}in ${name}`).join("")}
         var consequent = ($$anchor3) => {
           var div_4 = root_2$3();
           var div_5 = child(div_4);
-          set_class(div_5, 1, `pill circle`, "svelte-hjs62s");
+          set_class(div_5, 1, `pill circle`, "svelte-1ervix3");
           var div_6 = sibling(div_5, 2);
-          set_class(div_6, 1, "label small");
+          set_class(div_6, 1, "label svelte-1ervix3");
           var text_1 = child(div_6);
           template_effect(
             ($0) => {
@@ -3870,9 +3870,9 @@ ${indent}in ${name}`).join("")}
       var consequent_1 = ($$anchor2) => {
         var div_7 = root_3$2();
         var div_8 = child(div_7);
-        set_class(div_8, 1, `pill circle`, "svelte-hjs62s");
+        set_class(div_8, 1, `pill circle`, "svelte-1ervix3");
         var div_9 = sibling(div_8, 2);
-        set_class(div_9, 1, "label small");
+        set_class(div_9, 1, "label small svelte-1ervix3");
         var text_2 = child(div_9);
         template_effect(() => {
           set_style(div_8, "background-color", wbColors.noData);
