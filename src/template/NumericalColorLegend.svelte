@@ -60,17 +60,17 @@
       return numericalColorScale
         .copy()
         .rangeRound(
-          quantize(interpolate(margin.left, width - margin.right), n)
+          quantize(interpolate(margin.left, gradientWidth - margin.right), n)
         );
     }
     if (numericalColorScale.interpolator) {
       return Object.assign(
         numericalColorScale
           .copy()
-          .interpolator(interpolateRound(margin.left, width - margin.right)),
+          .interpolator(interpolateRound(margin.left, gradientWidth - margin.right)),
         {
           range() {
-            return [margin.left, width - margin.right];
+            return [margin.left, gradientWidth - margin.right];
           },
         }
       );

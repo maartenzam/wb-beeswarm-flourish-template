@@ -1974,20 +1974,31 @@ ${indent}in ${name}`).join("")}
   }
   // @__NO_SIDE_EFFECTS__
   function template2(content, flags) {
+    var is_fragment = (flags & TEMPLATE_FRAGMENT) !== 0;
     var use_import_node = (flags & TEMPLATE_USE_IMPORT_NODE) !== 0;
     var node;
     var has_start = !content.startsWith("<!>");
     return () => {
       if (node === void 0) {
         node = create_fragment_from_html(has_start ? content : "<!>" + content);
-        node = /** @type {Node} */
+        if (!is_fragment) node = /** @type {Node} */
         /* @__PURE__ */ get_first_child(node);
       }
       var clone = (
         /** @type {TemplateNode} */
         use_import_node || is_firefox ? document.importNode(node, true) : node.cloneNode(true)
       );
-      {
+      if (is_fragment) {
+        var start = (
+          /** @type {TemplateNode} */
+          /* @__PURE__ */ get_first_child(clone)
+        );
+        var end = (
+          /** @type {TemplateNode} */
+          clone.lastChild
+        );
+        assign_nodes(start, end);
+      } else {
         assign_nodes(clone, clone);
       }
       return clone;
@@ -3544,12 +3555,15 @@ ${indent}in ${name}`).join("")}
     });
     let x = /* @__PURE__ */ derived(() => {
       if ($$props.numericalColorScale.interpolate) {
-        return $$props.numericalColorScale.copy().rangeRound(quantize$1(interpolate(margin.left, $$props.width - margin.right), get(n)));
+        return $$props.numericalColorScale.copy().rangeRound(quantize$1(interpolate(margin.left, get(gradientWidth) - margin.right), get(n)));
       }
       if ($$props.numericalColorScale.interpolator) {
-        return Object.assign($$props.numericalColorScale.copy().interpolator(interpolateRound(margin.left, $$props.width - margin.right)), {
+        return Object.assign($$props.numericalColorScale.copy().interpolator(interpolateRound(margin.left, get(gradientWidth) - margin.right)), {
           range() {
-            return [margin.left, $$props.width - margin.right];
+            return [
+              margin.left,
+              get(gradientWidth) - margin.right
+            ];
           }
         });
       }
@@ -6829,12 +6843,17 @@ ${indent}in ${name}`).join("")}
   };
   mark_module_start();
   Viz[FILENAME] = "src/Viz.svelte";
-  var root_2 = add_locations(/* @__PURE__ */ template2(`<div class="legend-container svelte-1i5cyi5"><!> <!></div>`), Viz[FILENAME], [[104, 4]]);
-  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <!> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
+  var root_2 = add_locations(/* @__PURE__ */ template2(`<!> <!>`, 1), Viz[FILENAME], []);
+  var root = add_locations(/* @__PURE__ */ template2(`<div class="chart-container svelte-1i5cyi5"><div class="header-container"><!></div> <div class="viz-container svelte-1i5cyi5"><!></div> <div class="legend-container svelte-1i5cyi5"><!></div> <div class="footer-container"><!></div></div>`), Viz[FILENAME], [
     [
       72,
       0,
-      [[73, 2], [79, 2], [130, 2]]
+      [
+        [73, 2],
+        [79, 2],
+        [103, 2],
+        [130, 2]
+      ]
     ]
   ]);
   function Viz($$anchor, $$props) {
@@ -6937,11 +6956,12 @@ ${indent}in ${name}`).join("")}
         return $$props.annotationText;
       }
     });
-    var node_2 = sibling(div_2, 2);
+    var div_3 = sibling(div_2, 2);
+    var node_2 = child(div_3);
     {
       var consequent_3 = ($$anchor2) => {
-        var div_3 = root_2();
-        var node_3 = child(div_3);
+        var fragment_1 = root_2();
+        var node_3 = first_child(fragment_1);
         {
           var consequent_1 = ($$anchor3) => {
             NumericalColorLegend($$anchor3, {
@@ -7002,14 +7022,13 @@ ${indent}in ${name}`).join("")}
             if (equals(get(valueType), "string")) $$render(consequent_2);
           });
         }
-        bind_element_size(div_3, "clientHeight", ($$value) => set(legendHeight, $$value));
-        append($$anchor2, div_3);
+        append($$anchor2, fragment_1);
       };
       if_block(node_2, ($$render) => {
         if ($$props.showLegend) $$render(consequent_3);
       });
     }
-    var div_4 = sibling(node_2, 2);
+    var div_4 = sibling(div_3, 2);
     var node_5 = child(div_4);
     Footer(node_5, {
       get notesTitle() {
@@ -7026,6 +7045,7 @@ ${indent}in ${name}`).join("")}
     bind_window_size("innerHeight", ($$value) => set(height, proxy($$value, null, height)));
     bind_element_size(div_1, "clientHeight", ($$value) => set(headerHeight, $$value));
     bind_element_size(div_2, "clientWidth", ($$value) => set(vizWidth, $$value));
+    bind_element_size(div_3, "clientHeight", ($$value) => set(legendHeight, $$value));
     bind_element_size(div_4, "clientHeight", ($$value) => set(footerHeight, $$value));
     append($$anchor, div);
     return pop({ ...legacy_api() });

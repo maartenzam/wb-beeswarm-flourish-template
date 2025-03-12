@@ -3,7 +3,7 @@ id: 'wb-beeswarm-flourish-template'
 name: World Bank beeswarms
 description: Beeswarm plots styled with the World Bank Data Visualization Style
 author: Maarten Lambrechts
-version: 0.10.2
+version: 1.0.0
 
 # This template is compatible with SDK version 3
 sdk_version: 3
@@ -54,6 +54,7 @@ settings:
     type: color
   - property: beeSpacing
     name: Spacing
+    description: The spacing between the bees. Negative values mean bees are overlapping
     type: number
   - property: beeOpacity
     name: Opacity
@@ -88,9 +89,11 @@ settings:
     choices:
       - [As in data, asInData]
       - [By average value, byAverage]
+    show_if: data.plotdata.yValue
   - property: yReverse
     name: Reverse order
     type: boolean
+    show_if: data.plotdata.yValue
 
   - Colours
   - property: scaleType
@@ -162,20 +165,23 @@ settings:
     width: half
     style: buttons
     hide_if:
-      data.plotdata.color.type: string
+      - data.plotdata.color.type: string
+      - binningMode: quantile
   - property: domainMin
     name: Min
     type: number
-    show_if:
-      - domainAutoCustom: custom
-      - data.plotdata.color.type: number
+    hide_if:
+      - domainAutoCustom: auto
+      - data.plotdata.color.type: string
+      - binningMode: quantile
     width: quarter
   - property: domainMax
     name: Max
     type: number
-    show_if:
-      - domainAutoCustom: custom
-      - data.plotdata.color.type: number
+    hide_if:
+      - domainAutoCustom: auto
+      - data.plotdata.color.type: string
+      - binningMode: quantile
     width: quarter
       
 #  - property: categoricalColorPalette

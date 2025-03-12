@@ -100,8 +100,8 @@
       ></Beeswarm>
   </div>
 
+  <div class="legend-container" bind:clientHeight={legendHeight}>
   {#if showLegend}
-    <div class="legend-container" bind:clientHeight={legendHeight}>
       {#if valueType == 'number'}
         <NumericalColorLegend
           width={vizWidth}
@@ -124,8 +124,8 @@
           noDataLabel={noDataLabel}
         ></CategoricalColorLegend>
       {/if}
-    </div>
   {/if}
+</div>
 
   <div class="footer-container" bind:clientHeight={footerHeight}>
     <Footer {notesTitle} {notes} {includeLogo}></Footer>
